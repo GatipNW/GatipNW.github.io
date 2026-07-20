@@ -2563,6 +2563,51 @@ img.stat-img {
   }
 }
 
+/* ============================================
+   ★ THEME v3.0 — กล่องข้อความเด้งเข้า/เด้งออก (2026-07-20 รอบ 10, เจ้าของสั่ง)
+   panels.js เติม `.opening` ที่ #panel-box ตอนเปิด และ `.closing` ที่ #panel ตอนปิด
+   (แล้วค่อยซ่อนจริงหลัง 190ms) · reduced-motion = ตัดอนิเมชันทิ้ง ซ่อนทันที
+   ============================================ */
+#panel-box.opening {
+  animation: panel-pop 0.34s cubic-bezier(0.2, 1.5, 0.4, 1) both;
+}
+
+#panel.closing {
+  pointer-events: none;
+}
+
+#panel.closing #panel-box {
+  animation: panel-drop 0.19s ease-in both;
+}
+
+/* ฉากหลังมืดจางเข้า/ออกด้วย ไม่ให้กระพริบตัดจอ */
+#panel:not(.hidden) { animation: fade-in-bg 0.22s ease both; }
+#panel.closing { animation: fade-in-bg 0.19s ease reverse both; }
+
+@keyframes panel-pop {
+  from { opacity: 0; transform: translateY(26px) scale(0.9); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes panel-drop {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to { opacity: 0; transform: translateY(20px) scale(0.94); }
+}
+
+@keyframes fade-in-bg {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:not(.fx-full) #panel-box.opening,
+  html:not(.fx-full) #panel.closing #panel-box,
+  html:not(.fx-full) #panel:not(.hidden),
+  html:not(.fx-full) #panel.closing {
+    animation: none;
+  }
+}
+
 /* ---- boot loader (2026-07-20): กันจอว่างช่วงรอโมดูล/ฟอนต์ ----
    CSS ล้วน ทำงานตั้งแต่ก่อน JS รัน — title.js เติม class .gone แล้วลบทิ้ง */
 #boot {

@@ -117,6 +117,7 @@ export class Renderer {
     this.fx = null;         // sprite cache เอฟเฟกต์ (สร้างครั้งเดียว)
     this.parts = [];        // particle ในห้อง (ฝุ่นเท้า/ประกายถ้วย)
     this.wake = new Map();  // object id → 0..1 ระดับ "ตื่น" (fade ตอนเข้าใกล้/ออกห่าง)
+    this.clickFx = [];      // ★ วงกระเพื่อมตรงจุดที่คลิก (2026-07-20)
     this.prevTime = null;
     this.dustT = 0;
     // (กิมมิคแมวโผล่จากกระติ๊บ ถูกถอดถาวร 2026-07-20 — เจ้าของสั่ง)
@@ -477,6 +478,7 @@ export class Renderer {
     this.drawGodRays(ctx, time);
     this.drawMagicRing(ctx, map, time);
     this.drawObjectPools(ctx, objects, time);
+    this.drawClickFx(ctx, dt);
     if (!player.hidden) this.drawPlayerLight(ctx, player);
     this.drawMotes(ctx, time);
 
@@ -736,6 +738,42 @@ export class Renderer {
       this.objPools.set(color, c);
     }
     return c;
+  }
+
+  // ★ 2026-07-20: เอฟเฟกต์ตอนคลิก — วงกระเพื่อม 2 วง + กากบาทจุดหมายจางๆ
+  //   ให้ผู้เล่นเห็นว่า "คลิกติดแล้ว" ทันที (เจ้าของบอกการควบคุมไม่สมูท = ไม่มี feedback)
+  addClickFx(x, y, color = '#bfe3ff') {
+    if (this.clickFx.length > 6) this.clickFx.shift();
+    this.clickFx.push({ x, y, color, t: 0 });
+  }
+
+  drawClickFx(ctx, dt) {
+    if (!this.clickFx.length) return;
+    ctx.save();
+    for (const f of this.clickFx) {
+      f.t += dt;
+      const p = f.t / 0.55;
+      if (p >= 1) continue;
+      const a = (1 - p) ** 1.6;
+      // วงรีแบนตามมุมกล้อง top-down เอียง (เหมือนวงแสงใต้วัตถุ)
+      for (const [d, w] of [[0, 2.2], [0.18, 1.4]]) {
+        const q = (p - d) / (1 - d);
+        if (q <= 0) continue;
+        ctx.globalAlpha = a * (1 - q) * 0.9;
+        ctx.strokeStyle = f.color;
+        ctx.lineWidth = w;
+        ctx.beginPath();
+        ctx.ellipse(f.x, f.y, 10 + q * 34, (10 + q * 34) * 0.42, 0, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      ctx.globalAlpha = a * 0.5;      // จุดกลาง
+      ctx.fillStyle = f.color;
+      ctx.beginPath();
+      ctx.ellipse(f.x, f.y, 3.5, 1.6, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    this.clickFx = this.clickFx.filter((f) => f.t < 0.55);
+    ctx.restore();
   }
 
   drawObjectPools(ctx, objects, time) {
