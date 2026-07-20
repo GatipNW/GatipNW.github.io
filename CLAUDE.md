@@ -521,12 +521,16 @@ M7 (2026-07-20 รอบ 3) เพลงใหม่ · Title เคลียร
    ไฟล์โลโก้ความละเอียดสูงของ 11 อันที่ต้นฉบับ < 600px
    (รันแล้ว `python tools/prep_logos.py` จะปริ้นต์รายชื่อให้)
 5. ~~ทดสอบมือถือ~~ ✅ ทำแล้ว 2026-07-20 (`scratchpad/mobile.py` ผ่านทั้ง 3 ขนาด)
-6. **deploy** — ✅ `git init` + commit แรกเรียบร้อย (branch `main`, 224 ไฟล์, 29MB)
-   เจ้าของเลือก **GitHub Pages** · เหลือขั้นที่ต้องใช้บัญชีเจ้าของ:
-   สร้าง repo เปล่าบน github.com → `git remote add origin <url>` → `git push -u origin main`
-   → Settings › Pages › Source = Deploy from a branch / main / (root)
-   - ★ ไม่มี `gh` CLI ในเครื่อง (สร้าง repo ให้ไม่ได้) แต่มี Git Credential Manager
-     → `git push` จะเด้งหน้าต่างให้ล็อกอิน GitHub เอง
+6. **deploy** — ✅✅ **ขึ้นจริงแล้ว 2026-07-20: https://gatipnw.github.io/**
+   - repo: `GatipNW/GatipNW.github.io` (public) · branch `main` · GitHub Pages เปิดเอง
+     อัตโนมัติเพราะเป็น repo ชื่อ `<username>.github.io`
+   - `gh` CLI ติดตั้งแล้วผ่าน winget แต่ **ไม่อยู่ใน PATH ของเชลล์ที่เปิดค้างไว้** —
+     ต้องเรียกด้วยพาธเต็ม `"/c/Program Files/GitHub CLI/gh.exe"`
+   - `gh auth login` ต้องให้เจ้าของพิมพ์เอง (device flow ต้องตอบโต้) — ผู้ช่วยรันแทนไม่ได้
+   - ★ **เทสหลัง deploy ทุกครั้งด้วย `python scratchpad/live.py`** (ยิงไปที่โดเมนจริง
+     ไม่ใช่ localhost) — เช็ค 3 ภาษา · ภาพโหลดไม่ขึ้น · JS error
+   - ★ **og:image / og:url / canonical ต้องเป็น URL เต็ม** (LinkedIn ไม่ resolve path
+     สัมพัทธ์ → การ์ดจะไม่มีรูป) ถ้าย้ายโดเมนต้องกลับมาแก้ 3 บรรทัดนี้ใน index.html
    - ★ `ฐานข้อมูล/` **ไม่ขึ้น repo** (เจ้าของเลือก) — มีรูปส่วนตัวที่ไม่ได้ใช้ในเว็บ
      เว็บทำงานได้ปกติโดยไม่มีโฟลเดอร์นี้ ต้องมีเฉพาะตอนรัน tools/ ใหม่
    - path ในโค้ดเป็นแบบสัมพัทธ์ทั้งหมด → วางใต้ subpath `/repo/` ได้เลย ไม่ต้องแก้
