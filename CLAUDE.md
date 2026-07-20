@@ -42,6 +42,14 @@
   `drawImage` เท่านั้น
 - Resume Mode = HTML scroll ปกติ (a11y fallback, screen reader อ่านได้) เปิดได้ตั้งแต่
   หน้า Title, z-index 180 ใต้ HUD 200
+  - ★ **โครงหน้า (2026-07-20 รอบ 11)**: สรุป 3 บรรทัด → กล่อง "ข้อมูลสำหรับ HR" +
+    ปุ่มติดต่อ → กลุ่มหัวข้อตาม `resume.groups` → ท้ายหน้า (วันที่อัปเดต · colophon · เครดิตเพลง)
+  - ★★ **`resume.groups` อยู่ใน content.js ไม่ใช่ hardcode ใน resume.js** เพราะ
+    **ฉบับ ja ใช้โครง 職務経歴書 ของญี่ปุ่นจริง** (職務経歴 → 実績 → 活かせる経験・知識・技術
+    → 学歴 → コンタクト) ซึ่งลำดับและหัวข้อไม่เหมือน th/en — นี่คือจุดขายกับ HR ญี่ปุ่น
+    ห้ามยุบกลับเป็นลิสต์เดียวใช้ร่วมกัน
+  - มี `@media print` แล้ว (HR ชอบสั่ง Print → PDF) — ธีมจอเป็นครามเข้ม ถ้าไม่มีบล็อกนี้
+    จะพิมพ์ออกมาเป็นกระดาษดำ · บล็อกนี้บังคับโชว์ Resume Mode แม้ยังไม่เปิดโหมด
 - `window.__game` = debug hook สำหรับ automated test —
   `player · panels · input · renderer · map · objects · resume · hover · inGame`
 
@@ -159,6 +167,9 @@ state machine: `title → charge → leap → lang → dialog → enter → done
   + tilt-shift เบลอ**เฉพาะขอบล่าง**) → ป้ายชื่อ/waypoint วาดบนจอจริงทีหลัง **จึงคมเสมอ**
 - ★ `TILT.maxAlpha` ลดมาเรื่อยๆ ตามที่เจ้าของทัก "มัว": 0.90 → 0.55 → **0.36**
   และ `sharpBot` 0.90 → **0.94** (เบลอแค่ 6% ล่างสุด) เพราะแถวล่างมีวัตถุ 5 ชิ้น
+- ★ **เงาของสิ่งที่เคลื่อนที่ได้ (ผู้เล่น/โปริ่ง) ต้องเอียงตามทิศแสง** — `lightOffset()`
+  ใน renderer ใช้สูตรเดียวกับเงาที่อบในภาพห้อง (หาหน้าต่างที่ใกล้ที่สุดแล้วทอดออก)
+  ถ้าเงาเป็นวงรีกลางตัวจะขัดกับเงาเฟอร์นิเจอร์ที่อบไว้ทันที
 - ★★ **ห้ามเปิดแถบเบลอด้านบนกลับมา** (`TILT.sharpTop` ต้องเป็น 0)
   tilt-shift แบบอิงตำแหน่งบนจอไม่เข้ากับฉากนี้ เพราะ **ผนังเหนือ+หน้าต่าง = ของที่สวย
   ที่สุดในห้อง และมันอยู่บนสุดของจอเสมอ** → แถบเบลอบนไปลบของดีทิ้งทุกครั้ง
@@ -282,6 +293,17 @@ state machine: `title → charge → leap → lang → dialog → enter → done
   ใน renderer วาดขีดบาง 3px ที่ขอบซ้ายป้าย · เจ้าของสั่ง "อย่าให้ฉูดฉาด" ห้ามย้อมทั้งใบ
 - ปุ่ม 🏠 (หลังเข้าเกม) fade มืด 0.4s ผ่าน `#screen-fade` (z-index 300) แล้ว reload
 
+## SEO / การแชร์ลิงก์ (2026-07-20 รอบ 11)
+
+- ★★ **`<title>` / `description` / OG / twitter card ต้องอยู่ใน `index.html` จริง**
+  บอทของ LinkedIn / X / Facebook / Google **อ่านแต่ HTML ดิบ ไม่รัน JS**
+  ก่อนหน้านี้ title คือ "Interactive Game Resume" และชื่อจริงถูกใส่ทีหลังด้วย
+  `document.title = BRAND.logo` ใน title.js → แปะลิงก์แล้วขึ้นกล่องเปล่า
+  (โค้ด JS ยังเขียนทับ title ได้ตามเดิม อันนั้นสำหรับคนที่เปิดจริง ไม่กระทบบอท)
+- รูปแชร์ = `assets/og-image.jpg` 1200×630 เจนจากฉากหลัง Title + กระติ๊บ + ดวงจันทร์
+  ★ ข้อความในรูปต้องเป็น **อังกฤษล้วน** — ฟอนต์ระบบที่ PIL ใช้ (Segoe UI) ไม่มีสระไทย
+  ใส่ไทยแล้วได้สี่เหลี่ยมเปล่า (เจอมาแล้ว)
+
 ## ลำดับการโหลด (แก้อาการ "ค้างก่อนเข้า Title" 2026-07-20)
 
 - `#boot` ใน index.html = จอโหลด CSS ล้วน (月 + แถบทอง) ทำงานก่อน JS —
@@ -384,6 +406,17 @@ state machine: `title → charge → leap → lang → dialog → enter → done
 - **ตู้ arcade เวกเตอร์ — เจ้าของชอบ ห้ามแตะ**
 - Title ผ่านรอบ FINAL มาแล้ว — ห้ามแก้ดีไซน์เพิ่มเองโดยไม่ถูกสั่ง
 
+## ★★ กับดัก CSS/DOM ที่เจอในโปรเจกต์นี้
+
+- `#panel-body p { color: หมึกเข้ม }` (id selector) ชนะ class ล้วนเสมอ — กล่องพื้นเข้ม
+  ใน panel วาชิต้องเขียนสีด้วย `#panel-body .xxx` นำหน้า (ดูหัวข้อธีม)
+- **keyframe ที่ `animation-fill-mode: both` จะล็อกค่าไว้ ทำให้ class อื่นสั่งทับไม่ได้**
+  เช่น `#hint` มี `animation: hint-in ... both` แล้วสั่ง `.gone { opacity: 0 }` ไม่สำเร็จ
+  ต้องใส่ `animation: none` ใน `.gone` ด้วย (อาการ: ป้ายวิธีเล่นลอยทับ panel ไม่ยอมหาย)
+- THEME v2 ตั้ง `img.panel-hero { aspect-ratio: 16/9; max-height: none }` — hero ที่เป็น
+  การ์ดโลโก้เลยสูง ~380px ทั้งที่ให้ข้อมูลศูนย์ · override ด้วย `#panel-body img.panel-hero`
+  (`aspect-ratio: auto` + `object-fit: contain`) ไม่งั้นเปิด panel มาเจอโลโก้เต็มจอ
+
 ## ★★ กับดักของเครื่องนี้ (เจอมาแล้ว เสียเวลาไปเยอะ)
 
 - **ห้ามแก้ไฟล์ที่มีภาษาไทย/ญี่ปุ่นด้วย PowerShell** — `Get-Content | ... |
@@ -419,6 +452,8 @@ state machine: `title → charge → leap → lang → dialog → enter → done
   | `followers.py` | ดึงยอด subs/followers จริงจาก YouTube+Facebook (เปิดผ่าน Edge — curl เปล่าไม่ได้ ต้องรัน JS) |
   | `mobile.py` | **เทสจอมือถือ/จอสัมผัส 360×640 · 390×844 · 768×1024** — ล้นจอ/ปุ่ม/จอย/panel/Resume |
   | `clickmove.py` | คลิกเดิน · คลิกวัตถุแล้วเปิด panel · คลิกขวาไม่มีเมนูเบราว์เซอร์ · เอฟเฟกต์เด้ง |
+  ★ ตรวจ meta/OG ให้อ่าน `index.html` ตรงๆ ด้วย Python — อย่าเช็คผ่าน DOM เพราะ JS
+    เขียนทับ title ไปแล้ว จะเห็นค่าที่บอทไม่ได้เห็น
   | `perf.py` | วัด ms/เฟรมของ `renderer.draw` |
   | `walls.py` | เดินชนกำแพงครบ 4 ด้าน เทียบกับ `MAP.wallThickness/northWallH` |
   | `blur_diag.py` | แยกตัวแปรเวลาเจอ "ภาพมัว" (ปกติ / ปิด tilt / ปิดแถบผนัง) |

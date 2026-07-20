@@ -3,7 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Interactive Game Resume</title>
+  <!-- ★★ 2026-07-20: title/description/OG ต้องอยู่ใน HTML จริง ไม่ใช่ใส่ทีหลังด้วย JS
+       บอทของ LinkedIn / X / Facebook / Google อ่านแต่ HTML ดิบ ไม่รัน JS
+       ก่อนหน้านี้ title คือ "Interactive Game Resume" → แปะลิงก์แล้วขึ้นกล่องเปล่า
+       (document.title ยังถูกเขียนทับด้วย BRAND ใน title.js สำหรับคนที่เปิดจริง) -->
+  <title>Nipith Wongsirikul — Game Localization JA/EN→TH · LQA · PR &amp; Marketing</title>
+  <meta name="description" content="เว็บเรซูเม่แบบเกมที่เดินสำรวจผลงานได้จริง — Game Localization ญี่ปุ่น/อังกฤษ → ไทย · LQA · Publishing · PR &amp; Marketing | A playable top-down game resume by Nipith Wongsirikul (Gatip).">
+  <meta name="author" content="Nipith Wongsirikul">
+  <meta name="theme-color" content="#101226">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Nipith Wongsirikul — Portfolio">
+  <meta property="og:title" content="Nipith Wongsirikul — Game Localization JA/EN→TH">
+  <meta property="og:description" content="เว็บเรซูเม่แบบเกม เดินสำรวจผลงานได้จริง · 14 เกมบน Steam · 1M+ ตัวอักษรที่แปล · เคยทำงานที่โตเกียว 3 เดือน · พร้อมย้ายไปญี่ปุ่น">
+  <meta property="og:image" content="assets/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:locale" content="th_TH">
+  <meta property="og:locale:alternate" content="ja_JP">
+  <meta property="og:locale:alternate" content="en_US">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Nipith Wongsirikul — Game Localization JA/EN→TH">
+  <meta name="twitter:description" content="เว็บเรซูเม่แบบเกม เดินสำรวจผลงานได้จริง · LQA · Publishing · PR &amp; Marketing">
+  <meta name="twitter:image" content="assets/og-image.jpg">
+
   <link rel="icon" type="image/png" href="assets/favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -87,6 +111,18 @@
   <!-- ★ 2026-07-20: ตัวนับความคืบหน้า "สำรวจแล้ว x/13 โซน" — โผล่หลังเข้าห้องแล้ว
        ทำให้คนอยากเปิดดูให้ครบ (ข้อได้เปรียบเดียวที่เว็บเกมมีเหนือ PDF) -->
   <div id="progress" class="hidden" aria-live="polite"></div>
+
+  <!-- ★ ป้ายบอกวิธีเล่น — เด้ง 6 วิแรกหลังเข้าห้องแล้วจางหายเอง
+       ก่อนหน้านี้ทั้งเว็บไม่มีคำใบ้การควบคุมเลย HR ที่ไม่เล่นเกมจะติดอยู่ในห้อง -->
+  <div id="hint" class="hidden" role="status"></div>
+
+  <!-- ★ การ์ดปิดท้ายตอนสำรวจครบทุกโซน — เปลี่ยนคนดูให้เป็นคนทัก -->
+  <div id="cta" class="hidden" role="dialog" aria-modal="false">
+    <button id="cta-close" aria-label="close">✕</button>
+    <h3 id="cta-head"></h3>
+    <p id="cta-body"></p>
+    <div id="cta-links"></div>
+  </div>
 
   <script type="module" src="js/main.js"></script>
 </body>

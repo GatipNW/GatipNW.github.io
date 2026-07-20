@@ -10,12 +10,12 @@ import { i18n } from '../i18n.js';
 import { audio } from '../audio.js';
 import { buildBullets, buildLinks, buildStats, buildTags, buildUses } from './panels.js';
 
-// ลำดับ section บนหน้า resume (door ไม่อยู่ในนี้ — แทนด้วยปุ่มดาวน์โหลด PDF ด้านบน)
-// 'skills' ไม่มีวัตถุในห้อง — เป็น section ของ Resume Mode อย่างเดียว (เจ้าของสั่ง 2026-07-18)
-const SECTION_ORDER = [
-  'arcade-1', 'arcade-2', 'arcade-3', 'arcade-4', 'youtube', 'event',
-  'esport', 'writing', 'bookshelf', 'other', 'language', 'skills', 'network', 'desk',
-];
+// ★ 2026-07-20: ลำดับ/หัวข้อกลุ่มย้ายไปอยู่ใน content.js (`resume.groups`) แล้ว
+//   เพราะ **แต่ละภาษาต้องจัดกลุ่มไม่เหมือนกัน** — ฉบับ ja ใช้โครง 職務経歴書 ของญี่ปุ่นจริง
+//   (職務経歴 → 実績 → 活かせる経験・知識・技術 → 学歴 → コンタクト)
+//   ซึ่งเป็นสิ่งที่ HR ญี่ปุ่นคุ้นตา และพิสูจน์ว่าเจ้าของพอร์ตทำงานกับเอกสารญี่ปุ่นเป็น
+//   ('door' ไม่อยู่ในกลุ่มไหน — แทนด้วยปุ่มดาวน์โหลด PDF ด้านบน
+//    'skills' ไม่มีวัตถุในห้อง เป็น section ของ Resume Mode อย่างเดียว)
 
 export class ResumeMode {
   /** @param onOpenChange  callback(isOpen) — main ใช้หยุด/คืนการเดินของผู้เล่น */
@@ -111,8 +111,47 @@ export class ResumeMode {
     actions.appendChild(back);
     box.appendChild(actions);
 
-    // เนื้อหา: การ์ดละ 1 หัวข้อ — ข้อมูลชุดเดียวกับ panel ในเกมเป๊ะๆ
-    for (const id of SECTION_ORDER) {
+    // ★ 2026-07-20: สรุปตัวเอง 3 บรรทัด — HR อ่านย่อหน้านี้อย่างเดียวก็ตัดสินใจได้แล้ว
+    //   (เดิมเปิดมาเจอหัวข้องานแรกเลย ไม่มีบทสรุปว่าเป็นใคร)
+    const summary = i18n.t('resume.summary');
+    if (summary) {
+      const sec = document.createElement('section');
+      sec.className = 'resume-summary';
+      sec.appendChild(buildBullets(summary));
+      box.appendChild(sec);
+    }
+
+    // ★ กล่อง "ข้อมูลที่ HR ถามเสมอ" — ตอบก่อนที่เขาจะต้องถาม
+    const facts = i18n.t('resume.facts');
+    if (facts) {
+      const sec = document.createElement('section');
+      sec.className = 'resume-facts';
+      const h = document.createElement('h2');
+      h.textContent = i18n.t('resume.factsHead');
+      sec.appendChild(h);
+      const dl = document.createElement('dl');
+      for (const f of facts) {
+        const dt = document.createElement('dt');
+        dt.textContent = f.k;
+        const dd = document.createElement('dd');
+        dd.textContent = f.v;
+        dl.append(dt, dd);
+      }
+      sec.appendChild(dl);
+      // ปุ่มติดต่อไว้บนสุดด้วย — เดิมอยู่ล่างสุดของหน้า 7,000px
+      const contact = i18n.t('panels.desk');
+      if (contact?.links) sec.appendChild(buildLinks(contact.links));
+      box.appendChild(sec);
+    }
+
+    // เนื้อหา: จัดเป็นกลุ่มตาม resume.groups (ต่างกันตามภาษา) การ์ดละ 1 หัวข้อ
+    for (const g of i18n.t('resume.groups')) {
+      const gh = document.createElement('h2');
+      gh.className = 'resume-group';
+      gh.textContent = g.head;
+      box.appendChild(gh);
+
+      for (const id of g.ids) {
       const data = i18n.t(`panels.${id}`);
       if (!data) continue;
 
@@ -131,13 +170,21 @@ export class ResumeMode {
       if (data.tags) card.appendChild(buildTags(data.tags));
       if (data.links) card.appendChild(buildLinks(data.links));
       box.appendChild(card);
+      }
     }
 
-    // เครดิตเพลงประกอบ (เงื่อนไข license CC BY 4.0)
-    const credit = document.createElement('p');
-    credit.className = 'resume-note';
-    credit.textContent = i18n.t('resume.credit');
-    box.appendChild(credit);
+    // ★ ท้ายหน้า: วันที่อัปเดต · ที่มาของเว็บ · เครดิตเพลง
+    const foot = document.createElement('footer');
+    foot.className = 'resume-foot';
+    for (const key of ['resume.updated', 'resume.colophon', 'resume.credit']) {
+      const txt = i18n.t(key);
+      if (!txt) continue;
+      const p = document.createElement('p');
+      p.className = key === 'resume.updated' ? 'resume-updated' : 'resume-note';
+      p.textContent = txt;
+      foot.appendChild(p);
+    }
+    box.appendChild(foot);
 
     this.closeBtn.setAttribute('aria-label', i18n.t('ui.close'));
   }
