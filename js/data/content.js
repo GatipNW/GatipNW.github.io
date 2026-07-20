@@ -909,7 +909,7 @@ export const STRINGS = {
       esport: {
         title: '🏆 Esports',
         brief: [
-          'อดีตนักแข่ง Dota 2 ลงแข่งมาหลายรายการตั้งแต่มัธยมถึงมหาวิทยาลัย — ติด Top 4 ระดับมัธยมปลายทั่วประเทศ และเคยเจอทีมโปร NeXT Esports by RPG ในรอบคัดเลือก ROG MASTERS 2017',
+          'อดีตนักแข่ง Dota 2 ลงแข่งมาหลายรายการตั้งแต่มัธยมถึงมหาวิทยาลัย — ติด Top 4 ระดับมัธยมปลายทั่วประเทศ และเคยลงสนามเจอทีมโปรอย่าง NeXT Esports by RPG · Team Finite · Baby Build House',
           'สายโปเกมอนก็ลง — Pokémon UNITE รายการ AIS 5G eSports OPEN Thailand 2022 เข้ารอบ Top 8 · เลื่อนดูคลิปแข่งจริงด้านบนได้เลย',
         ],
         stats: [
@@ -921,6 +921,7 @@ export const STRINGS = {
           'อดีตนักกีฬาอีสปอร์ตสาย Dota 2 — ลงแข่งรายการต่างๆ ตั้งแต่สมัยมัธยมปลายจนถึงมหาวิทยาลัย',
           'Bodin E-Sport Championship ("Bodindecha The Battle") — เข้ารอบ Top 4 ระดับมัธยมปลายทั่วประเทศ ชิงชนะเลิศแบบออฟไลน์ (LAN) ที่โรงเรียนบดินทรเดชา 17 ก.พ. 2017 · สนับสนุนโดย Alienware · Logitech G · GODLIKE · Invate',
           'ROG MASTERS 2017 Open Qualifier Thailand — ลุยสายคัดเลือกจนได้เจอกับทีมโปร NeXT Esports by RPG',
+          'ตลอดเส้นทางการแข่งได้ลงสนามเจอทีมระดับโปรของไทยหลายทีม — NeXT Esports by RPG · Team Finite · Baby Build House · แพ้บ้างชนะบ้าง แต่ได้เห็นมาตรฐานการเล่นระดับอาชีพจากอีกฝั่งของสนามจริงๆ',
           'IT Ladkrabang Open House — DOTA 2 Tournament (มีคลิปถ่ายทอดการแข่งเต็มแมตช์)',
           'AIS 5G eSports OPEN Thailand 2022 : Pokémon UNITE — เข้ารอบ Top 8 ของรายการ',
           'เคยลงแข่ง CS:GO ด้วยเช่นกัน — ไม่ได้ไปถึงรอบลึก แต่ได้สัมผัสวงการ FPS competitive จากในสนามจริง',
@@ -1261,7 +1262,7 @@ export const STRINGS = {
       esport: {
         title: '🏆 Esports',
         brief: [
-          'Former competitive Dota 2 player through high school and university — reached the national high-school Top 4 and ran into the pro team NeXT Esports by RPG in the ROG MASTERS 2017 open qualifiers',
+          'Former competitive Dota 2 player through high school and university — reached the national high-school Top 4 and faced pro rosters including NeXT Esports by RPG, Team Finite and Baby Build House',
           'Still competing on the Pokémon side — Top 8 at AIS 5G eSports OPEN Thailand 2022: Pokémon UNITE · match footage is right above',
         ],
         stats: [
@@ -1273,6 +1274,7 @@ export const STRINGS = {
           'Former competitive Dota 2 esports player — competed in tournaments from high school through university',
           'Bodin E-Sport Championship ("Bodindecha The Battle") — Top 4 at national high-school level, offline LAN finals held at Bodindecha School on 17 Feb 2017 · sponsored by Alienware · Logitech G · GODLIKE · Invate',
           'ROG MASTERS 2017 Open Qualifier Thailand — fought through the bracket and faced the pro team NeXT Esports by RPG',
+          'Across those tournaments I lined up against several Thai pro rosters — NeXT Esports by RPG, Team Finite and Baby Build House — winning some and losing some, but seeing professional-level play from the other side of the server',
           'IT Ladkrabang Open House — DOTA 2 Tournament (full match broadcast available)',
           'AIS 5G eSports OPEN Thailand 2022: Pokémon UNITE — finished in the tournament Top 8',
           'Also competed in CS:GO — never went deep in the bracket, but it put me inside the competitive FPS scene first-hand',
@@ -1614,7 +1616,7 @@ export const STRINGS = {
       esport: {
         title: '🏆 eスポーツ',
         brief: [
-          '高校〜大学時代はDota 2の競技プレイヤー。高校生全国大会でベスト4、ROG MASTERS 2017タイ予選ではプロチーム NeXT Esports by RPG と対戦',
+          '高校〜大学時代はDota 2の競技プレイヤー。高校生全国大会でベスト4、NeXT Esports by RPG・Team Finite・Baby Build House といったプロチームとも対戦',
           'ポケモンユナイトでも AIS 5G eSports OPEN Thailand 2022 でベスト8 · 実際の試合映像は上のスライドから',
         ],
         stats: [
@@ -1626,6 +1628,7 @@ export const STRINGS = {
           '元Dota 2競技プレイヤー — 高校時代から大学時代にかけて各種大会に出場',
           'Bodin E-Sport Championship（「Bodindecha The Battle」）— 高校生全国レベルでベスト4。2017年2月17日、ボディンデーチャ校でのオフライン（LAN）決勝 · 協賛: Alienware · Logitech G · GODLIKE · Invate',
           'ROG MASTERS 2017 タイ オープン予選 — 勝ち上がりプロチーム NeXT Esports by RPG と対戦',
+          '一連の大会を通じて、NeXT Esports by RPG・Team Finite・Baby Build House などタイのプロチームと対戦。勝敗はさまざまだが、プロレベルのプレーを対戦相手として直接体感した',
           'IT Ladkrabang Open House — DOTA 2 大会（試合中継の映像あり）',
           'AIS 5G eSports OPEN Thailand 2022：ポケモンユナイト — 大会ベスト8',
           'CS:GOの大会にも出場 — 上位までは進めなかったが、競技FPSシーンを現場から体感',
