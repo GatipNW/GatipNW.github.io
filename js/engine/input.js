@@ -43,6 +43,32 @@ export class Input {
     window.addEventListener('blur', () => this.held.clear());
 
     this.bindJoystick(document.getElementById('game-canvas'));
+    this.bindClickMove(document.getElementById('game-canvas'));
+  }
+
+  // ★ 2026-07-20: คลิกเพื่อเดิน (เจ้าของบอก "การควบคุมไม่สมูทเลย")
+  //   - คลิกซ้ายบนพื้น = ตั้งจุดหมาย ตัวละครเดินไปเอง (main.js เป็นคนพาไป)
+  //   - คลิกขวา = ยกเลิกจุดหมาย + สั่ง interact กับวัตถุที่อยู่ในระยะ
+  //     ★ ต้อง preventDefault บน contextmenu ไม่งั้นได้เมนู "บันทึกภาพ" ของเบราว์เซอร์
+  //   - จอสัมผัสไม่ผูกตรงนี้ (มีจอยสติ๊กอยู่แล้ว) — กันแตะแล้วเดินมั่ว
+  bindClickMove(surface) {
+    this.clickTarget = null;   // {x, y} ใน world px — main.js อ่านแล้วเคลียร์เอง
+    this.onRightClick = null;  // callback ที่ main.js ใส่ให้
+
+    surface.addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'touch' || !this._enabled) return;
+      if (e.button === 2) return;                    // ปุ่มขวาจัดการที่ contextmenu
+      this.clickTarget = { sx: e.clientX, sy: e.clientY };
+      this.held.clear();                             // คลิกใหม่ = ล้มเลิกทิศจากคีย์บอร์ด
+    });
+
+    surface.addEventListener('contextmenu', (e) => {
+      e.preventDefault();                            // ★ ห้ามให้เมนูบันทึกภาพโผล่
+      if (!this._enabled) return;
+      this.clickTarget = null;
+      this.moveGoal = null;
+      this.onRightClick?.(e.clientX, e.clientY);
+    });
   }
 
   // ปิด input แล้วจอยที่ลากค้างอยู่ต้องหุบทันที (เช่นเปิด panel กลางทางเดิน)
@@ -110,6 +136,8 @@ export class Input {
   }
 
   // คืนเวกเตอร์ทิศทาง ขนาดไม่เกิน 1 (ทแยงไม่เร็วกว่าปกติ)
+  // ★ moveGoal (จุดหมายจากการคลิก) main.js เป็นคนตั้ง/เคลียร์ — ลำดับความสำคัญ:
+  //   จอยสติ๊ก → คีย์บอร์ด → จุดหมายจากคลิก (แตะปุ่มไหนก็ยกเลิกการเดินอัตโนมัติทันที)
   getMoveVector() {
     if (!this._enabled) return { x: 0, y: 0 };
 
@@ -129,7 +157,20 @@ export class Input {
       const inv = 1 / Math.SQRT2;
       x *= inv;
       y *= inv;
+      return { x, y };
     }
-    return { x, y };
+    if (x !== 0 || y !== 0) return { x, y };
+
+    // ไม่มีใครกดปุ่ม → เดินไปหาจุดหมายที่คลิกไว้ (ถ้ามี)
+    // ชะลอความเร็วช่วง 60px สุดท้าย = หยุดนุ่ม ไม่เบรกกึก
+    if (this.moveGoal) {
+      const dx = this.moveGoal.x - this.moveGoal.px;
+      const dy = this.moveGoal.y - this.moveGoal.py;
+      const d = Math.hypot(dx, dy);
+      if (d < 6) return { x: 0, y: 0 };
+      const sp = Math.min(1, d / 60);
+      return { x: (dx / d) * sp, y: (dy / d) * sp };
+    }
+    return { x: 0, y: 0 };
   }
 }

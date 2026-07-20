@@ -32,7 +32,8 @@ export const OBJECTS = [
   { id: 'bookshelf', type: 'bookshelf', x: 74, y: 330, w: 90, h: 220, color: '#4de3ff', cat: 'about', solid: true },
 
   // ── ผนังซ้ายล่าง: ตู้เก็บแฟ้ม "งานอื่นๆ" (Accenture / Pasona) — โซนใหม่ 2026-07-20 ──
-  { id: 'other', type: 'other', x: 74, y: 640, w: 96, h: 140, color: '#c9a4ff', cat: 'about', solid: true },
+  // ★ 2026-07-20: ขยับขึ้น 640 → 615 (เจ้าของติว่าติดโซนติดต่อเกินไป)
+  { id: 'other', type: 'other', x: 74, y: 615, w: 96, h: 140, color: '#c9a4ff', cat: 'about', solid: true },
 
   // ── ผนังขวาบน: บูทอีเวนต์ (JETRO/TGS/สาวม้า/AFA) ──
   { id: 'event', type: 'event', x: 1396, y: 340, w: 140, h: 150, color: '#ff9d4d', cat: 'work', solid: true },
@@ -45,9 +46,11 @@ export const OBJECTS = [
   //   ช่องว่างระหว่างชิ้น 132px (น้อยกว่ากติกา 160 นิดหน่อย แต่ y เหลื่อมกันอยู่แล้ว
   //   จึงไม่ดูอึดอัด · ระยะ interact 64px ยังไม่ทับกันเลย — ห่างกันจริง ≥177px)
   //   ★ ชิ้นขวาสุดต้องจบก่อน x=1340 ไม่งั้นชนระยะ interact ของ network (x1440, y660–800)
-  { id: 'desk',     type: 'desk',     x: 110,  y: 786, w: 200, h: 100, color: '#a06bff', cat: 'connect', solid: true },
-  { id: 'youtube',  type: 'youtube',  x: 442,  y: 838, w: 160, h: 90,  color: '#ff4d4d', cat: 'work', solid: true },
-  { id: 'language', type: 'language', x: 734,  y: 806, w: 90,  h: 125, color: '#9db8ff', cat: 'about', solid: true },
-  { id: 'writing',  type: 'writing',  x: 956,  y: 820, w: 110, h: 118, color: '#ffb0d8', cat: 'work', solid: true },
+  // ★ 2026-07-20: เลื่อนโต๊ะติดต่อขวา 110 → 250 เพราะเดิมอยู่ใต้ตู้ "งานอื่นๆ" พอดี
+  //   (ห่างกันแค่ 6px · ยืนหน้าโต๊ะแล้วโดนระยะ interact ของตู้แทน) → ไล่ระยะแถวใหม่ 97px
+  { id: 'desk',     type: 'desk',     x: 250,  y: 786, w: 200, h: 100, color: '#a06bff', cat: 'connect', solid: true },
+  { id: 'youtube',  type: 'youtube',  x: 547,  y: 838, w: 160, h: 90,  color: '#ff4d4d', cat: 'work', solid: true },
+  { id: 'language', type: 'language', x: 804,  y: 806, w: 90,  h: 125, color: '#9db8ff', cat: 'about', solid: true },
+  { id: 'writing',  type: 'writing',  x: 991,  y: 820, w: 110, h: 118, color: '#ffb0d8', cat: 'work', solid: true },
   { id: 'door',     type: 'door',     x: 1198, y: 856, w: 140, h: 76,  color: '#ff6bd6', cat: 'connect', solid: true },
 ];

@@ -573,7 +573,12 @@ export class Panels {
 
   open(id) {
     if (!this.render(id)) return;
-    this.root.classList.remove('hidden');
+    clearTimeout(this._closeTimer);
+    // ★ 2026-07-20: เอฟเฟกต์เด้งเข้า (CSS `.opening`) — เอาออกหลังจบเพื่อให้เล่นซ้ำได้
+    this.root.classList.remove('hidden', 'closing');
+    this.box.classList.remove('opening');
+    void this.box.offsetWidth;              // บังคับ reflow ให้ animation เริ่มใหม่จริง
+    this.box.classList.add('opening');
     audio.play('pop');
     this.onOpenChange(true);
     this.onOpenZone?.(id);
@@ -642,9 +647,18 @@ export class Panels {
   close() {
     if (!this.openId) return;
     this.openId = null;
-    this.root.classList.add('hidden');
-    // ถอด iframe คลิปทิ้ง — ไม่งั้นเสียงคลิปเล่นต่อทั้งที่ panel ปิดไปแล้ว
-    this.bodyEl.querySelectorAll('iframe').forEach((f) => f.remove());
+    // ★ เด้งกลับก่อนค่อยซ่อนจริง — reduce motion ข้ามอนิเมชันไปเลย
+    const quick = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      && localStorage.getItem('fx') !== 'full';
+    this.box.classList.remove('opening');
+    this.root.classList.add('closing');
+    clearTimeout(this._closeTimer);
+    this._closeTimer = setTimeout(() => {
+      this.root.classList.add('hidden');
+      this.root.classList.remove('closing');
+      // ถอด iframe คลิปทิ้ง — ไม่งั้นเสียงคลิปเล่นต่อทั้งที่ panel ปิดไปแล้ว
+      this.bodyEl.querySelectorAll('iframe').forEach((f) => f.remove());
+    }, quick ? 0 : 190);
     audio.play('click');
     this.onOpenChange(false);
   }

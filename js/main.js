@@ -99,6 +99,67 @@ window.addEventListener('keydown', (e) => {
   }
 });
 
+// ★ 2026-07-20: คลิกเพื่อเดิน + คลิกขวา interact (เจ้าของ: "การควบคุมไม่สมูทเลย")
+//   คลิกบนวัตถุ = เดินไปหาแล้ว "เปิด panel ให้เอง" เมื่อถึงระยะ (คลิกเดียวจบ)
+let clickIntent = null;   // id ของวัตถุที่ตั้งใจจะเปิดเมื่อเดินไปถึง
+let goalStuck = 0;        // จับเวลาเดินไม่ขยับ = ติดกำแพง → เลิกเดิน
+
+function screenToWorld(sx, sy) {
+  return { x: camera.left + sx / camera.scale, y: camera.top + sy / camera.scale };
+}
+
+// วัตถุที่ถูกคลิก (เผื่อขอบ 10px ให้กดง่ายขึ้น)
+function objectAt(wx, wy) {
+  return OBJECTS.find((o) => wx > o.x - 10 && wx < o.x + o.w + 10
+    && wy > o.y - 10 && wy < o.y + o.h + 10) ?? null;
+}
+
+// จุดยืนหน้าวัตถุ — ★ เลือก "ด้านที่ผู้เล่นอยู่ใกล้ที่สุด" ไม่ใช่ใต้วัตถุเสมอ
+//   ระบบเดินเป็นเส้นตรงไม่มี pathfinding ถ้าเล็งจุดฝั่งตรงข้าม ตัวละครจะไปโขกวัตถุแล้วค้าง
+//   (เจอตอนเทส: ยืนอยู่เหนือศิลาภาษาแล้วคลิก → เดินชนแล้วเลิก ไม่เปิด panel)
+function standPoint(o, from) {
+  const pad = 44;
+  const cx = o.x + o.w / 2;
+  const cy = o.y + o.h / 2;
+  const dx = from.x - cx;
+  const dy = from.y - cy;
+  const hx = o.w / 2 + pad;
+  const hy = o.h / 2 + pad;
+  let p = Math.abs(dx) / hx > Math.abs(dy) / hy
+    ? { x: cx + Math.sign(dx || 1) * hx, y: cy }
+    : { x: cx, y: cy + Math.sign(dy || 1) * hy };
+  // จุดที่เลือกต้องอยู่ในพื้นที่เดินได้จริง ไม่งั้นถอยไปใช้ "ด้านล่างวัตถุ"
+  const f = MAP.floor;
+  if (p.x < f.x0 + 30 || p.x > f.x1 - 30 || p.y < f.y0 + 30 || p.y > f.y1 - 30) {
+    p = { x: cx, y: Math.min(o.y + o.h + pad, f.y1 - 30) };
+  }
+  return p;
+}
+
+// ระยะจากขอบ AABB ถึงผู้เล่น (สูตรเดียวกับ findHover) — ใช้ตัดสินว่าเปิด panel ได้ไหม
+function edgeDist(o) {
+  const dx = Math.max(o.x - player.x, 0, player.x - (o.x + o.w));
+  const dy = Math.max(o.y - player.y, 0, player.y - (o.y + o.h));
+  return Math.hypot(dx, dy);
+}
+
+function setGoal(wx, wy, obj) {
+  clickIntent = obj ? obj.id : null;
+  const p = obj ? standPoint(obj, player) : { x: wx, y: wy };
+  input.moveGoal = { x: p.x, y: p.y, px: player.x, py: player.y };
+  goalStuck = 0;
+  renderer.addClickFx(wx, wy, obj ? obj.color : '#bfe3ff');
+  audio.play('blip');
+}
+
+input.onRightClick = (sx, sy) => {
+  // คลิกขวา = หยุดเดิน + คุยกับวัตถุที่อยู่ในระยะ (แทนเมนูบันทึกภาพของเบราว์เซอร์)
+  clickIntent = null;
+  const w = screenToWorld(sx, sy);
+  renderer.addClickFx(w.x, w.y, '#ffd24d');
+  if (hover && !panels.isOpen && !resumeMode.isOpen) panels.open(hover.id);
+};
+
 // ปุ่ม interact ลอยสำหรับจอสัมผัส — โชว์เฉพาะตอนมีวัตถุในระยะ
 const interactBtn = document.getElementById('interact-btn');
 let interactShown = false;
@@ -252,6 +313,31 @@ function frame(now) {
   dt = Math.min(dt, 0.05);
   elapsed += dt;
 
+  // ---- คลิกเพื่อเดิน ----
+  if (input.clickTarget) {
+    const t = input.clickTarget;
+    input.clickTarget = null;
+    const w = screenToWorld(t.sx, t.sy);
+    setGoal(w.x, w.y, objectAt(w.x, w.y));
+  }
+  if (input.moveGoal) {
+    const g = input.moveGoal;
+    const before = Math.hypot(player.x - g.px, player.y - g.py);
+    g.px = player.x;                     // ให้ getMoveVector รู้ตำแหน่งล่าสุด
+    g.py = player.y;
+    const d = Math.hypot(g.x - player.x, g.y - player.y);
+    // ถึงแล้ว หรือเดินชนกำแพงจนไม่ขยับ 0.5 วิ → เลิก
+    goalStuck = before < 0.4 * dt * player.speed ? goalStuck + dt : 0;
+    if (d < 8 || goalStuck > 0.5) {
+      input.moveGoal = null;
+      // ★ เช็คด้วย "ระยะจากขอบวัตถุ" แบบเดียวกับระบบ interact — ถึงจะเดินไปติดขัด
+      //   แต่ถ้ายืนใกล้พอแล้วก็เปิดให้เลย (คลิกเดียวจบตามที่ตั้งใจ)
+      const target = clickIntent ? OBJECTS.find((o) => o.id === clickIntent) : null;
+      if (target && edgeDist(target) < INTERACT_RANGE + 12) panels.open(target.id);
+      clickIntent = null;
+    }
+  }
+
   player.update(dt, input, solids);
   camera.follow(player.x, player.y, dt);
 
@@ -305,6 +391,7 @@ window.__game = {
   panels,
   input,
   renderer,
+  camera,         // ★ ให้เทสแปลง world ↔ screen ได้ (scratchpad/clickmove.py)
   map: MAP,       // ให้เทสอ่านเรขาคณิตกำแพงได้ (scratchpad/walls.py)
   objects: OBJECTS,
   resume: resumeMode,
