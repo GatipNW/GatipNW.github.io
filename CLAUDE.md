@@ -353,10 +353,11 @@ state machine: `title → charge → leap → lang → dialog → enter → done
 
 | id | เนื้อหา |
 |---|---|
-| arcade-1 | Sticky Rice (14 เกม Steam, 1M+ ตัวอักษร) + Cherry Kiss (เครือเดียวกัน เกม 18+ ดูแลเพจ FB/X cherrykissthai) |
+| arcade-1 | ★ **มีบรรทัดบอกวิธีดูงานแปลจริง** ("เปิด Steam แล้วสลับภาษาหน้าร้านเป็นไทย") + **กระบวนการทำงานจริงต่อ 1 เกม**: ตั้งชื่อไทย → เลือกฟอนต์ไทยให้เข้ากับ UI → วางแผนการตลาด → แปลบนสเปรดชีตพร้อมคุมคลังศัพท์ → ติดต่อพาร์ตเนอร์สื่อ → ทำการตลาดตอนขาย<br>Sticky Rice (14 เกม Steam, 1M+ ตัวอักษร) + Cherry Kiss (เครือเดียวกัน เกม 18+ ดูแลเพจ FB/X cherrykissthai) |
 | arcade-2 | Freelance: Wuthering Waves / Battle Realms: Zen (app 1025600 ซับไทย) / มังงะยูริ Kadokawa (firstpagepro) / ล่าม / อินดี้ NDA |
-| arcade-3 | DIGITAL HEARTS — LQA คอนโซล AAA |
+| arcade-3 | DIGITAL HEARTS — LQA คอนโซล AAA · ★ ลักษณะงาน: **remote เข้าเครื่องลูกค้า ใช้ระบบเฉพาะของลูกค้า (ห้ามระบุชื่อ — NDA)** |
 | arcade-4 | โปรเจ็คลับ NDA 2028 — ★ ห้ามเผยชื่อคนดัง/ชื่อเกมเด็ดขาด (การ์ด "?") |
+| **★ ความถูกต้องของเนื้อหา** | **ห้ามเขียนว่าใช้ CAT tool ยี่ห้อไหน** — เจ้าของทำงานบนสเปรดชีต + ระบบเฉพาะของลูกค้า ไม่ได้ใช้ memoQ/Trados/Phrase · **esports แพ้ทีมโปรทุกทีม** ส่วน Top 4 คือระดับมัธยมปลายเท่านั้น — เขียนตรงความจริง ห้ามเคลมเกิน |
 | youtube | ช่อง NPC Gatip — subs **~10K (ห้ามเขียน 10K+)** / `brandsTop:true` โลโก้ 5 แบรนด์กดกางได้: KAÏ (จ้างโปรโมท — ไม่ฝังคลิป) · Pokémon UNITE CS 2026 (Invate) · FIFINE (รีวิวแลกไมค์) · YouTube Shopping Creator Accelerator 2025 (=YouTube×Shopee) · iMyFone MagicMic / คลิป 3 ตัว: `8vhh2Yo2yBQ` + Shorts `8VmGQ52IpFo`, `tiOiohuE8Os` |
 | bookshelf | การศึกษา — **TNI** + ทุนญี่ปุ่นครบ 3 (Tokyo Internship/METI/JTECS) + ชุมนุมลูกเสือโลกครั้งที่ 23 (ยามากุจิ 2015 — ★ **ใช้การ์ดโลโก้เท่านั้น** รูปถ่ายจริงถูกถอด 2026-07-20 รอบ 6 เจ้าของบอก "ภาพพัง ใช้อันเดิม") — ★ Accenture ย้ายไป `other` · **โยซาโค่ยย้ายไป `event`** |
 | **other** | **โซนใหม่ 2026-07-20 "งานอื่นๆ"** (ตู้เก็บแฟ้ม 他 ผนังซ้ายล่าง) = Accenture (Data Analyst JA, Trust & Safety 2022–23, ทีม 450 คน 30 สัญชาติ, 0% complaint 17 เดือน) + Pasona Thailand (HR Consultant 3 เดือน, ลาออกเหตุผลส่วนตัว) |

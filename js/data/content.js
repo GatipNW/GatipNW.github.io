@@ -716,8 +716,10 @@ export const STRINGS = {
           'ดูแลโปรเจ็ค localization ญี่ปุ่น→ไทย ครบวงจรในฐานะทีมฝั่งไทยคนเดียว (วางแผน · แปล · ตรวจแก้ · ปรับให้เข้ากับวัฒนธรรม) — ส่ง visual novel ญี่ปุ่นขึ้น Steam แล้ว 14 เกม',
           'แปลและตรวจแก้กว่า 1,000,000 ตัวอักษร คุมโทน ศัพท์เฉพาะ และสไตล์ให้สม่ำเสมอทุกเกม',
           'transcreate เนื้อเรื่องและคำโปรยสำหรับตลาดไทย ดันยอดขายเกมเก่าที่แปลไทยเพิ่ม 15%',
+          'อยากดูงานแปลจริง: เปิดหน้าเกมบน Steam แล้วสลับภาษาหน้าร้านเป็นภาษาไทย — ชื่อเกม คำโปรย และข้อความในเกมทั้งหมดเป็นงานที่ผมแปลและตรวจเอง',
           'ดูแล social media ของ Cherry Kiss Thailand (Facebook + X) เองทั้งหมด ปั้นจาก 0 เป็น 1,600+ followers — ช่องทางตรงสู่ผู้เล่นไทยช่องแรกของบริษัท พร้อมพันธมิตรคอนเทนต์อย่าง Kagami Visual Novel',
           'เป็นตัวแทนบริษัทที่ Tokyo Game Show 2025 พบผู้พัฒนานานาชาติ 15+ ราย',
+          'กระบวนการทำงานต่อ 1 เกม (รับงานเป็นรอบทุกเดือน): ตั้งชื่อเกมภาษาไทยให้ขายได้จริง → เลือกฟอนต์ไทยที่เข้ากับอาร์ตและอ่านออกในกรอบ UI → วางแผนการตลาดร่วมกับทีม → แปลและตรวจแก้บนสเปรดชีตพร้อมคุมคลังศัพท์/โทนให้สม่ำเสมอ → ติดต่อเพจและพาร์ตเนอร์สื่อ → ลงมือทำการตลาดช่วงวางขาย · ทั้งหมดนี้ผมรับผิดชอบคนเดียวตั้งแต่ต้นจนจบ',
         ],
         links: [
           { label: '🎮 Sticky Rice บน Steam', url: 'https://store.steampowered.com/publisher/stickyricegames' },
@@ -763,6 +765,7 @@ export const STRINGS = {
           'แปลเกมคอนโซล AAA ระดับแถวหน้ากว่า 80,000 คำ (EN/JA → TH) ควบคู่งาน LQA เต็มเวลา ภายใต้กำหนดวางจำหน่ายพร้อมกันทั่วโลก',
           'ตรวจพบและแก้บั๊กด้านภาษา ข้อความล้นกรอบ และปัญหา format ครบ 100% ก่อนเกมวางขาย ผ่าน LQA บนเครื่องคอนโซลจริง',
           'เป็นล่ามให้ผู้บริหารที่มาเยือนจากสำนักงานใหญ่ญี่ปุ่น และรายงานต่อผู้บริหารญี่ปุ่นเป็นภาษาญี่ปุ่นทั้งหมด',
+          'ลักษณะการทำงาน: remote เข้าเครื่องของลูกค้าและทำงานในสภาพแวดล้อมปิดทั้งหมด ใช้ระบบแปลและระบบรายงานบั๊กเฉพาะของลูกค้า (ระบุชื่อไม่ได้ตาม NDA) — คุ้นกับการปรับตัวเข้ากับ toolchain ของแต่ละลูกค้าและกับงานที่มีข้อกำหนดความลับสูง',
         ],
         links: [
           { label: '🏢 digitalhearts.com', url: 'https://www.digitalhearts.com/' },
@@ -844,7 +847,7 @@ export const STRINGS = {
       skills: {
         title: '🛠️ สกิลหลัก',
         lines: [
-          'Game Localization (JA/EN→TH) · LQA บนคอนโซลจริง · CAT tools & terminology · Transcreation/marketing copy · ล่ามธุรกิจ (JA⇄TH) · PR & Marketing · Business development & events · Community/social media · AI tools',
+          'Game Localization (JA/EN→TH) · LQA บนคอนโซลจริง · คุมคลังศัพท์และความสม่ำเสมอของสำนวนข้ามหลายสิบเกม · ทำงานในระบบเฉพาะของลูกค้าผ่าน remote แบบปิด (NDA) · ตั้งชื่อเกม/เลือกฟอนต์ไทยให้เข้ากับ UI · Transcreation & marketing copy · ล่ามธุรกิจ (JA⇄TH) · PR & Marketing · Business development & events · Community/social media · AI tools',
         ],
       },
       language: {
@@ -909,7 +912,7 @@ export const STRINGS = {
       esport: {
         title: '🏆 Esports',
         brief: [
-          'อดีตนักแข่ง Dota 2 ลงแข่งมาหลายรายการตั้งแต่มัธยมถึงมหาวิทยาลัย — ติด Top 4 ระดับมัธยมปลายทั่วประเทศ และเคยลงสนามเจอทีมโปรอย่าง NeXT Esports by RPG · Team Finite · Baby Build House',
+          'อดีตนักแข่ง Dota 2 — สมัยมัธยมปลายอยู่ระดับต้นๆ ของประเทศ (Top 4) พอขยับขึ้นสายเปิดก็ได้เจอทีมโปรอย่าง NeXT Esports by RPG · Team Finite · Baby Build House ซึ่งแพ้ทุกทีม แต่ได้เห็นช่องว่างระหว่างมือสมัครเล่นกับมืออาชีพจากในสนามจริง',
           'สายโปเกมอนก็ลง — Pokémon UNITE รายการ AIS 5G eSports OPEN Thailand 2022 เข้ารอบ Top 8 · เลื่อนดูคลิปแข่งจริงด้านบนได้เลย',
         ],
         stats: [
@@ -921,7 +924,7 @@ export const STRINGS = {
           'อดีตนักกีฬาอีสปอร์ตสาย Dota 2 — ลงแข่งรายการต่างๆ ตั้งแต่สมัยมัธยมปลายจนถึงมหาวิทยาลัย',
           'Bodin E-Sport Championship ("Bodindecha The Battle") — เข้ารอบ Top 4 ระดับมัธยมปลายทั่วประเทศ ชิงชนะเลิศแบบออฟไลน์ (LAN) ที่โรงเรียนบดินทรเดชา 17 ก.พ. 2017 · สนับสนุนโดย Alienware · Logitech G · GODLIKE · Invate',
           'ROG MASTERS 2017 Open Qualifier Thailand — ลุยสายคัดเลือกจนได้เจอกับทีมโปร NeXT Esports by RPG',
-          'ตลอดเส้นทางการแข่งได้ลงสนามเจอทีมระดับโปรของไทยหลายทีม — NeXT Esports by RPG · Team Finite · Baby Build House · แพ้บ้างชนะบ้าง แต่ได้เห็นมาตรฐานการเล่นระดับอาชีพจากอีกฝั่งของสนามจริงๆ',
+          'ได้ลงสนามเจอทีมระดับโปรของไทยหลายทีม — NeXT Esports by RPG · Team Finite · Baby Build House — แพ้ทุกทีม แต่การได้ยืนอยู่อีกฝั่งของสนามทำให้เข้าใจมาตรฐานระดับอาชีพและวัฒนธรรมการแข่งขันแบบที่อ่านจากข่าวไม่ได้',
           'IT Ladkrabang Open House — DOTA 2 Tournament (มีคลิปถ่ายทอดการแข่งเต็มแมตช์)',
           'AIS 5G eSports OPEN Thailand 2022 : Pokémon UNITE — เข้ารอบ Top 8 ของรายการ',
           'เคยลงแข่ง CS:GO ด้วยเช่นกัน — ไม่ได้ไปถึงรอบลึก แต่ได้สัมผัสวงการ FPS competitive จากในสนามจริง',
@@ -1073,8 +1076,10 @@ export const STRINGS = {
           'Lead end-to-end JA→TH localization as the sole Thai-side staff member (schedules · translation · editing · cultural adaptation) — 14 Japanese visual novels shipped on Steam',
           'Translated and edited 1,000,000+ characters single-handedly, enforcing consistent tone, terminology, and style across every title',
           'Transcreated storylines and store copy for the Thai market, driving a 15% sales uplift on localized back-catalog titles',
+          'Want to see the actual translation? Open any of these titles on Steam and switch the store language to Thai — the title, the store copy and the in-game text are all mine',
           'Single-handedly run Cherry Kiss Thailand\'s social media (Facebook + X), grown from 0 to 1,600+ followers — the company\'s first direct channel to Thai players, with content partners such as Kagami Visual Novel',
           'Represented the company at Tokyo Game Show 2025, meeting 15+ international developers',
+          'My per-title workflow (new batch every month): craft a Thai title that actually sells → pick a Thai font that fits the art and stays legible inside the UI → plan the marketing angle with the team → translate and edit in spreadsheets while keeping glossary and tone consistent → line up media pages and partners → run the marketing push at launch · I own every step of this alone',
         ],
         links: [
           { label: '🎮 Sticky Rice on Steam', url: 'https://store.steampowered.com/publisher/stickyricegames' },
@@ -1120,6 +1125,7 @@ export const STRINGS = {
           'Localized 80,000+ words of high-profile AAA console titles (EN/JA → TH) alongside full-time LQA duties on tight, simultaneous release schedules',
           'Uncovered and resolved 100% of linguistic bugs, text truncations, and formatting issues before launch through LQA on proprietary console hardware',
           'Interpreted for executives visiting from the Japan headquarters and reported to Japanese management entirely in Japanese',
+          'How the work ran: remoting into the client\'s machines and working entirely inside their closed environment, using their own translation and bug-reporting systems (unnameable under NDA) — I am used to adapting to each client\'s toolchain and to projects with strict confidentiality',
         ],
         links: [
           { label: '🏢 digitalhearts.com', url: 'https://www.digitalhearts.com/' },
@@ -1199,7 +1205,7 @@ export const STRINGS = {
       skills: {
         title: '🛠️ Core Skills',
         lines: [
-          'Game localization (JA/EN→TH) · LQA on console hardware · CAT tools & terminology · Transcreation/marketing copy · Business interpretation (JA⇄TH) · PR & Marketing · Business development & events · Community/social media · AI tools',
+          'Game localization (JA/EN→TH) · LQA on console hardware · glossary and tone consistency across dozens of titles · working inside clients\' closed remote environments and proprietary systems (NDA) · Thai title naming and UI-safe Thai font selection · transcreation & marketing copy · business interpreting (JA⇄TH) · PR & marketing · business development & events · community/social media · AI tools',
         ],
       },
       language: {
@@ -1262,7 +1268,7 @@ export const STRINGS = {
       esport: {
         title: '🏆 Esports',
         brief: [
-          'Former competitive Dota 2 player through high school and university — reached the national high-school Top 4 and faced pro rosters including NeXT Esports by RPG, Team Finite and Baby Build House',
+          'Former competitive Dota 2 player — a top-tier high-school team nationally (Top 4), then in the open brackets I ran into pro rosters like NeXT Esports by RPG, Team Finite and Baby Build House and lost to all of them — but saw first-hand exactly how wide the gap to professional play is',
           'Still competing on the Pokémon side — Top 8 at AIS 5G eSports OPEN Thailand 2022: Pokémon UNITE · match footage is right above',
         ],
         stats: [
@@ -1274,7 +1280,7 @@ export const STRINGS = {
           'Former competitive Dota 2 esports player — competed in tournaments from high school through university',
           'Bodin E-Sport Championship ("Bodindecha The Battle") — Top 4 at national high-school level, offline LAN finals held at Bodindecha School on 17 Feb 2017 · sponsored by Alienware · Logitech G · GODLIKE · Invate',
           'ROG MASTERS 2017 Open Qualifier Thailand — fought through the bracket and faced the pro team NeXT Esports by RPG',
-          'Across those tournaments I lined up against several Thai pro rosters — NeXT Esports by RPG, Team Finite and Baby Build House — winning some and losing some, but seeing professional-level play from the other side of the server',
+          'Lined up against several Thai pro rosters — NeXT Esports by RPG, Team Finite and Baby Build House — and lost every time, but standing on the other side of the server taught me what professional standards and competitive culture actually look like, which no amount of reading can',
           'IT Ladkrabang Open House — DOTA 2 Tournament (full match broadcast available)',
           'AIS 5G eSports OPEN Thailand 2022: Pokémon UNITE — finished in the tournament Top 8',
           'Also competed in CS:GO — never went deep in the bracket, but it put me inside the competitive FPS scene first-hand',
@@ -1427,8 +1433,10 @@ export const STRINGS = {
           'タイ側スタッフ1人として日→タイ語ローカライズを一貫担当（進行管理・翻訳・校正・カルチャライズ）— 日本のビジュアルノベル14作品をSteamでリリース',
           '累計100万文字以上を単独で翻訳・校正し、全タイトルのトーン・用語・文体を統一',
           'タイ市場向けのトランスクリエーションにより、ローカライズ済み旧作の売上15%増に貢献',
+          '実際の訳文をご覧いただく方法: Steamのストアページで表示言語をタイ語に切り替えてください。タイトル名・ストア文言・ゲーム内テキストはすべて私の翻訳・校正によるものです',
           'Cherry Kiss ThailandのSNS（Facebook + X）を単独運営し、フォロワー0から1,600人以上へ — タイのプレイヤーへの初の直接チャネルを確立（Kagami Visual Novelなどのパートナーとも連携）',
           '東京ゲームショウ2025に会社代表として参加し、15社以上の海外デベロッパーと商談',
+          '1タイトルあたりの進め方（毎月バッチで受注）: 売れるタイ語タイトルの命名 → アートに合いUI内で可読なタイ語フォントの選定 → チームとマーケ方針をすり合わせ → スプレッドシート上で翻訳・校正しつつ用語集とトーンを統一 → メディア／パートナーへの connect → 発売時のマーケ施策の実行 · この全工程を一人で担当',
         ],
         links: [
           { label: '🎮 Sticky Rice on Steam', url: 'https://store.steampowered.com/publisher/stickyricegames' },
@@ -1474,6 +1482,7 @@ export const STRINGS = {
           '大型AAAコンソールタイトルを8万語以上（英・日→タイ語）ローカライズしつつ、世界同時発売スケジュールの中でフルタイムのLQA業務を並行',
           'コンソール実機でのLQAにより、言語バグ・テキスト切れ・表記の問題を発売前に100%検出・解決',
           '日本本社からの役員来訪時に通訳を務め、日本人マネジメントへの報告はすべて日本語で実施',
+          '作業形態: クライアント環境へリモート接続し、クローズドな環境内で作業。翻訳・バグ報告ともにクライアント専用システムを使用（NDAのため名称非開示）— 各社のツールチェーンへの適応と、機密性の高い案件の進め方に慣れている',
         ],
         links: [
           { label: '🏢 digitalhearts.com', url: 'https://www.digitalhearts.com/' },
@@ -1616,7 +1625,7 @@ export const STRINGS = {
       esport: {
         title: '🏆 eスポーツ',
         brief: [
-          '高校〜大学時代はDota 2の競技プレイヤー。高校生全国大会でベスト4、NeXT Esports by RPG・Team Finite・Baby Build House といったプロチームとも対戦',
+          '元Dota 2競技プレイヤー。高校時代は全国ベスト4の上位チーム。オープン予選では NeXT Esports by RPG・Team Finite・Baby Build House などのプロチームと対戦し、いずれも敗退したものの、アマチュアとプロの差を対戦相手として体感した',
           'ポケモンユナイトでも AIS 5G eSports OPEN Thailand 2022 でベスト8 · 実際の試合映像は上のスライドから',
         ],
         stats: [
@@ -1628,7 +1637,7 @@ export const STRINGS = {
           '元Dota 2競技プレイヤー — 高校時代から大学時代にかけて各種大会に出場',
           'Bodin E-Sport Championship（「Bodindecha The Battle」）— 高校生全国レベルでベスト4。2017年2月17日、ボディンデーチャ校でのオフライン（LAN）決勝 · 協賛: Alienware · Logitech G · GODLIKE · Invate',
           'ROG MASTERS 2017 タイ オープン予選 — 勝ち上がりプロチーム NeXT Esports by RPG と対戦',
-          '一連の大会を通じて、NeXT Esports by RPG・Team Finite・Baby Build House などタイのプロチームと対戦。勝敗はさまざまだが、プロレベルのプレーを対戦相手として直接体感した',
+          'NeXT Esports by RPG・Team Finite・Baby Build House などタイのプロチームと対戦し、いずれも敗退。それでも対戦相手として立った経験から、プロの基準と競技シーンの文化を肌で理解できた',
           'IT Ladkrabang Open House — DOTA 2 大会（試合中継の映像あり）',
           'AIS 5G eSports OPEN Thailand 2022：ポケモンユナイト — 大会ベスト8',
           'CS:GOの大会にも出場 — 上位までは進めなかったが、競技FPSシーンを現場から体感',
