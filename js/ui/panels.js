@@ -557,6 +557,31 @@ export class Panels {
     this.closeBtn = document.getElementById('panel-close');
     this.openId = null;
 
+    this.scrollEl = document.getElementById('panel-scroll');
+
+    // ★ A4: เงาขอบล่างบอกว่ายังมีเนื้อหาต่อ — ซ่อนเองเมื่อเลื่อนถึงท้าย
+    //   (โซน Sticky Rice สูง 838px แต่จอเห็น 554px หายไป 1/3 โดยไม่มีสัญญาณ)
+    this.scrollEl.addEventListener('scroll', () => this.syncScrollCue(), { passive: true });
+    window.addEventListener('resize', () => this.syncScrollCue());
+
+    // ★ N5: focus trap — กด Tab แล้วโฟกัสต้องวนอยู่ในกล่อง ไม่หลุดไปหลังฉากมืด
+    this.root.addEventListener('keydown', (e) => {
+      if (e.code !== 'Tab' || !this.openId) return;
+      const items = [...this.box.querySelectorAll(
+        'a[href], button:not([disabled]), iframe, [tabindex]:not([tabindex="-1"])')]
+        .filter((el) => el.offsetParent !== null);
+      if (!items.length) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    });
+
     this.closeBtn.addEventListener('click', () => this.close());
     // คลิกฉากหลังมืด (นอกกรอบ) = ปิด
     this.root.addEventListener('pointerdown', (e) => {
@@ -571,6 +596,13 @@ export class Panels {
     return this.openId !== null;
   }
 
+  // มีเนื้อหาต่อข้างล่างไหม → เติม/ถอด class ที่ #panel-box (CSS วาดเงาไล่)
+  syncScrollCue() {
+    const el = this.scrollEl;
+    const more = el.scrollHeight - el.clientHeight - el.scrollTop > 12;
+    this.box.classList.toggle('has-more', more);
+  }
+
   open(id) {
     if (!this.render(id)) return;
     clearTimeout(this._closeTimer);
@@ -579,9 +611,13 @@ export class Panels {
     this.box.classList.remove('opening');
     void this.box.offsetWidth;              // บังคับ reflow ให้ animation เริ่มใหม่จริง
     this.box.classList.add('opening');
+    this.scrollEl.scrollTop = 0;
+    this.syncScrollCue();
     audio.play('pop');
     this.onOpenChange(true);
     this.onOpenZone?.(id);
+    // โฟกัสเข้ากล่องเพื่อให้ Tab/Esc ทำงานกับ panel ทันที (a11y)
+    this.closeBtn.focus({ preventScroll: true });
   }
 
   // สลับภาษาระหว่าง panel เปิดอยู่ → วาดเนื้อหาใหม่เงียบๆ (ไม่เล่นเสียง/ไม่ยุ่ง state)
@@ -641,6 +677,8 @@ export class Panels {
     else if (data.tags && !show.brandsTop) this.bodyEl.appendChild(buildTags(data.tags));
     if (data.links) this.bodyEl.appendChild(buildLinks(data.links));
     this.closeBtn.setAttribute('aria-label', i18n.t('ui.close'));
+    // เนื้อหาเปลี่ยน = ความสูงเปลี่ยน → คำนวณเงา "มีต่อข้างล่าง" ใหม่หลังจัดหน้าเสร็จ
+    requestAnimationFrame(() => this.syncScrollCue());
     return true;
   }
 

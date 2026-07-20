@@ -14,6 +14,7 @@ import { ResumeMode } from './ui/resume.js';
 import { i18n } from './i18n.js';
 import { audio } from './audio.js';
 import { BRAND } from './data/content.js';
+import { buildLinks } from './ui/panels.js';
 
 // สไปรต์ตัวละคร (กระติ๊บ) — ใช้ webp ตัวเดียวกับ <img id="kratib"> ใน intro
 // จึงมาจาก cache ทันที ไม่ยิง request ซ้ำ (png เดิม 343KB → webp 60KB)
@@ -65,6 +66,8 @@ function refreshInputLock() {
   document.documentElement.classList.toggle(
     'overlay-open', panels.isOpen || resumeMode.isOpen,
   );
+  // ★ ป้ายวิธีเล่นต้องไม่ลอยทับกล่องข้อความ (z-index สูงกว่า panel)
+  if (panels.isOpen || resumeMode.isOpen) hintEl?.classList.add('gone');
 }
 
 // ★ 2026-07-20: ตัวนับความคืบหน้า "สำรวจแล้ว x/13 โซน"
@@ -80,13 +83,33 @@ function renderProgress() {
   progressEl.classList.toggle('done', seenZones.size >= total);
 }
 
+// ★ 2026-07-20: การ์ดปิดท้ายเมื่อสำรวจครบทุกโซน — เปลี่ยน "คนดู" เป็น "คนทัก"
+//   (เดิมครบแล้วได้แค่ป้ายทอง ซึ่งไม่ได้พาไปไหนต่อ)
+const ctaEl = document.getElementById('cta');
+function showCta() {
+  document.getElementById('cta-head').textContent = i18n.t('resume.ctaHead');
+  document.getElementById('cta-body').textContent = i18n.t('resume.ctaBody');
+  const box = document.getElementById('cta-links');
+  box.innerHTML = '';
+  const contact = i18n.t('panels.desk');
+  if (contact?.links) box.appendChild(buildLinks(contact.links));
+  ctaEl.classList.remove('hidden');
+}
+document.getElementById('cta-close').addEventListener('click', () => {
+  audio.play('click');
+  ctaEl.classList.add('hidden');
+});
+
 const panels = new Panels({
   onOpenChange: refreshInputLock,
   onOpenZone: (id) => {
     if (seenZones.has(id)) return;
     seenZones.add(id);
     renderProgress();
-    if (seenZones.size === OBJECTS.length) audio.play('sparkle');
+    if (seenZones.size === OBJECTS.length) {
+      audio.play('sparkle');
+      setTimeout(showCta, 700);   // รอ panel ที่เพิ่งเปิดให้ผู้ใช้อ่านก่อนสักครู่
+    }
   },
 });
 const resumeMode = new ResumeMode({ onOpenChange: refreshInputLock });
@@ -136,6 +159,23 @@ function standPoint(o, from) {
   return p;
 }
 
+// วัตถุ solid ชิ้นแรกที่เส้นตรง (x0,y0)→(x1,y1) พาดผ่าน — ใช้กับการหลบสิ่งกีดขวาง
+// sample 12 จุดตามเส้น พอสำหรับห้องขนาดนี้ (วัตถุเล็กสุดกว้าง 90px)
+function blockerOnPath(x0, y0, x1, y1) {
+  const pad = 26;   // เผื่อครึ่งตัวผู้เล่น
+  for (let i = 1; i <= 12; i++) {
+    const k = i / 12;
+    const px = x0 + (x1 - x0) * k;
+    const py = y0 + (y1 - y0) * k;
+    for (const o of OBJECTS) {
+      if (!o.solid) continue;
+      if (px > o.x - pad && px < o.x + o.w + pad
+        && py > o.y - pad && py < o.y + o.h + pad) return o;
+    }
+  }
+  return null;
+}
+
 // ระยะจากขอบ AABB ถึงผู้เล่น (สูตรเดียวกับ findHover) — ใช้ตัดสินว่าเปิด panel ได้ไหม
 function edgeDist(o) {
   const dx = Math.max(o.x - player.x, 0, player.x - (o.x + o.w));
@@ -159,6 +199,20 @@ input.onRightClick = (sx, sy) => {
   renderer.addClickFx(w.x, w.y, '#ffd24d');
   if (hover && !panels.isOpen && !resumeMode.isOpen) panels.open(hover.id);
 };
+
+// ★ 2026-07-20: ป้ายบอกวิธีเล่น — โผล่ 6 วิแรกหลังเข้าห้องแล้วจางหายเอง
+//   ข้อความเปลี่ยนตามอุปกรณ์ (เมาส์/คีย์บอร์ด vs จอสัมผัส) และตามภาษา
+const hintEl = document.getElementById('hint');
+let hintTimer = null;
+function showHint() {
+  hintEl.textContent = i18n.t(input.touch ? 'ui.hintTouch' : 'ui.hintKeys');
+  hintEl.classList.remove('hidden', 'gone');
+  clearTimeout(hintTimer);
+  hintTimer = setTimeout(() => {
+    hintEl.classList.add('gone');
+    setTimeout(() => hintEl.classList.add('hidden'), 600);
+  }, 6000);
+}
 
 // ปุ่ม interact ลอยสำหรับจอสัมผัส — โชว์เฉพาะตอนมีวัตถุในระยะ
 const interactBtn = document.getElementById('interact-btn');
@@ -197,6 +251,7 @@ const intro = new IntroScene({
     homeBtn.classList.remove('hidden'); // เข้าสตูดิโอแล้วค่อยโชว์ปุ่มกลับหน้าหลัก
     progressEl.classList.remove('hidden');
     renderProgress();
+    showHint();
   },
 });
 intro.start();
@@ -281,6 +336,11 @@ function rebuildLabels() {
 // สลับภาษา → อัปเดตทุกอย่างที่แสดงข้อความอยู่ (resume/panel วาดใหม่ของตัวเองผ่าน onChange)
 i18n.onChange(() => {
   document.documentElement.lang = i18n.lang;
+  // ป้ายวิธีเล่นยังโชว์อยู่ → เปลี่ยนภาษาตามทันที (ไม่งั้นค้างเป็นภาษาเดิม)
+  if (hintEl && !hintEl.classList.contains('hidden')) {
+    hintEl.textContent = i18n.t(input.touch ? 'ui.hintTouch' : 'ui.hintKeys');
+  }
+  if (!ctaEl.classList.contains('hidden')) showCta();
   renderLangBtn();
   renderResumeBtn();
   rebuildLabels();
@@ -326,6 +386,36 @@ function frame(now) {
     g.px = player.x;                     // ให้ getMoveVector รู้ตำแหน่งล่าสุด
     g.py = player.y;
     const d = Math.hypot(g.x - player.x, g.y - player.y);
+
+    // ★ A13: หลบสิ่งกีดขวาง 1 ระดับ (ไม่ใช่ A* เต็ม — ห้องโล่งพอ)
+    //   ถ้าเส้นตรงไปหาเป้าพาดผ่านวัตถุ solid ให้ตั้ง "จุดพัก" ที่มุมของวัตถุนั้น
+    //   ฝั่งที่อ้อมสั้นกว่า แล้วค่อยเดินต่อ = ไม่ไปยืนโขกอยู่หน้าตู้
+    if (!g.via && d > 40) {
+      const hit = blockerOnPath(player.x, player.y, g.x, g.y);
+      if (hit) {
+        const pad = 52;
+        const left = hit.x - pad;
+        const right = hit.x + hit.w + pad;
+        const viaX = Math.abs(left - player.x) < Math.abs(right - player.x) ? left : right;
+        const viaY = player.y < hit.y ? hit.y - pad : hit.y + hit.h + pad;
+        g.via = {
+          x: Math.min(Math.max(viaX, MAP.floor.x0 + 30), MAP.floor.x1 - 30),
+          y: Math.min(Math.max(viaY, MAP.floor.y0 + 30), MAP.floor.y1 - 30),
+        };
+        g.finalX = g.x;
+        g.finalY = g.y;
+        g.x = g.via.x;
+        g.y = g.via.y;
+      }
+    }
+    // ถึงจุดพักแล้ว → เล็งเป้าจริงต่อ
+    if (g.via && Math.hypot(g.x - player.x, g.y - player.y) < 26) {
+      g.x = g.finalX;
+      g.y = g.finalY;
+      g.via = null;
+      goalStuck = 0;
+    }
+
     // ถึงแล้ว หรือเดินชนกำแพงจนไม่ขยับ 0.5 วิ → เลิก
     goalStuck = before < 0.4 * dt * player.speed ? goalStuck + dt : 0;
     if (d < 8 || goalStuck > 0.5) {
@@ -363,6 +453,12 @@ function frame(now) {
   hover = inGame && !panels.isOpen && !resumeMode.isOpen ? findHover() : null;
 
   // จอสัมผัส: โชว์ปุ่ม ✦ เฉพาะตอนมีวัตถุในระยะ (toggle class เฉพาะตอนสถานะเปลี่ยน)
+  // ป้ายวิธีเล่นยังโชว์อยู่แล้วเพิ่งรู้ว่าเป็นจอสัมผัส → สลับข้อความให้ตรงอุปกรณ์
+  if (input.touch && !hintEl.classList.contains('hidden')
+      && hintEl.textContent !== i18n.t('ui.hintTouch')) {
+    hintEl.textContent = i18n.t('ui.hintTouch');
+  }
+
   const showInteract = !!(input.touch && hover);
   if (showInteract !== interactShown) {
     interactShown = showInteract;

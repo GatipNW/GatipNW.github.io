@@ -68,6 +68,21 @@ function sortByY(a, b) { return a.sortY - b.sortY; }
 // (คริสตัลมุมห้อง + โคมไฟลอย ถูกถอดออกแล้ว — เจ้าของสั่ง 2026-07-16
 //  ตัวเจนยังอยู่ใน tools/gen_furniture.py ถ้าอยากเอากลับ)
 
+// ★ A12 (2026-07-20): เงาของสิ่งที่เคลื่อนที่ได้ (ผู้เล่น/โปริ่ง) ต้องเอียงตามทิศแสง
+//   ห้องมีแหล่งแสงชัดเจนคือหน้าต่าง 3 บานบนผนังเหนือ และเงาของเฟอร์นิเจอร์ที่อบไว้
+//   ในภาพก็คิดจากหน้าต่างเดียวกัน → ถ้าเงาตัวละครยังเป็นวงรีกลางตัว มันจะขัดกันทันที
+//   สูตรเดียวกับใน tools/gen_room_v2.py: หาหน้าต่างที่ใกล้ที่สุด แล้วทอดเงาออกจากมัน
+function lightOffset(x, y, len) {
+  let bx = 470 + 65;
+  for (const w of [470, 815, 1160]) {
+    if (Math.abs(w + 65 - x) < Math.abs(bx - x)) bx = w + 65;
+  }
+  const dx = x - bx;
+  const dy = Math.max(y - NORTH_WALL_H * 0.5, 1);
+  const d = Math.hypot(dx, dy);
+  return { x: (dx / d) * len, y: (dy / d) * len * 0.5 };
+}
+
 // ★ 2026-07-20: สีขีดบอกหมวดบนป้ายชื่อ (ดู field `cat` ใน objects.js)
 //   ใช้สีธีมล้วน — ชาด/คราม/ทอง ไม่เพิ่มสีใหม่ให้ฉูดฉาด
 const LABEL_CATS = {
@@ -2283,11 +2298,15 @@ export class Renderer {
 
     const feetY = player.y + player.h / 2;
 
-    // เงาตัวละคร
-    ctx.fillStyle = COLORS.shadow;
-    ctx.beginPath();
-    ctx.ellipse(player.x, feetY - 3, player.w * 0.55, 9, 0, 0, Math.PI * 2);
-    ctx.fill();
+    // เงาตัวละคร — ★ เยื้องไปตามทิศแสงจากหน้าต่าง (A12) ไม่ใช่วงรีกลางตัว
+    {
+      const off = lightOffset(player.x, feetY, 13);
+      ctx.fillStyle = COLORS.shadow;
+      ctx.beginPath();
+      ctx.ellipse(player.x + off.x, feetY - 3 + off.y,
+        player.w * 0.62, 9.5, Math.atan2(off.y, off.x) * 0.25, 0, Math.PI * 2);
+      ctx.fill();
+    }
 
     const sprite = this.sprites.player;
     if (sprite && sprite.complete && sprite.naturalWidth > 0) {

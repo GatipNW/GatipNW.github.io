@@ -2608,6 +2608,283 @@ img.stat-img {
   }
 }
 
+/* ============================================
+   ★ THEME v3.1 — งานเก็บก่อน deploy (2026-07-20 รอบ 11)
+   หัว Resume Mode (สรุป + ข้อมูลสำหรับ HR) · กลุ่มหัวข้อ · ท้ายหน้า
+   ============================================ */
+
+/* บทสรุป 3 บรรทัด — สิ่งแรกที่ HR อ่าน */
+#resume-box .resume-summary {
+  margin: 4px 0 18px;
+  padding: 18px 22px;
+  border-radius: 14px;
+  background: rgba(217, 164, 65, 0.07);
+  border-left: 4px solid var(--kin);
+}
+
+#resume-box .resume-summary .bullets li { margin-bottom: 10px; }
+
+/* กล่องข้อมูลที่ HR ถามเสมอ */
+#resume-box .resume-facts {
+  margin: 0 0 26px;
+  padding: 18px 22px 20px;
+  border-radius: 14px;
+  background: rgba(245, 239, 226, 0.05);
+  border: 1px solid rgba(217, 164, 65, 0.35);
+}
+
+#resume-box .resume-facts h2 {
+  margin: 0 0 12px;
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+  color: #ffd98a;
+}
+
+#resume-box .resume-facts dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 8px 20px;
+  margin: 0 0 14px;
+}
+
+#resume-box .resume-facts dt {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: rgba(214, 226, 255, 0.72);
+  white-space: nowrap;
+}
+
+#resume-box .resume-facts dd {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: rgba(250, 246, 238, 0.95);
+}
+
+@media (max-width: 560px) {
+  #resume-box .resume-facts dl { grid-template-columns: 1fr; gap: 2px; }
+  #resume-box .resume-facts dd { margin-bottom: 8px; }
+}
+
+/* หัวข้อกลุ่ม (ประสบการณ์ทำงาน / ทักษะ / ...) — ฉบับ ja ใช้โครง 職務経歴書 */
+#resume-box .resume-group {
+  margin: 34px 0 12px;
+  padding-bottom: 8px;
+  font-family: var(--font-display);
+  font-size: 1.18rem;
+  letter-spacing: 0.04em;
+  color: #ffe1a3;
+  border-bottom: 1px solid rgba(217, 164, 65, 0.35);
+}
+
+#resume-box .resume-group:first-of-type { margin-top: 22px; }
+
+#resume-box .resume-foot {
+  margin-top: 32px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(217, 164, 65, 0.25);
+}
+
+#resume-box .resume-updated {
+  margin: 0 0 8px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #ffd98a;
+}
+
+/* ---- ป้ายบอกวิธีเล่น (โผล่ 6 วิแรกหลังเข้าห้อง) ---- */
+#hint {
+  position: fixed;
+  left: 50%;
+  bottom: 26px;
+  transform: translateX(-50%);
+  z-index: 190;
+  max-width: min(92vw, 640px);
+  padding: 11px 20px;
+  border-radius: 999px;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  text-align: center;
+  color: rgba(255, 246, 232, 0.96);
+  background: rgba(16, 18, 38, 0.86);
+  border: 1px solid rgba(217, 164, 65, 0.55);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(3px);
+  pointer-events: none;
+  animation: hint-in 0.45s ease both;
+}
+
+/* ★ ต้องสั่ง animation:none ด้วย — keyframe ที่ fill-mode `both` จะ "ล็อก" opacity:1
+   ไว้ ทำให้ class .gone สั่ง opacity:0 ไม่สำเร็จ (อนิเมชันชนะ declaration ปกติเสมอ)
+   อาการที่เจอ: เปิด panel แล้วป้ายวิธีเล่นยังลอยทับกล่องอยู่ */
+#hint.gone {
+  animation: none;
+  opacity: 0;
+  transition: opacity 0.55s ease;
+}
+
+@keyframes hint-in {
+  from { opacity: 0; transform: translate(-50%, 14px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+/* ---- การ์ดปิดท้ายเมื่อสำรวจครบทุกโซน ---- */
+#cta {
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  transform: translateX(-50%);
+  z-index: 210;
+  width: min(94vw, 480px);
+  padding: 20px 24px 22px;
+  border-radius: 18px;
+  color: var(--ink);
+  background: var(--washi);
+  border: 1px solid rgba(217, 164, 65, 0.7);
+  box-shadow: 0 0 0 4px rgba(16, 18, 38, 0.55), 0 20px 50px rgba(0, 0, 0, 0.55);
+  animation: cta-in 0.5s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+
+#cta h3 {
+  margin: 0 0 8px;
+  font-family: var(--font-display);
+  font-size: 1.06rem;
+  color: var(--shu-deep);
+}
+
+#cta p {
+  margin: 0 0 14px;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--ink);
+}
+
+#cta-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid rgba(43, 39, 64, 0.28);
+  background: rgba(255, 255, 255, 0.6);
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+@keyframes cta-in {
+  from { opacity: 0; transform: translate(-50%, 40px) scale(0.94); }
+  to { opacity: 1; transform: translate(-50%, 0) scale(1); }
+}
+
+/* ---- เงาบอกว่ายังมีเนื้อหาต่อข้างล่างใน panel ---- */
+#panel-box.has-more::before {
+  content: "";
+  position: absolute;
+  left: 1px;
+  right: 1px;
+  bottom: 1px;
+  height: 54px;
+  border-radius: 0 0 18px 18px;
+  background: linear-gradient(180deg, rgba(245, 239, 226, 0), rgba(245, 239, 226, 0.96));
+  pointer-events: none;
+  z-index: 2;
+}
+
+#panel-box.has-more::after { opacity: 0.55; }   /* ตรา 月 จางลงเวลามีเงาทับ */
+
+@media (prefers-reduced-motion: reduce) {
+  html:not(.fx-full) #hint,
+  html:not(.fx-full) #cta { animation: none; }
+}
+
+/* ============================================
+   ★ พิมพ์ Resume Mode (N4) — HR ชอบสั่ง Print → PDF เก็บเข้าแฟ้ม
+   ธีมจอเป็นพื้นครามเข้ม ถ้าพิมพ์ตรงๆ จะได้กระดาษดำเปลืองหมึกและอ่านไม่ออก
+   ============================================ */
+@media print {
+  #game-canvas, #intro, #hud, #progress, #hint, #cta, #panel,
+  #joystick, #interact-btn, #screen-fade, #boot, .resume-actions, #resume-close {
+    display: none !important;
+  }
+  html, body { background: #fff !important; }
+  #resume-mode {
+    position: static !important;
+    display: block !important;
+    overflow: visible !important;
+    background: #fff !important;
+    color: #111 !important;
+  }
+  #resume-mode.hidden { display: block !important; }   /* พิมพ์ได้แม้ยังไม่เปิดโหมด */
+  #resume-box, #resume-box * {
+    color: #111 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  #resume-box .resume-card,
+  #resume-box .resume-summary,
+  #resume-box .resume-facts,
+  #resume-box .stat-chip {
+    border: 1px solid #bbb !important;
+    break-inside: avoid;
+  }
+  #resume-box .resume-group {
+    border-bottom: 2px solid #333 !important;
+    break-after: avoid;
+  }
+  #resume-box .bullets li::before { background: #666 !important; }
+  #resume-box a { text-decoration: underline; }
+}
+
+/* ============================================
+   ★ THEME v3.2 — งานภาพจากผลตรวจ (A5 · A10 · A11)
+   ============================================ */
+
+/* A5: การ์ดโลโก้เตี้ยลง — เดิมสูงเท่ารูปจริง (300px) ทั้งที่ให้ข้อมูล 0
+   โซน DIGITAL HEARTS เปิดมาเห็นเครื่องหมายถูกเต็มจอก่อนเจอตัวเลข 80K+ คำ */
+#panel-body .car-slide .logo-card { height: 196px; }
+/* ★ hero ที่เป็น "การ์ดโลโก้" (เช่น DIGITAL HEARTS) — THEME v2 ตั้ง aspect-ratio 16/9
+   + max-height:none ทำให้สูง ~380px ทั้งที่ให้ข้อมูลเป็นศูนย์ ต้องกดลงมา
+   ใช้ contain ไม่ใช่ cover เพราะเป็นการ์ดที่มีกรอบอยู่แล้ว crop แล้วกรอบขาด */
+#panel-body img.panel-hero {
+  aspect-ratio: auto;
+  max-height: 210px;
+  object-fit: contain;
+  background: none;      /* contain แล้วมีแถบข้าง — ปล่อยให้เป็นสีวาชิของ panel จะกลืนกว่า */
+  border: none;
+  box-shadow: none;
+}
+
+#panel-body img.panel-hero.stat-img { max-height: 260px; }
+#panel-body .panel-hero.logo-card { height: 196px; }
+
+/* A10: แถบโลโก้แบรนด์ — เลื่อนแนวนอนได้ + เงาขอบขวาบอกว่ายังมีต่อ */
+.brand-zone.top { position: relative; }
+
+.brand-zone.top::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 44px;
+  height: 100%;
+  border-radius: 0 12px 12px 0;
+  background: linear-gradient(90deg, rgba(245, 239, 226, 0), rgba(245, 239, 226, 0.92));
+  pointer-events: none;
+}
+
+.brand-zone.top .brand-strip {
+  scroll-snap-type: x proximity;
+  padding-right: 40px;
+}
+
+.brand-zone.top .brand-card { scroll-snap-align: start; }
+
+/* A11: ตรา 月 ไม่ทับเนื้อหา — เว้นที่ท้าย panel ให้ตราอยู่ในที่ว่างจริง */
+#panel-body > *:last-child { margin-bottom: 42px; }
+
 /* ---- boot loader (2026-07-20): กันจอว่างช่วงรอโมดูล/ฟอนต์ ----
    CSS ล้วน ทำงานตั้งแต่ก่อน JS รัน — title.js เติม class .gone แล้วลบทิ้ง */
 #boot {

@@ -642,6 +642,8 @@ export const STRINGS = {
       interactTouch: 'แตะปุ่ม ✦ เพื่อดู',
       close: 'ปิด',
       langBtn: 'เปลี่ยนภาษา',
+      hintKeys: '🖱️ คลิกที่พื้นเพื่อเดิน · หรือใช้ WASD / ลูกศร — เข้าใกล้วัตถุแล้วกด E',
+      hintTouch: '👆 แตะค้างครึ่งซ้ายของจอเพื่อเดิน — เข้าใกล้วัตถุแล้วแตะปุ่ม ✦',
       progress: 'สำรวจแล้ว',
       progressDone: '🎉 ดูครบทุกโซนแล้ว!',
       openLink: '↗ เปิดหน้าเพจ',
@@ -649,12 +651,36 @@ export const STRINGS = {
     resume: {
       openTitle: '📄 ดู Resume เลย · ไม่ต้องเล่นเกม',
       open: '📄 Resume',
+      groups: [
+        { head: '💼 ประสบการณ์ทำงาน', ids: ['arcade-1', 'arcade-3', 'arcade-2', 'arcade-4', 'other'] },
+        { head: '📣 สื่อ · อีเวนต์ · คอมมูนิตี้', ids: ['youtube', 'event', 'network'] },
+        { head: '🛠️ ทักษะ & ภาษา', ids: ['skills', 'language'] },
+        { head: '🎓 การศึกษา & ประสบการณ์อื่น', ids: ['bookshelf', 'writing', 'esport'] },
+        { head: '📮 ติดต่อ', ids: ['desk'] },
+      ],
       heading: 'Resume Mode',
       subtitle: 'Game Localization · PR & Marketing — JA / EN → TH · โหมดอ่านเร็วสำหรับคนมีเวลาน้อย',
       download: '📄 Resume PDF (EN)',
       downloadJa: '📄 履歴書 (日本語)',
       downloadJaCv: '📄 職務経歴書 (日本語)',
       back: '🎮 กลับเข้าเกม',
+      summary: [
+        'ดูแล localization ญี่ปุ่น→ไทย ครบวงจรในฐานะทีมฝั่งไทยคนเดียวให้ publisher แคนาดา — ส่ง visual novel ขึ้น Steam แล้ว 14 เกม แปลและตรวจแก้กว่า 1,000,000 ตัวอักษร',
+        'ไม่ได้มีแค่ทักษะแปล — เป็นล่าม JA⇄TH ในงานจริง ดูแล PR/การตลาดและโซเชียลเอง ปั้นช่อง YouTube เกือบ 10,000 subscribers และประสานงานบูทเกมในอีเวนต์ระดับประเทศ',
+        'เคยไปทำงานที่โตเกียวมาแล้ว 3 เดือน (โครงการ Tokyo Internship) — คุ้นกับการทำงานแบบญี่ปุ่นจริง และพร้อมย้ายไปประจำที่ญี่ปุ่นทันที',
+      ],
+      factsHead: 'ข้อมูลสำหรับฝ่ายบุคคล',
+      facts: [
+        { k: 'ตำแหน่งที่มองหา', v: 'Localization · LQA · Publishing · PR & Marketing' },
+        { k: 'ภาษา', v: 'ไทย (เจ้าของภาษา) · ญี่ปุ่น JLPT N2 · อังกฤษ TOEIC 820' },
+        { k: 'ประสบการณ์ในญี่ปุ่น', v: 'ทำงานที่โตเกียว 3 เดือน — Zeal Team ย่านฮามามัตสึโจ (โครงการ Tokyo Internship)' },
+        { k: 'ย้ายประเทศ', v: '🇯🇵 พร้อมย้ายไปประจำที่ญี่ปุ่น' },
+        { k: 'ที่อยู่ปัจจุบัน', v: 'นนทบุรี ประเทศไทย' },
+      ],
+      ctaHead: '🎉 ดูครบทุกโซนแล้ว ขอบคุณที่ให้เวลาครับ',
+      ctaBody: 'ถ้าโปรไฟล์นี้ตรงกับตำแหน่งที่กำลังหาอยู่ ผมยินดีคุยต่อทุกช่องทางเลยครับ',
+      updated: 'อัปเดตล่าสุด: กรกฎาคม 2026',
+      colophon: 'เว็บนี้ผมเขียนเองทั้งหมดด้วย Vanilla JS + Canvas 2D (ไม่ใช้ framework) · ฉากและภาพประกอบทุกใบเจนด้วยสคริปต์ Python ที่เขียนเอง — ตัวเว็บก็นับเป็นผลงานอีกชิ้นหนึ่ง',
       credit: 'เพลงประกอบ: "3:03 PM" — しゃろう (Sharou) · ใช้ภายใต้เงื่อนไขการใช้งานที่ศิลปินกำหนด',
     },
     panels: {
@@ -687,6 +713,11 @@ export const STRINGS = {
       },
       'arcade-2': {
         title: '🕹️ Freelance',
+        stats: [
+          { v: '2', l: 'เกมที่ร่วม localize' },
+          { v: '1', l: 'มังงะลิขสิทธิ์' },
+          { v: '3+', l: 'งานล่าม JA⇄TH' },
+        ],
         brief: [
           'ร่วม localize เกมดังระดับโลก Wuthering Waves และ Battle Realms: Zen Edition · แปลมังงะลิขสิทธิ์ให้ Kadokawa Thailand',
           'ล่ามธุรกิจ JA⇄TH ทั้งพูดตามและพูดพร้อม — เลื่อนดูผลงานด้านบนได้เลย',
@@ -775,6 +806,7 @@ export const STRINGS = {
         lines: [
           'ป.ตรี Business Japanese — สถาบันเทคโนโลยีไทย-ญี่ปุ่น (TNI) เกียรตินิยมอันดับ 2 (GPA 3.49) นักเรียนทุนเต็มจำนวน (2016 – 2021)',
           'ฝึกงานกับบริษัทญี่ปุ่น 3 แห่ง: Zeal Team (โครงการรัฐบาลกรุงโตเกียว — ประจำที่โตเกียว 3 เดือน, 2023) · Touhou Bussan (ทุน METI, 2021) · Haru Urarakana Shobo (ทุน JTECS — สอบคัดเลือกได้ที่ 1, 2019–2020)',
+          '★ ทำงานที่โตเกียวจริง 3 เดือนเต็ม (โครงการ Tokyo Internship) — ประจำออฟฟิศบริษัท Zeal Team ย่านฮามามัตสึโจ (浜松町) และพักอาศัยแถวทาคานาวะเกตเวย์ (高輪ゲートウェイ) จึงคุ้นเคยกับการเดินทาง วัฒนธรรมออฟฟิศ และจังหวะการทำงานแบบญี่ปุ่นของจริง',
           'เข้าร่วมงานชุมนุมลูกเสือโลกครั้งที่ 23 (23rd World Scout Jamboree) ที่จังหวัดยามากุจิ ประเทศญี่ปุ่น ตั้งแต่สมัย ม.ปลาย (2015) — จุดเริ่มต้นความผูกพันกับญี่ปุ่น',
         ],
       },
@@ -966,6 +998,8 @@ export const STRINGS = {
       interactTouch: 'Tap ✦ to view',
       close: 'Close',
       langBtn: 'Change language',
+      hintKeys: '🖱️ Click the floor to walk · or use WASD / arrows — press E near an object',
+      hintTouch: '👆 Hold the left half of the screen to walk — tap ✦ when near an object',
       progress: 'Explored',
       progressDone: '🎉 All zones visited!',
       openLink: '↗ Open page',
@@ -973,12 +1007,36 @@ export const STRINGS = {
     resume: {
       openTitle: '📄 Read the resume · no gameplay needed',
       open: '📄 Resume',
+      groups: [
+        { head: '💼 Work experience', ids: ['arcade-1', 'arcade-3', 'arcade-2', 'arcade-4', 'other'] },
+        { head: '📣 Media · events · community', ids: ['youtube', 'event', 'network'] },
+        { head: '🛠️ Skills & languages', ids: ['skills', 'language'] },
+        { head: '🎓 Education & other experience', ids: ['bookshelf', 'writing', 'esport'] },
+        { head: '📮 Contact', ids: ['desk'] },
+      ],
       heading: 'Resume Mode',
       subtitle: 'Game Localization · PR & Marketing — JA / EN → TH · quick-read mode for busy people',
       download: '📄 Resume PDF (EN)',
       downloadJa: '📄 履歴書 (JA)',
       downloadJaCv: '📄 職務経歴書 (JA)',
       back: '🎮 Back to the game',
+      summary: [
+        'Sole Thai-side localization lead for a Canadian publisher — 14 visual novels shipped on Steam, 1,000,000+ characters translated and edited (JA→TH)',
+        'Not only translation: live JA⇄TH interpreting, running PR/marketing and social single-handedly, a YouTube channel grown to nearly 10,000 subscribers, and coordinating game booths at national-scale events',
+        'Already worked in Tokyo for 3 months (Tokyo Internship programme) — familiar with how Japanese workplaces actually run, and ready to relocate to Japan',
+      ],
+      factsHead: 'Quick facts for recruiters',
+      facts: [
+        { k: 'Looking for', v: 'Localization · LQA · Publishing · PR & Marketing' },
+        { k: 'Languages', v: 'Thai (native) · Japanese JLPT N2 · English TOEIC 820' },
+        { k: 'Experience in Japan', v: '3 months working in Tokyo — Zeal Team, Hamamatsuchō (Tokyo Internship programme)' },
+        { k: 'Relocation', v: '🇯🇵 Ready to relocate to Japan' },
+        { k: 'Based in', v: 'Nonthaburi, Thailand' },
+      ],
+      ctaHead: '🎉 That is every zone — thank you for your time',
+      ctaBody: 'If this looks like a fit for the role you are hiring for, I would love to talk.',
+      updated: 'Last updated: July 2026',
+      colophon: 'This site is hand-built in vanilla JS + Canvas 2D (no framework), and every scene and illustration is generated by Python scripts I wrote — the site itself is part of the portfolio.',
       credit: 'Music: "3:03 PM" by しゃろう (Sharou) · used under the composer\'s terms of use',
     },
     panels: {
@@ -1011,6 +1069,11 @@ export const STRINGS = {
       },
       'arcade-2': {
         title: '🕹️ Freelance',
+        stats: [
+          { v: '2', l: 'games localized' },
+          { v: '1', l: 'licensed manga' },
+          { v: '3+', l: 'JA⇄TH interpreting jobs' },
+        ],
         brief: [
           'Localized major titles: Wuthering Waves and Battle Realms: Zen Edition · licensed manga for Kadokawa Thailand',
           'Business interpretation JA⇄TH, consecutive and simultaneous — swipe through the work above',
@@ -1099,6 +1162,7 @@ export const STRINGS = {
         lines: [
           'B.A. Business Japanese — Thai-Nichi Institute of Technology (TNI), Second-Class Honors (GPA 3.49), full scholarship student (2016 – 2021)',
           'Internships at 3 Japanese companies: Zeal Team (Tokyo Metropolitan Gov\'t program — 3 months on-site in Tokyo, 2023) · Touhou Bussan (METI-sponsored, 2021) · Haru Urarakana Shobo (JTECS scholarship — ranked 1st in selection, 2019–2020)',
+          '★ Three full months actually working in Tokyo (Tokyo Internship programme) — based at Zeal Team\'s office in Hamamatsuchō and living near Takanawa Gateway, so the commute, the office culture and the Japanese working rhythm are all familiar territory',
           'Attended the 23rd World Scout Jamboree in Yamaguchi, Japan, back in high school (2015) — where the bond with Japan began',
         ],
       },
@@ -1286,6 +1350,8 @@ export const STRINGS = {
       interactTouch: '✦をタップで見る',
       close: '閉じる',
       langBtn: '言語を変更',
+      hintKeys: '🖱️ 床をクリックで移動 · WASD／矢印キーでも可 — オブジェクトに近づいて E キー',
+      hintTouch: '👆 画面左半分を長押しで移動 — オブジェクトに近づいたら ✦ をタップ',
       progress: '探索済み',
       progressDone: '🎉 全ゾーン制覇！',
       openLink: '↗ ページを開く',
@@ -1293,12 +1359,37 @@ export const STRINGS = {
     resume: {
       openTitle: '📄 履歴書を読む · ゲーム不要',
       open: '📄 Resume',
+      // ★ 日本の職務経歴書の一般的な構成に合わせた並び（th/en とは順番も見出しも異なる）
+      groups: [
+        { head: '職務経歴', ids: ['arcade-1', 'arcade-3', 'arcade-2', 'arcade-4', 'other'] },
+        { head: '実績（メディア・イベント・コミュニティ）', ids: ['youtube', 'event', 'network'] },
+        { head: '活かせる経験・知識・技術', ids: ['skills', 'language'] },
+        { head: '学歴・その他の経験', ids: ['bookshelf', 'writing', 'esport'] },
+        { head: 'コンタクト', ids: ['desk'] },
+      ],
       heading: 'Resume Mode',
       subtitle: 'ゲームローカライズ · PR＆マーケティング（日・英 → タイ語）· お急ぎの方向けクイック閲覧モード',
       download: '📄 Resume PDF（英語版）',
       downloadJa: '📄 履歴書（日本語）',
       downloadJaCv: '📄 職務経歴書（日本語）',
       back: '🎮 ゲームにもどる',
+      summary: [
+        'カナダのパブリッシャーにてタイ語ローカライズを一人で統括 — Steamでビジュアルノベル14タイトルをリリース、100万文字以上を翻訳・校正（日→タイ）',
+        '翻訳だけではなく、日⇄タイの逐次通訳、PR・マーケティングとSNS運用の単独担当、YouTubeチャンネルを1万人近くまで育成、国内最大級イベントでのゲームブース運営まで担当',
+        '東京で3か月の就業経験あり（Tokyo Internship・浜松町の Zeal Team）— 日本の職場の進め方を体感済みで、日本への移住はいつでも可能',
+      ],
+      factsHead: '採用ご担当者さまへ（要点）',
+      facts: [
+        { k: '希望職種', v: 'ローカライズ · LQA · パブリッシング · PR＆マーケティング' },
+        { k: '語学', v: 'タイ語（母語）· 日本語 JLPT N2 · 英語 TOEIC 820' },
+        { k: '日本での就業経験', v: '東京で3か月勤務 — 浜松町の Zeal Team（Tokyo Internshipプログラム）' },
+        { k: '移住', v: '🇯🇵 日本への移住可能' },
+        { k: '現住所', v: 'タイ・ノンタブリー県' },
+      ],
+      ctaHead: '🎉 全ゾーンご覧いただきありがとうございました',
+      ctaBody: '募集中のポジションと合いそうでしたら、ぜひ一度お話しさせてください。',
+      updated: '最終更新: 2026年7月',
+      colophon: '本サイトはフレームワークを使わず Vanilla JS + Canvas 2D で自作し、背景やイラストはすべて自作のPythonスクリプトで生成しています — サイト自体もポートフォリオの一部です。',
       credit: '楽曲: 「3:03 PM」しゃろう · 制作者の利用規約に基づき使用',
     },
     panels: {
@@ -1331,6 +1422,11 @@ export const STRINGS = {
       },
       'arcade-2': {
         title: '🕹️ Freelance',
+        stats: [
+          { v: '2', l: 'ローカライズ参加タイトル' },
+          { v: '1', l: 'ライセンス漫画' },
+          { v: '3+', l: '日⇄タイ通訳案件' },
+        ],
         brief: [
           '『鳴潮（Wuthering Waves）』『Battle Realms: Zen Edition』のローカライズに参加 · KADOKAWAタイランドで漫画翻訳',
           'ビジネス通訳（日⇄タイ・逐次/同時）— 上のスライドで作品をチェック',
@@ -1419,6 +1515,7 @@ export const STRINGS = {
         lines: [
           '泰日工業大学（TNI / Thai-Nichi Institute of Technology）ビジネス日本語専攻 卒業 — 第二等優等（GPA 3.49）・全額奨学生（2016 – 2021）',
           '日系企業3社でのインターン経験: Zeal Team（東京都主催プログラム — 東京にて3か月常駐、2023年）· 東邦物産（METI支援、2021年）· はるうららかな書房（JTECS奨学金 — 選考1位、2019–2020年）',
+          '★ 東京で3か月間の実務経験（Tokyo Internship）— 浜松町の Zeal Team に常駐し、高輪ゲートウェイ周辺に居住。通勤・オフィス文化・日本的な仕事の進め方を実体験済み',
           '高校時代に第23回世界スカウトジャンボリー（山口県・2015年）へ参加 — 日本との縁の原点',
         ],
       },
