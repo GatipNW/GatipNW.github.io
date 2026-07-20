@@ -195,6 +195,17 @@ export const SHOWCASE = {
           ja: 'JETROブースのチーム全員 @ Thailand Game Show — 日本タイトルがずらり並ぶブース',
         },
       },
+      // ★ 2026-07-20: Book Expo Thailand — เจ้าของเป็นสตาฟงานปี 2017 และ 2019
+      //   ภาพที่ใช้คือ key visual ทางการของปี 2025 (โหลดจากหน้าอีเวนต์ QSNCC)
+      {
+        img: 'assets/showcase/slides/bookexpo.webp',
+        url: 'https://www.thaibookfair.com/',
+        cap: {
+          th: '📚 Book Expo Thailand — มหกรรมหนังสือระดับชาติ · เข้าร่วมเป็นสตาฟของงานทั้งปี 2017 และ 2019',
+          en: '📚 Book Expo Thailand — the national book fair · joined as event staff in both 2017 and 2019',
+          ja: '📚 Book Expo Thailand — タイ最大級のブックフェア · 2017年・2019年ともにスタッフとして参加',
+        },
+      },
       // ★ 2026-07-20 รอบ 6: เจ้าของสั่งย้ายหมวดโยซาโค่ยจากโซนประวัติมาโซนอีเวนต์
       //   (เป็นงานแสดง/อีเวนต์จริงๆ ไม่ใช่ประวัติการศึกษา) · ภาพสนามกีฬาถูกตัดออกตามสั่ง
       {
@@ -378,7 +389,8 @@ export const SHOWCASE = {
   },
   // ★ v3 2026-07-20: "กำแพงโลโก้" แทน carousel — เจ้าของบอกเลื่อนทีละใบแล้วไม่เห็น
   //   ภาพรวมว่าเครือข่ายใหญ่แค่ไหน · ตอนนี้เห็นทุกเพจ/องค์กรพร้อมกันในจอเดียว
-  //   แยก 2 กลุ่ม (สื่อ/คอมมูนิตี้ กับ องค์กร/พันธมิตรธุรกิจ) แตะการ์ด = กางรายละเอียด
+  //   แยก 2 กลุ่ม (สื่อ/คอมมูนิตี้ กับ องค์กรที่มีความสัมพันธ์อันดี) แตะการ์ด = กางรายละเอียด
+  //   ★ ห้ามใช้คำว่า "พันธมิตร/partner" กับกลุ่มหลัง — เจ้าของย้ำว่าไม่ได้เป็นพาร์ตเนอร์กัน
   //   ยอด follower ตัวเลขเป๊ะยังรอเจ้าของยืนยัน (TODO)
   network: {
     wall: {
@@ -455,19 +467,22 @@ export const SHOWCASE = {
         },
         {
           head: {
-            th: '🤝 องค์กร · พันธมิตรธุรกิจ',
-            en: '🤝 Organizations & business partners',
-            ja: '🤝 団体・ビジネスパートナー',
+            th: '🤝 องค์กรที่มีความสัมพันธ์อันดี',
+            en: '🤝 Organizations I have good working relationships with',
+            ja: '🤝 良好な関係のある団体・企業',
           },
           items: [
             {
-              img: 'assets/showcase/logos/sm/jtecs.webp',
-              name: 'J-Tech (JTECS)',
+              // ★ 2026-07-20: เจ้าของแก้ — องค์กรที่ทำงานด้วยจริงคือ JETRO ไม่ใช่ JTECS
+              //   (JTECS เป็นผู้ให้ทุนสมัยเรียน ยังอยู่ในโซนประวัติ/การศึกษาตามเดิม)
+              img: 'assets/showcase/logos/sm/jetro.webp',
+              name: 'JETRO',
+              url: 'https://www.jetro.go.jp/en/',
               light: true,
               d: {
-                th: 'สมาคมส่งเสริมเทคโนโลยีไทย-ญี่ปุ่น — เครือข่ายสายธุรกิจ/การศึกษาไทย-ญี่ปุ่น',
-                en: 'Thailand-Japan Technology Promotion Association — a Thai-Japan business & education network',
-                ja: '泰日経済技術振興協会。タイと日本をつなぐビジネス・教育ネットワーク',
+                th: 'องค์การส่งเสริมการค้าต่างประเทศของญี่ปุ่น — ร่วมงานกันที่บูทเกม Thailand Game Show ปี 2024 และ 2025 ในฐานะล่ามประจำบูทและผู้ประสาน business matching',
+                en: 'Japan External Trade Organization — worked together on the game booth at Thailand Game Show in 2024 and 2025 as booth interpreter and business-matching coordinator',
+                ja: '日本貿易振興機構（JETRO）— Thailand Game Show 2024・2025のゲームブースにて、ブース通訳およびビジネスマッチングの調整を担当',
               },
             },
             {
@@ -952,7 +967,7 @@ export const STRINGS = {
         ],
         lines: [
           'เครือข่ายในวงการ: รู้จักและทำงานร่วมกับเพจเกม/สื่อ/อินฟลูชั้นนำของไทยโดยตรง — โปจิโปจิ (ยูทูบเบอร์ข่าวอนิเมะ/เกมชื่อดัง) · เกมถูกบอกด้วย (เพจดีลเกมรายใหญ่ระดับประเทศ) · เกมเมอร์อมตีน (เพจมีม/คอมมูนิตี้เกมยอดฮิต) · Kagami Visual Novel (เพจ VN ตัวหลักของไทย) · ConSole Hub (คอมมูนิตี้เกมคอนโซล)',
-          'เครือข่ายฝั่งองค์กร/ธุรกิจ: J-Tech (JTECS) · DIGITAL HEARTS · Kadokawa Thailand · First Page Pro',
+          'องค์กรที่มีความสัมพันธ์อันดีในสายงาน: JETRO (ร่วมงานที่บูทเกม Thailand Game Show 2024 + 2025) · DIGITAL HEARTS · Kadokawa Thailand · First Page Pro',
           'เป็นสมาชิกกลุ่ม Thailand Game Development and Media — คอมมูนิตี้คนทำเกมและสื่อเกมของไทย',
           'ช่องทางกระจายข่าวพร้อมใช้ทันทีสำหรับการเปิดตัว/โปรโมตเกมในตลาดไทย',
         ],
@@ -1304,7 +1319,7 @@ export const STRINGS = {
         ],
         lines: [
           'Industry network: direct working relationships with Thailand\'s top gaming pages, media, and influencers — Pochi Pochi (popular anime/game news YouTuber) · SheapGamer (one of Thailand\'s biggest game-deals pages) · GamerOmTeen (hit gaming meme/community page) · Kagami Visual Novel (Thailand\'s go-to VN page) · ConSole Hub (console gaming community)',
-          'Organizational network: J-Tech (JTECS) · DIGITAL HEARTS · Kadokawa Thailand · First Page Pro',
+          'Organizations I have good working relationships with: JETRO (worked together on the Thailand Game Show booth in 2024 + 2025) · DIGITAL HEARTS · Kadokawa Thailand · First Page Pro',
           'Member of Thailand Game Development and Media — the community of Thai game developers and games media',
           'A ready amplification channel for launching and promoting games in the Thai market',
         ],
@@ -1657,7 +1672,7 @@ export const STRINGS = {
         ],
         lines: [
           '業界ネットワーク: タイの主要ゲームメディア・コミュニティ・インフルエンサーとの直接的な協力関係 — Pochi Pochi（アニメ・ゲームニュース系人気YouTuber）· SheapGamer（タイ最大級のゲームセール情報ページ）· GamerOmTeen（大人気ゲームミームページ）· Kagami Visual Novel（タイのVN専門ページ）· ConSole Hub（コンシューマーゲームコミュニティ）',
-          '団体・企業ネットワーク: J-Tech（JTECS）· DIGITAL HEARTS · Kadokawa Thailand · First Page Pro',
+          '良好な関係のある団体・企業: JETRO（Thailand Game Show 2024・2025のブースで協働）· DIGITAL HEARTS · Kadokawa Thailand · First Page Pro',
           'Thailand Game Development and Media のメンバー — タイのゲーム開発者・ゲームメディアのコミュニティ',
           'タイ市場でのゲームローンチ・プロモーションに即活用できる拡散チャネル',
         ],
