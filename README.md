@@ -5,7 +5,7 @@
 
 A playable top-down resume — walk around a studio and open each zone to read the work.
 
-**▶ Live:** _(ใส่ลิงก์หลัง deploy)_
+**▶ Live:** (https://gatipnw.github.io/)
 
 ---
 
