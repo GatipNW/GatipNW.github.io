@@ -436,8 +436,11 @@ state machine: `title → charge → leap → lang → dialog → enter → done
   → ใช้ **Edit tool** หรือ **Python** (`io.open(p, encoding='utf-8')`) เท่านั้น
 - ไม่มี **node** ในเครื่อง → syntax-check JS ไม่ได้ ต้องเช็คด้วยการโหลดจริงในเบราว์เซอร์
   (`scratchpad/final.py` ดัก JS error ให้แล้ว)
-- ไม่มี **pdftoppm / pypdf / pymupdf** → อ่าน PDF ไม่ได้ ข้อมูลใน resume ต้องดูจาก
-  `js/data/content.js` (มีครบ 3 ภาษาอยู่แล้ว) หรือถามเจ้าของ
+- ไม่มี **pdftoppm / pypdf / pymupdf / reportlab / fpdf / python-docx** → **อ่านและเขียน
+  PDF ไม่ได้เลย** ข้อมูล resume ต้องดูจาก `js/data/content.js` (ครบ 3 ภาษา) หรือถามเจ้าของ
+  · เวลาเจ้าของสั่ง "อัปเดต PDF ให้ตรงกับเว็บ" ให้ทำเป็น **ไฟล์ข้อความสำเร็จรูปให้ copy ไปวาง**
+    (ดู `docs/resume-pdf-updates-2026-07.md`) และบอกทางลัด: Resume Mode มี `@media print`
+    อยู่แล้ว → เปิดแล้ว Ctrl+P → Save as PDF ได้เอกสารที่ตรงกับเว็บ 100%
 - **Google Drive MCP ใช้ไม่ได้** (insufficient authentication scopes) — เจ้าของบอกว่า
   "อยู่ใน Drive" ให้ขอไฟล์ตรงๆ หรือหาทางอื่น อย่าเสียเวลาลอง
 - หาภาพเกมจาก Steam ได้: `store.steampowered.com/api/storesearch/?term=<ชื่อ>&cc=us`
