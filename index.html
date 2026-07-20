@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Interactive Game Resume</title>
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <!-- ★ preload เฉพาะของที่ "จอแรก" ต้องใช้ (2026-07-20 — แก้อาการค้างก่อนเข้า Title)
+       เดิมภาพห้อง/เฟอร์นิเจอร์แย่งแบนด์วิดท์กับฉากหลัง Title ทำให้ Title ขึ้นช้า ~5s
+       ภาพห้องย้ายไปโหลดทีหลังแล้ว (renderer.preloadRoom() ใน main.js) -->
+  <link rel="preload" as="image" href="assets/kratib.webp" fetchpriority="high">
+  <link rel="preload" as="image" href="assets/bg-sky.webp">
+  <link rel="preload" as="image" href="assets/bg-mid.webp">
+  <link rel="preload" as="image" href="assets/bg-near.webp">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;600;700&family=Noto+Sans+JP:wght@400;600;700&family=Orbitron:wght@500;700;900&family=Shippori+Mincho:wght@500;600;700;800&family=Noto+Serif+Thai:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <canvas id="game-canvas"></canvas>
+
+  <!-- ช่วงเปิดตัว: ข้อความทั้งหมดถูกเติมโดย JS จาก content.js -->
+  <!-- ตัวบอกสถานะระหว่างรอโมดูล/ฟอนต์โหลด (CSS ล้วน ไม่รอ JS)
+       title.js ลบทิ้งทันทีที่ Title พร้อม — กันจอว่างเปล่าดูเหมือนเว็บค้าง -->
+  <div id="boot"><span class="boot-moon">月</span><span class="boot-bar"></span></div>
+
+  <div id="intro">
+    <canvas id="fx-canvas"></canvas>
+    <img id="kratib" src="assets/kratib.webp" alt="Gatip" draggable="false" fetchpriority="high">
+    <div id="intro-flash"></div>
+    <div class="bar bar-top"></div>
+    <div class="bar bar-bottom"></div>
+    <div id="intro-title">
+      <div id="intro-logo"></div>
+      <div id="intro-tagline"></div>
+      <!-- ★ 2026-07-20: บอกสายงานตั้งแต่วินาทีแรก — HR เปิดมาต้องรู้ทันทีว่าเราคือสายอะไร -->
+      <div id="intro-role"></div>
+      <div id="press-start"></div>
+      <!-- ทางลัดสำหรับ HR ที่ไม่อยากเล่นเกม — เปิด Resume Mode ได้ตั้งแต่หน้า Title -->
+      <button id="title-resume"></button>
+    </div>
+    <div id="intro-dialog" class="hidden">
+      <div id="dialog-text"></div>
+      <div id="dialog-next" class="hidden">▾</div>
+      <div id="dialog-choices"></div>
+    </div>
+    <button id="intro-skip" class="hidden"></button>
+  </div>
+
+  <!-- Panel เนื้อหาตอน interact กับวัตถุ (ข้อความเติมโดย JS จาก content.js)
+       โครง: หัว (คลื่นคราม+ชื่อ+ปุ่มปิด) คงที่ / เนื้อหา scroll ข้างใน — บน-ล่างไม่แหว่ง -->
+  <div id="panel" class="hidden">
+    <div id="panel-box">
+      <div id="panel-head">
+        <h2 id="panel-title"></h2>
+        <button id="panel-close">✕</button>
+      </div>
+      <div id="panel-scroll">
+        <div id="panel-body"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Resume Mode: หน้า resume แบบ scroll ปกติสำหรับ HR ที่รีบ (เนื้อหาเติมโดย JS จาก content.js) -->
+  <div id="resume-mode" class="hidden" role="dialog" aria-modal="true" aria-labelledby="resume-name">
+    <button id="resume-close">✕</button>
+    <div id="resume-box"></div>
+  </div>
+
+  <!-- ตัวควบคุมจอสัมผัส: จอยสติ๊กลอยตามจุดแตะ (ครึ่งซ้าย) + ปุ่ม interact (ขวาล่าง) -->
+  <div id="joystick" class="hidden" aria-hidden="true"><div id="joystick-knob"></div></div>
+  <button id="interact-btn" class="hidden" aria-label="interact">✦</button>
+
+  <!-- screen transition: ม่านมืด fade ตอนสลับฉาก (เช่น กด 🏠 กลับหน้า Title) -->
+  <div id="screen-fade" aria-hidden="true"></div>
+
+  <!-- HUD มุมขวาบน: เสียง / ภาษา / Resume Mode / กลับหน้าหลัก -->
+  <div id="hud">
+    <button id="mute-btn" aria-label="toggle sound">🔊</button>
+    <button id="lang-btn" aria-label="change language">🌐</button>
+    <button id="resume-btn"></button>
+    <button id="home-btn" class="hidden" aria-label="back to title">🏠</button>
+  </div>
+
+  <!-- ★ 2026-07-20: ตัวนับความคืบหน้า "สำรวจแล้ว x/13 โซน" — โผล่หลังเข้าห้องแล้ว
+       ทำให้คนอยากเปิดดูให้ครบ (ข้อได้เปรียบเดียวที่เว็บเกมมีเหนือ PDF) -->
+  <div id="progress" class="hidden" aria-live="polite"></div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
