@@ -207,6 +207,8 @@ JOBS = [
     ('cover', 'event-yosakoi.jpg', 'yosakoi.webp'),
     ('cover', 'interpreter.jpg', 'interpreter.webp'),
     ('cover', 'esport-bodin.jpg', 'esport-bodin.webp'),
+    # ★ Book Expo Thailand 2025 — key visual ทางการจากหน้าอีเวนต์ของ QSNCC
+    ('tall', 'bookexpo-2025.jpg', 'bookexpo.webp'),
     # ★ โซนงานเขียน 2026-07-20 รอบ 7 (ปกจาก tunwalai — ต้นฉบับ 250×316 เล็กมาก)
     ('tall', 'novel-cover.jpg', 'novel.webp'),
     # รูปโปรไฟล์เพจเครือข่าย (สี่เหลี่ยมจัตุรัส → tall)

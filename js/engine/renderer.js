@@ -2298,15 +2298,8 @@ export class Renderer {
 
     const feetY = player.y + player.h / 2;
 
-    // เงาตัวละคร — ★ เยื้องไปตามทิศแสงจากหน้าต่าง (A12) ไม่ใช่วงรีกลางตัว
-    {
-      const off = lightOffset(player.x, feetY, 13);
-      ctx.fillStyle = COLORS.shadow;
-      ctx.beginPath();
-      ctx.ellipse(player.x + off.x, feetY - 3 + off.y,
-        player.w * 0.62, 9.5, Math.atan2(off.y, off.x) * 0.25, 0, Math.PI * 2);
-      ctx.fill();
-    }
+    // ★ 2026-07-20: เงาใต้ตัวละครหลักถูกถอดออก (เจ้าของสั่ง "เกะกะ")
+    //   ห้ามใส่กลับ — เงาเฟอร์นิเจอร์ที่อบในภาพห้องทำหน้าที่ผูกฉากอยู่แล้ว
 
     const sprite = this.sprites.player;
     if (sprite && sprite.complete && sprite.naturalWidth > 0) {

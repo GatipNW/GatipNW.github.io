@@ -2545,11 +2545,13 @@ img.stat-img {
         (panel/Resume มีปุ่มปิดของตัวเองครบ · ถ้าจะสลับภาษาก็ปิด overlay ก่อน)
    ★ main.js เป็นคนเติม/ถอด class `overlay-open` ที่ <html> ใน refreshInputLock() */
 @media (max-width: 820px) {
-  html.overlay-open #hud,
-  html.overlay-open #progress {
-    display: none;
-  }
+  html.overlay-open #hud { display: none; }
 }
+
+/* ★★ ตัวนับ "สำรวจแล้ว x/14" ต้องหายทุกขนาดจอเมื่อมี overlay เปิด —
+   #resume-close ก็ fixed อยู่มุมซ้ายบนเหมือนกัน (top 16 / left 16) → ทับกันพอดี
+   จนกดปุ่มปิด Resume ไม่ได้ · และระหว่างอ่าน panel ตัวนับก็ไม่มีประโยชน์อยู่แล้ว */
+html.overlay-open #progress { display: none; }
 
 /* ตราประทับ 月 บนจอแคบ: panel เตี้ยลง ตราเลยไปนั่งทับ stat chip แถวล่าง */
 @media (max-width: 640px) {

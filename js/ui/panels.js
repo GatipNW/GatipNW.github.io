@@ -585,7 +585,14 @@ export class Panels {
     this.closeBtn.addEventListener('click', () => this.close());
     // คลิกฉากหลังมืด (นอกกรอบ) = ปิด
     this.root.addEventListener('pointerdown', (e) => {
-      if (e.target === this.root) this.close();
+      // ★ 2026-07-20: เฉพาะปุ่มซ้ายเท่านั้น — เดิมคลิกขวาบนฉากมืดก็ปิด panel
+      //   แล้ว contextmenu ที่ตามมาไปโดน onRightClick ซึ่งเปิด panel เดิมซ้ำ = วนไม่รู้จบ
+      if (e.button === 0 && e.target === this.root) this.close();
+    });
+    // คลิกขวาบนตัวกล่อง/ฉากมืด = ปิด (และห้ามเมนู "บันทึกภาพ" ของเบราว์เซอร์โผล่)
+    this.root.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      if (this.openId) this.close();
     });
     window.addEventListener('keydown', (e) => {
       if (this.openId && e.code === 'Escape') this.close();

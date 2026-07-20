@@ -380,6 +380,8 @@ function frame(now) {
     const w = screenToWorld(t.sx, t.sy);
     setGoal(w.x, w.y, objectAt(w.x, w.y));
   }
+  // จุดหมายถูกยกเลิก (กด WASD / จับจอย / คลิกขวา) → ล้างความตั้งใจจะเปิด panel ด้วย
+  if (!input.moveGoal && clickIntent) clickIntent = null;
   if (input.moveGoal) {
     const g = input.moveGoal;
     const before = Math.hypot(player.x - g.px, player.y - g.py);

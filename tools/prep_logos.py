@@ -47,6 +47,7 @@ JOBS = [
     ('firstpagepro-logo.png',      'firstpagepro',     'auto'),
     ('holoindie-logo.webp',        'holoindie',        'auto'),
     ('jamboree-logo.png',          'jamboree',         'auto'),
+    ('jetro-logo.png',             'jetro',            'auto'),
     ('japan-internship-logo.jpg',  'japan-internship', 'auto'),
     ('jtecs-logo.png',             'jtecs',            'auto'),
     ('src-kadokawa.png',           'kadokawa',         'auto'),   # ★ จาก Wikimedia SVG 1280px

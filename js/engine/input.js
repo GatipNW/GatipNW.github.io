@@ -30,6 +30,10 @@ export class Input {
       const dir = KEY_MAP[e.code];
       if (dir) {
         this.held.add(dir);
+        // ★★ 2026-07-20: กดปุ่มเดิน = ยกเลิกจุดหมายจากการคลิกทันที
+        //   เดิมไม่ยกเลิก พอปล่อยปุ่มตัวละครจะ "เดินต่อเอง" ไปหาจุดเก่า
+        //   หรือดูเหมือนค้าง/เดินติดเวลาสลับใช้ WASD กับเมาส์ (เจ้าของแจ้ง)
+        this.moveGoal = null;
         e.preventDefault();
       }
     });
@@ -59,7 +63,9 @@ export class Input {
       if (e.pointerType === 'touch' || !this._enabled) return;
       if (e.button === 2) return;                    // ปุ่มขวาจัดการที่ contextmenu
       this.clickTarget = { sx: e.clientX, sy: e.clientY };
-      this.held.clear();                             // คลิกใหม่ = ล้มเลิกทิศจากคีย์บอร์ด
+      // ★ ห้าม held.clear() ตรงนี้ — ปุ่มที่ "ยังกดค้างอยู่จริง" จะหลุดออกจาก set
+      //   แล้วต้องปล่อย-กดใหม่ถึงจะเดินได้ (อาการ "เดินติด" ที่เจ้าของเจอ)
+      //   ปล่อยให้ getMoveVector จัดลำดับเอง: คีย์บอร์ดชนะจุดหมายจากคลิกอยู่แล้ว
     });
 
     surface.addEventListener('contextmenu', (e) => {
@@ -88,6 +94,7 @@ export class Input {
       if (e.clientX > window.innerWidth * JOY_ZONE) return;
 
       const j = this.joy;
+      this.moveGoal = null;      // จับจอย = ยกเลิกจุดหมายจากการคลิกเช่นกัน
       j.active = true;
       j.id = e.pointerId;
       j.ox = e.clientX;
