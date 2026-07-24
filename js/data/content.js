@@ -8,6 +8,8 @@
 const RESUME_PDF = 'assets/resume-nipith-wongsirikul.pdf';
 const RESUME_PDF_JA = 'assets/resume-nipith-wongsirikul-ja.pdf';        // 履歴書
 const RESUME_PDF_JA_CV = 'assets/resume-nipith-wongsirikul-ja-cv.pdf';  // 職務経歴書
+// โบรชัวร์ทางการ GCA×TGS 2026 (เจ้าของมีติดตัว — ใช้ประกอบพิตช์ "สะพานสู่อีเวนต์เกมไทย" ในโซน event)
+const TGS_BROCHURE = 'assets/tgs26-brochure.pdf';
 
 // ข้อความกลางที่ไม่ผูกกับภาษา (โลโก้/ชื่อแบรนด์)
 export const BRAND = {
@@ -892,6 +894,7 @@ export const STRINGS = {
         brief: [
           'ทำงานภายใต้ 2 องค์กรใหญ่: บุกเบิกบูทเกม JETRO ที่ Thailand Game Show ปี 2024 + 2025 (ล่ามประจำบูท + Business Matching จนบูทโต 10 เท่า) และคุมโซน NicoNico Stage ที่ AFA Bangkok',
           'จัดอีเวนต์ Uma Musume สุดยิ่งใหญ่ (คอสเพลย์ 100+ คน ผู้ร่วมหลายพัน) · บุกงาน Tokyo Game Show 2025 Business Day กับ Sticky Rice — เดินดูบูทและหาลูกค้า 2 วันเต็ม',
+          'นอกจากงานในบูท ผมช่วยสตูดิโอที่อยากบุกตลาดอีเวนต์เกมไทยได้ตั้งแต่ต้น — ตั้งแต่คอนแทค/ข้อมูลงานใหญ่อย่าง TGS ไปจนถึงช่วยจัดอีเวนต์แฟนๆ ขนาดเล็กแต่แฟนแน่น',
         ],
         stats: [
           { v: '10×', l: 'บูท JETRO โตใน 1 ปี' },
@@ -908,6 +911,13 @@ export const STRINGS = {
           'Tokyo Game Show 2025 Business Day: ลุย 2 วันเต็มกับ Sticky Rice — เดินดูบูท หาลูกค้า เจรจาธุรกิจ และแลกนามบัตรกับผู้พัฒนานานาชาติ 15+ ราย',
           'ประธานชมรมโยซาโค่ย (การเต้นพื้นบ้านญี่ปุ่น) สมัยมหาวิทยาลัย — นำทีมขึ้นแสดงที่สนามกีฬาแห่งชาติ และที่หมู่บ้านญี่ปุ่น จ.พระนครศรีอยุธยา',
           'Book Expo Thailand 2017 และ 2019: เข้าร่วมในฐานะสตาฟของงานมหกรรมหนังสือระดับประเทศทั้งสองปี',
+          '━━━ สะพานสู่อีเวนต์เกมในไทย (บริการที่ช่วยได้) ━━━',
+          'สะพานเชื่อมสู่อีเวนต์เกมไทย: มีคอนแทคและให้ข้อมูลเชิงลึกงานใหญ่อย่าง Thailand Game Show ได้ — ค่าเข้าร่วม รูปแบบบูท กลุ่มผู้ชม ช่วงเวลาที่เหมาะ (มีโบรชัวร์ทางการ GCA×TGS 2026 ให้ดูด้านล่าง)',
+          'ที่ปรึกษาเลือกงานที่คุ้ม: งานใหญ่ไม่ได้ตอบโจทย์เสมอไป — ช่วยประเมินได้ว่างานกลาง/เล็กงานไหนในไทยตรงกลุ่มเป้าหมายและคุ้มค่าลงทุนกว่า',
+          'จัดอีเวนต์ของคุณเอง: อยากได้พื้นที่ของตัวเอง ผมช่วยวางคอนเซ็ปต์และประสานจ้างออกาไนเซอร์จัดอีเวนต์แฟนๆ ขนาดเล็กแต่แฟนแน่น — คุมได้ทั้งงบและกลุ่มเป้าหมาย',
+        ],
+        links: [
+          { label: '📋 โบรชัวร์ GCA×TGS 2026', url: TGS_BROCHURE, download: true },
         ],
       },
       // ★ โซนใหม่ 2026-07-20: ตู้เกม Esport (ตู้ที่ 5 แถวเหนือ)
@@ -1250,6 +1260,7 @@ export const STRINGS = {
         brief: [
           'Worked under two major organizations: pioneered JETRO\'s game booth at Thailand Game Show in 2024 + 2025 (booth interpreter + business matching, 10× booth growth) and managed the NicoNico Stage zone at AFA Bangkok',
           'Ran a massive Uma Musume event (100+ cosplayers, thousands joining) · hit Tokyo Game Show 2025 Business Day with Sticky Rice — 2 full days of scouting booths and finding clients',
+          'Beyond booth work, I can help a studio break into Thailand\'s game-event scene end-to-end — from contacts and intel on big shows like TGS down to running a small-but-devoted fan event',
         ],
         stats: [
           { v: '10×', l: 'JETRO booth growth' },
@@ -1266,6 +1277,13 @@ export const STRINGS = {
           'Tokyo Game Show 2025 Business Day: 2 full days with Sticky Rice — scouting booths, finding clients, negotiating, and exchanging cards with 15+ international developers',
           'President of the university Yosakoi club (Japanese folk dance) — led the team on stage at the National Stadium and at the Japanese Village in Ayutthaya',
           'Book Expo Thailand 2017 and 2019: joined both editions of the national book fair as event staff',
+          '━━━ Your bridge into Thai game events (how I can help) ━━━',
+          'A bridge into Thai game events: I have contacts and first-hand intel on major shows like Thailand Game Show — entry costs, booth formats, audience make-up and the right timing (the official GCA×TGS 2026 brochure is attached below)',
+          'Advising on which events are worth it: bigger isn\'t always better — I can assess which mid-size or smaller Thai events actually fit your audience and give a better return',
+          'Running your own event: want your own space? I can shape the concept and coordinate an organizer to run a small-but-devoted fan event — keeping both budget and audience on target',
+        ],
+        links: [
+          { label: '📋 GCA×TGS 2026 brochure', url: TGS_BROCHURE, download: true },
         ],
       },
       // ★ New zone 2026-07-20: Esports cabinet (5th cabinet of the north row)
@@ -1609,6 +1627,7 @@ export const STRINGS = {
         brief: [
           '2つの大組織のもとで活動: Thailand Game ShowでJETRO初のゲームブースを2024年+2025年に開拓（ブース通訳＆ビジネスマッチング、ブース10倍に）· AFA Bangkokニコニコステージのゾーン統括',
           '『ウマ娘』ビッグイベント運営（コスプレ100名超・数千人参加）· Sticky Riceと東京ゲームショウ2025 ビジネスデイへ — 2日間ブース視察＆顧客開拓',
+          'ブース業務にとどまらず、タイのゲームイベント参入をトータルで支援可能 — TGSのような大型イベントの人脈・情報から、小規模でもファンの熱量が高いイベントの開催まで',
         ],
         stats: [
           { v: '10倍', l: 'JETROブース拡大' },
@@ -1625,6 +1644,13 @@ export const STRINGS = {
           '東京ゲームショウ2025 ビジネスデイ: Sticky Riceと2日間フル稼働 — ブースを視察して顧客を開拓、15社以上の海外デベロッパーと商談・名刺交換',
           '大学ではよさこいサークルの部長を担当 — ナショナルスタジアムおよびアユタヤの日本人村での演舞をチームで実施',
           'Book Expo Thailand 2017・2019: タイ最大級のブックフェアに両年ともスタッフとして参加',
+          '━━━ タイのゲームイベントへの橋渡し（お手伝いできること）━━━',
+          'タイのゲームイベントへの橋渡し: Thailand Game Showのような大型イベントについて、人脈と一次情報を持っています — 出展費用・ブース形態・来場者層・最適な時期など（公式のGCA×TGS 2026ブローシャーを下に添付）',
+          '費用対効果の高いイベント選定: 大きければ良いとは限りません — タイの中小規模イベントの中から、ターゲット層に合い投資効果の高いものを見極めるお手伝いをします',
+          '自社イベントの開催: 独自の場が欲しい場合は、コンセプト設計からオーガナイザーの手配まで調整し、小規模でもファンの熱量が高いイベントを実現します — 予算もターゲットもコントロール可能です',
+        ],
+        links: [
+          { label: '📋 GCA×TGS 2026 ブローシャー', url: TGS_BROCHURE, download: true },
         ],
       },
       // ★ 新ゾーン 2026-07-20: eスポーツ筐体（北側の列・5台目）
