@@ -27,3 +27,6 @@ desktop.ini
 
 # การตั้งค่า Claude Code เฉพาะเครื่องนี้ (ไม่เกี่ยวกับเว็บ)
 .claude/settings.local.json
+
+# งานค้างในเครื่อง ยังไม่พร้อมขึ้น repo
+docs/intro-kinetic-*
