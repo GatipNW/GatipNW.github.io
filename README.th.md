@@ -1,0 +1,101 @@
+<div align="center">
+
+<img src=".github/media/banner.webp" alt="นิพิธ วงศ์ศิริกุล — เรซูเม่เกมเล่นได้" width="100%">
+
+[English](README.md) · [日本語](README.ja.md) · **ไทย**
+
+### ▶ [**gatipnw.github.io**](https://gatipnw.github.io/) — เปิดเล่นได้เลยในเบราว์เซอร์
+
+[![Live](https://img.shields.io/badge/live-gatipnw.github.io-e5484d?style=flat-square)](https://gatipnw.github.io/)
+![Vanilla JS](https://img.shields.io/badge/vanilla-JS%20%2B%20Canvas%202D-d9a441?style=flat-square)
+![No build step](https://img.shields.io/badge/build%20step-none-101226?style=flat-square)
+![i18n](https://img.shields.io/badge/i18n-TH%20%C2%B7%20EN%20%C2%B7%20JA-4a6fa5?style=flat-square)
+![Frame budget](https://img.shields.io/badge/render-1.2ms%2Fframe-3f8f5f?style=flat-square)
+
+</div>
+
+---
+
+ผมชื่อ **นิพิธ วงศ์ศิริกุล (กระติ๊บ)** ทำงานสาย Game Localization ญี่ปุ่น/อังกฤษ → ไทย
+แทนที่จะส่ง PDF ไปเฉยๆ เลยทำเกมเล็กๆ ที่เดินสำรวจได้ — ตู้เกม ชั้นหนังสือ และแผงลอย
+ทุกชิ้นในห้องคือผลงานหนึ่งชิ้น
+
+<div align="center">
+  <img src=".github/media/demo.webp" alt="เดินเข้าหาตู้เกมแล้วเปิดผลงาน" width="100%">
+  <sub>เดินเข้าหาตู้ → ป้ายสว่างขึ้น → กด <kbd>E</kbd> → ผลงานเปิดขึ้นมา · มีทั้งหมด 14 โซน</sub>
+</div>
+
+## ในห้องมีอะไรบ้าง
+
+| | |
+|:--|:--|
+| <img src=".github/media/shot-title.webp" alt="หน้า Title"> **หน้า Title** — สตูดิโออยู่ในดวงจันทร์ อินโทรจะพาบินเข้าไป | <img src=".github/media/shot-room.webp" alt="ห้องสตูดิโอ"> **ห้องสตูดิโอ** — วัตถุกดได้ 14 ชิ้น ชิ้นละหนึ่งโซนผลงาน |
+| <img src=".github/media/shot-panel.webp" alt="กล่องเนื้อหา"> **Panel** — การ์ดกระดาษวาชิ มีสไลด์ ตัวเลข และลิงก์ | <img src=".github/media/shot-resume.webp" alt="Resume Mode"> **Resume Mode** — หน้า HTML เลื่อนอ่านปกติ สำหรับคนที่อยากอ่านอย่างเดียว |
+
+<div align="center">
+  <img src=".github/media/shot-mobile.webp" alt="หน้าจอมือถือพร้อมจอยลอย" width="240">
+  <br><sub>จอสัมผัสมีจอยอนาล็อกลอยตามนิ้ว — รองรับตั้งแต่กว้าง 360px</sub>
+</div>
+
+## ทำไมถึงทำแบบนี้
+
+**ตัวเว็บคือชิ้นงานพอร์ตเอง** — เรซูเม่สายแปลที่เขียนว่า "ใส่ใจรายละเอียดภาษา" ควรพิสูจน์ให้เห็นได้จริง
+เว็บนี้เลยทำหน้าที่นั้น:
+
+- **3 ภาษาแบบเป็นโลแคลจริง ไม่ใช่ภาษาเดียวแล้วแปะคำแปล** ข้อความทุกตัวอยู่ใน
+  [`js/data/content.js`](js/data/content.js) กับ [`js/i18n.js`](js/i18n.js) ไม่มี hardcode
+  ในมาร์กอัป · สลับจาก HUD แล้ววาดใหม่ทันทีรวมถึง panel ที่เปิดค้างอยู่ ไม่ต้อง reload ·
+  จำภาษาไว้ใน `localStorage` และครั้งแรกเดาจาก `navigator.language`
+- **ฉบับญี่ปุ่นรื้อโครงใหม่ ไม่ใช่แปลทับ** เวอร์ชัน ja ใช้ลำดับของ 職務経歴書 จริง —
+  職務経歴 → 実績 → 活かせる経験・知識・技術 → 学歴 → コンタクト — ซึ่งคนละโครงกับฉบับไทย/อังกฤษ
+  ลำดับหัวข้อเก็บเป็นข้อมูลรายภาษา (`resume.groups`) ไม่ได้ใช้เทมเพลตร่วม ·
+  จุดนี้คือสิ่งที่อยากให้ HR ญี่ปุ่นเห็นที่สุด
+- **ไม่บังคับให้เล่น** Resume Mode เป็น HTML เลื่อนอ่านปกติ เปิดได้ตั้งแต่หน้าแรก
+  screen reader อ่านได้ และมี `@media print` ให้ Ctrl+P ออกมาเป็น PDF สะอาด
+  (ไม่ใช่กระดาษดำทั้งแผ่น)
+- **เอฟเฟกต์ตั้งต้นที่ "ปิด"** ทุกเอฟเฟกต์เช็ค `prefers-reduced-motion` โดยเวอร์ชันนิ่ง
+  ถูกออกแบบให้สวยด้วยตัวเอง แล้วค่อยมีปุ่ม ✨ ให้คนที่อยากได้เอฟเฟกต์เต็มกดเปิดเอง
+
+## เทคโนโลยี
+
+HTML + CSS + **Vanilla JS (ES Modules) + Canvas 2D** ไม่มี framework ไม่มี bundler
+ไม่มี build step และไม่มี dependency ตอนรันนอกจาก Google Fonts (ซึ่งมี fallback)
+วางโฟลเดอร์บน static host ที่ไหนก็เปิดได้
+
+คุมงบ 60fps ไว้ — `renderer.draw` วัดได้ **median 1.2ms · p95 2.1ms** ต่อเฟรม
+(วัดผ่าน CDP ที่ 1416×761) กติกาที่ทำให้อยู่ในงบ:
+
+- ห้ามใช้ `ctx.shadowBlur` ในลูปวาด — glow ทุกอันเป็นสไปรต์ที่เจนไว้ก่อน
+- gradient ทุกอันอบครั้งเดียวตอนเริ่ม ไม่สร้างใหม่ต่อเฟรม
+- ไม่สร้าง object/array ใหม่ทุกเฟรม · มี `requestAnimationFrame` ลูปเดียวคุมด้วย delta time
+- แท็บถูกซ่อนเมื่อไหร่ ลูปหยุดสนิท
+
+ฉากกลางคืน แสงในห้อง สไปรต์ และสไลด์ผลงาน เจนด้วยสคริปต์ Python ใน [`tools/`](tools/)
+ทั้งหมด (numpy + pillow, ล็อก seed) รวมถึงภาพใน README นี้ด้วย —
+[`tools/gh_media.py`](tools/gh_media.py) สั่งเบราว์เซอร์ headless ผ่าน CDP ไปจับแบนเนอร์
+ภาพนิ่ง และคลิปด้านบนมาจากตัวเกมจริง
+
+## โครงสร้าง
+
+```
+index.html · css/style.css
+js/     main.js · i18n.js · audio.js
+        engine/  camera · input · collision · particles · renderer
+        world/   player · objects · map
+        ui/      title(intro) · panels · resume
+        data/    content.js   ← เนื้อหาครบ 3 ภาษาอยู่ที่นี่ที่เดียว
+assets/ ภาพ · เสียง · PDF (เจนด้วย tools/)
+tools/  สคริปต์ Python เจนฉาก สไปรต์ โลโก้ สไลด์ และสื่อสำหรับ README
+```
+
+## รันในเครื่อง
+
+```bash
+python tools/serve.py     # → http://localhost:8123
+```
+
+## เครดิต
+
+- เพลงประกอบ: **"3:03 PM" — しゃろう (Sharou)** ใช้ตามเงื่อนไขการใช้งานที่ศิลปินกำหนด
+- โลโก้บริษัท/องค์กรที่ปรากฏเป็นเครื่องหมายการค้าของเจ้าของนั้นๆ แสดงเพื่อระบุผลงานที่เคยร่วมงานเท่านั้น
+- โค้ดเป็น MIT ส่วนข้อความ ภาพ และข้อมูลส่วนตัวไม่ใช่ — ดู [LICENSE](LICENSE)

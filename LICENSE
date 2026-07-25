@@ -1,0 +1,57 @@
+Copyright (c) 2026 Nipith Wongsirikul
+
+This repository contains two different kinds of material, under two different terms.
+
+--------------------------------------------------------------------------------
+1. SOURCE CODE — MIT License
+--------------------------------------------------------------------------------
+
+Applies to the code in this repository: index.html, everything under css/, js/,
+tools/, Python/ and scratchpad/.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+--------------------------------------------------------------------------------
+2. CONTENT AND ARTWORK — All rights reserved
+--------------------------------------------------------------------------------
+
+The MIT grant above does NOT cover:
+
+- Résumé text, biography, work history and any other personal information,
+  in any language (including the copy in js/data/content.js and the PDFs).
+- Original artwork and generated art assets: the "Kratib" mascot, the studio
+  scene, sprites, backgrounds and showcase slides under assets/.
+- Photographs of the author and of events the author took part in.
+
+These are reserved. You may read them and view them on the site; please do not
+copy, redistribute or reuse them without permission.
+
+--------------------------------------------------------------------------------
+3. THIRD-PARTY MATERIAL
+--------------------------------------------------------------------------------
+
+- Background music: "3:03 PM" by しゃろう (Sharou), used under the free-use terms
+  published by the artist. It is not covered by this license and must not be
+  redistributed from this repository.
+- Company, studio and organisation logos and game key art belong to their
+  respective owners. They appear here only to identify work the author was
+  involved in, and are not licensed by this file.
+- Fonts are loaded from Google Fonts under their own licenses.
+
+If you want to reuse the engine, the i18n setup or the Python art generators,
+that is exactly what part 1 is for — go ahead.

@@ -8,6 +8,7 @@
 
 # โปรไฟล์ Edge ที่สคริปต์เทสสร้างขึ้น (หลายร้อย MB · สร้างใหม่ได้ทุกครั้งที่รัน)
 scratchpad/edge-profile/
+scratchpad/edge-profile-media/
 # ภาพ screenshot จากการเทส (สร้างใหม่ได้ ไม่ใช่ส่วนของเว็บ)
 scratchpad/shots/
 # ไฟล์ชั่วคราวของสคริปต์เทส
