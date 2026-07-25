@@ -78,6 +78,34 @@ scripts in [`tools/`](tools/) (numpy + pillow, fixed seeds), including the media
 README — [`tools/gh_media.py`](tools/gh_media.py) drives a headless browser over CDP to
 capture the banner, screenshots and the animated demo above.
 
+## How this was built — and by whom
+
+I'd rather say this up front than let anyone assume otherwise: **the code was written with
+Claude (Anthropic) as my main pair-programmer.** I'm a localization specialist, not a
+software engineer, and pretending I hand-wrote every line would be a strange way to open a
+portfolio built on being trustworthy with other people's words.
+
+What was mine:
+
+- **The concept and the art direction** — a studio inside the moon, Japanese-night palette
+  of indigo, washi, vermilion and gold, HD-2D rather than isometric, and the decision to
+  fix "the room looks dull" with *lighting* instead of more props.
+- **Every design call and every revision.** Cut the god rays behind the logo, cut the
+  shadow under the player, five large Porings instead of nine small ones, drop the language
+  power-bars for real use cases, keep the vector arcade cabinets.
+- **All the writing, in all three languages**, and the fact-checking that goes with it —
+  including insisting the esports section say I lost to every pro team, because that's what
+  happened.
+- **The testing.** I played it and reported what was wrong: the controls not feeling smooth,
+  walking that stalled after a click, scenes that looked blurry, Porings hopping through
+  furniture, ink-coloured text on a dark panel, mobile layouts breaking. Those went back
+  until they were fixed.
+
+What Claude did: turn those calls into JavaScript and Python, and find the causes of the
+bugs I reported.
+
+The judgement in this project is mine. The typing was shared.
+
 ## Structure
 
 ```
