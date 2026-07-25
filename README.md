@@ -12,6 +12,11 @@
 ![i18n](https://img.shields.io/badge/i18n-TH%20%C2%B7%20EN%20%C2%B7%20JA-4a6fa5?style=flat-square)
 ![Frame budget](https://img.shields.io/badge/render-1.2ms%2Fframe-3f8f5f?style=flat-square)
 
+**Short on time?** Download the CV straight away —
+[English](https://gatipnw.github.io/assets/resume-nipith-wongsirikul.pdf) ·
+[履歴書](https://gatipnw.github.io/assets/resume-nipith-wongsirikul-ja.pdf) ·
+[職務経歴書](https://gatipnw.github.io/assets/resume-nipith-wongsirikul-ja-cv.pdf)
+
 </div>
 
 ---
@@ -85,24 +90,18 @@ Claude (Anthropic) as my main pair-programmer.** I'm a localization specialist, 
 software engineer, and pretending I hand-wrote every line would be a strange way to open a
 portfolio built on being trustworthy with other people's words.
 
-What was mine:
+Mine: the concept and art direction — a studio inside the moon, a Japanese-night palette of
+indigo, washi, vermilion and gold, and the call to fix "the room looks dull" with *lighting*
+rather than more props. Every design decision and revision. All the writing in three
+languages and the fact-checking behind it, including insisting the esports section say I
+lost to every pro team, because that's what happened.
 
-- **The concept and the art direction** — a studio inside the moon, Japanese-night palette
-  of indigo, washi, vermilion and gold, HD-2D rather than isometric, and the decision to
-  fix "the room looks dull" with *lighting* instead of more props.
-- **Every design call and every revision.** Cut the god rays behind the logo, cut the
-  shadow under the player, five large Porings instead of nine small ones, drop the language
-  power-bars for real use cases, keep the vector arcade cabinets.
-- **All the writing, in all three languages**, and the fact-checking that goes with it —
-  including insisting the esports section say I lost to every pro team, because that's what
-  happened.
-- **The testing.** I played it and reported what was wrong: the controls not feeling smooth,
-  walking that stalled after a click, scenes that looked blurry, Porings hopping through
-  furniture, ink-coloured text on a dark panel, mobile layouts breaking. Those went back
-  until they were fixed.
+And the testing. I played it and reported what was wrong: controls that didn't feel smooth,
+walking that stalled after a click, blurry scenes, sprites hopping through furniture,
+ink-coloured text on a dark panel, mobile layouts breaking. Those went back until they were
+fixed.
 
-What Claude did: turn those calls into JavaScript and Python, and find the causes of the
-bugs I reported.
+Claude turned those calls into JavaScript and Python, and tracked down the causes.
 
 The judgement in this project is mine. The typing was shared.
 

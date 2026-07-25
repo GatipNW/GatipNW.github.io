@@ -8,7 +8,7 @@
 # ★ กติกาเดิมจาก CLAUDE.md ยังใช้: --mute-audio · ลบ user-data-dir · bringToFront
 #   ★ ตอนอัด screencast ห้ามเรียก captureScreenshot (แท็บหลุด foreground → rAF หยุด)
 #   ★ ระหว่างอัดใช้ ws.send ดิบแบบไม่รอ response ไม่งั้นเฟรมหาย
-# ใช้: python tools/gh_media.py [banner|stills|gif|all]
+# ใช้: python tools/gh_media.py [banner|social|stills|gif|encode|all]
 # ============================================
 import base64
 import io
@@ -187,6 +187,25 @@ def make_banner(c):
     path = os.path.join(OUT, 'banner.webp')
     img.save(path, quality=84, method=6)
     print(f'  🖼  banner.webp {img.size} {os.path.getsize(path)//1024}KB')
+
+
+# ============================================
+# 1b) Social preview ของ repo — GitHub ต้องการ 1280×640 (2:1) พอดี
+#     ★ อัปเองที่ Settings → Social preview (ไม่มี API ให้อัป)
+#     ★ เป็น PNG ธรรมดา ไม่ใช่ WebP — ตัวอัปโหลดของ GitHub รับ png/jpg/gif เท่านั้น
+# ============================================
+def make_social(c):
+    c.metrics(1280, 640, dpr=2)
+    fresh_load(c, 'en')
+    c.js("""(() => {
+        for (const s of ['#hud', '#title-resume', '#mute-btn', '#lang-btn'])
+            document.querySelectorAll(s).forEach(e => { e.style.display = 'none'; });
+    })()""")
+    time.sleep(1.8)
+    img = c.shot_img().resize((1280, 640), Image.LANCZOS)
+    path = os.path.join(OUT, 'social-preview.png')
+    img.save(path, optimize=True)
+    print(f'  🔗 social-preview.png {img.size} {os.path.getsize(path)//1024}KB')
 
 
 # ============================================
@@ -412,6 +431,9 @@ def main():
         if what in ('all', 'banner'):
             print('— แบนเนอร์ —')
             make_banner(c)
+        if what in ('all', 'social'):
+            print('— social preview —')
+            make_social(c)
         if what in ('all', 'gif'):
             print('— GIF —')
             make_gif(c)
