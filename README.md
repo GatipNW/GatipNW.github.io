@@ -2,9 +2,7 @@
 
 <img src=".github/media/banner.webp" alt="Nipith Wongsirikul — Interactive Game Resume" width="100%">
 
-**English** · [日本語](README.ja.md) · [ไทย](README.th.md)
-
-### ▶ [**gatipnw.github.io**](https://gatipnw.github.io/) — play it in your browser
+### ▶ [**gatipnw.github.io**](https://gatipnw.github.io/)
 
 [![Live](https://img.shields.io/badge/live-gatipnw.github.io-e5484d?style=flat-square)](https://gatipnw.github.io/)
 ![Vanilla JS](https://img.shields.io/badge/vanilla-JS%20%2B%20Canvas%202D-d9a441?style=flat-square)
@@ -12,7 +10,7 @@
 ![i18n](https://img.shields.io/badge/i18n-TH%20%C2%B7%20EN%20%C2%B7%20JA-4a6fa5?style=flat-square)
 ![Frame budget](https://img.shields.io/badge/render-1.2ms%2Fframe-3f8f5f?style=flat-square)
 
-**Short on time?** Download the CV straight away —
+CV —
 [English](https://gatipnw.github.io/assets/resume-nipith-wongsirikul.pdf) ·
 [履歴書](https://gatipnw.github.io/assets/resume-nipith-wongsirikul-ja.pdf) ·
 [職務経歴書](https://gatipnw.github.io/assets/resume-nipith-wongsirikul-ja-cv.pdf)
@@ -21,104 +19,53 @@
 
 ---
 
-I'm **Nipith Wongsirikul (Gatip)**, a game localization specialist working JA/EN → TH.
-Instead of sending a PDF, I built a small game you can walk around — every arcade cabinet,
-shelf and market stall in the room opens a piece of my work.
+A playable resume by **Nipith Wongsirikul (Gatip)**, game localization specialist,
+JA/EN → TH. Walk around a studio built inside the moon; 14 objects open 14 zones of work.
 
 <div align="center">
-  <img src=".github/media/demo.webp" alt="Walking up to an arcade cabinet and opening a work panel" width="100%">
-  <sub>Walk to a cabinet → the label lights up → press <kbd>E</kbd> → the work opens. 14 zones in total.</sub>
+  <img src=".github/media/demo.webp" alt="Walking to an arcade cabinet and opening a work panel" width="100%">
 </div>
-
-## What's in the room
 
 | | |
 |:--|:--|
-| <img src=".github/media/shot-title.webp" alt="Title screen"> **Title** — the studio lives inside the moon; the intro flies you there | <img src=".github/media/shot-room.webp" alt="Studio room"> **The studio** — 14 interactive objects, each one a zone of work |
-| <img src=".github/media/shot-panel.webp" alt="Content panel"> **Panels** — washi-paper cards with slides, stats and links | <img src=".github/media/shot-resume.webp" alt="Resume mode"> **Resume Mode** — plain scrolling HTML for anyone who'd rather just read |
+| <img src=".github/media/shot-title.webp" alt="Title screen"> | <img src=".github/media/shot-room.webp" alt="Studio room"> |
+| <img src=".github/media/shot-panel.webp" alt="Content panel"> | <img src=".github/media/shot-resume.webp" alt="Resume mode"> |
 
-<div align="center">
-  <img src=".github/media/shot-mobile.webp" alt="Mobile layout with floating joystick" width="240">
-  <br><sub>Touch screens get a floating analog stick — works down to 360 px wide.</sub>
-</div>
+## Features
 
-## Why it's built this way
-
-**It is the portfolio piece.** A localization CV that claims "attention to linguistic
-detail" should be able to show it, so the site is the demonstration:
-
-- **Three real locales, not one language with two translations.** Every string lives in
-  [`js/data/content.js`](js/data/content.js) and [`js/i18n.js`](js/i18n.js) — nothing is
-  hardcoded in markup. Switching from the HUD re-renders open panels in place, with no
-  reload; the choice is remembered in `localStorage` and first-visit language is guessed
-  from `navigator.language`.
-- **The Japanese resume is restructured, not translated.** The JA version follows the
-  standard 職務経歴書 order — 職務経歴 → 実績 → 活かせる経験・知識・技術 → 学歴 → コンタクト —
-  which is a different shape from the TH/EN CV. Section order is data
-  (`resume.groups` per locale), not a hardcoded template. This is the part I'd want a
-  Japanese hiring manager to notice.
-- **Nobody is forced to play.** Resume Mode is ordinary scrolling HTML, reachable from the
-  title screen, readable by screen readers, and it carries a `@media print` block so
-  Ctrl+P produces a clean PDF instead of black pages.
-- **Motion is opt-out first.** Effects respect `prefers-reduced-motion`; the still version
-  is designed to look good on its own, with a ✨ FULL FX button for anyone who wants the
-  whole thing.
+- **Thai / English / Japanese.** Every string lives in [`js/data/content.js`](js/data/content.js);
+  switching from the HUD re-renders open panels with no reload.
+- **The Japanese resume follows 職務経歴書 section order** — 職務経歴 → 実績 →
+  活かせる経験・知識・技術 → 学歴 → コンタクト — not a translation of the English CV.
+  Section order is per-locale data.
+- **Resume Mode** — plain scrolling HTML, reachable from the title screen, screen reader
+  friendly, with a print stylesheet.
+- **Touch support** down to 360 px wide; `prefers-reduced-motion` respected throughout.
 
 ## Tech
 
-HTML + CSS + **vanilla JS (ES modules) + Canvas 2D**. No framework, no bundler, no build
-step, no runtime dependency except Google Fonts (which falls back cleanly). Drop the
-folder on any static host and it runs.
+Vanilla JS (ES modules) + Canvas 2D. No framework, no bundler, no build step, no runtime
+dependency except Google Fonts. `renderer.draw` runs at 1.2 ms median / 2.1 ms p95 per
+frame: no `ctx.shadowBlur` in the draw loop, gradients and glows pre-rendered once, no
+per-frame allocation, one `requestAnimationFrame` loop that stops when the tab is hidden.
 
-Performance held to a 60 fps budget — `renderer.draw` measures **1.2 ms median, 2.1 ms p95**
-per frame (CDP timing, 1416×761). The rules that keep it there:
-
-- no `ctx.shadowBlur` inside the draw loop — glows are pre-rendered sprites
-- every gradient baked once at startup, never per frame
-- no object or array allocation per frame; one `requestAnimationFrame` loop with delta time
-- the loop stops entirely when the tab is hidden
-
-The night scene, room lighting, sprites and showcase slides are all generated by Python
-scripts in [`tools/`](tools/) (numpy + pillow, fixed seeds), including the media in this
-README — [`tools/gh_media.py`](tools/gh_media.py) drives a headless browser over CDP to
-capture the banner, screenshots and the animated demo above.
-
-## How this was built — and by whom
-
-I'd rather say this up front than let anyone assume otherwise: **the code was written with
-Claude (Anthropic) as my main pair-programmer.** I'm a localization specialist, not a
-software engineer, and pretending I hand-wrote every line would be a strange way to open a
-portfolio built on being trustworthy with other people's words.
-
-Mine: the concept and art direction — a studio inside the moon, a Japanese-night palette of
-indigo, washi, vermilion and gold, and the call to fix "the room looks dull" with *lighting*
-rather than more props. Every design decision and revision. All the writing in three
-languages and the fact-checking behind it, including insisting the esports section say I
-lost to every pro team, because that's what happened.
-
-And the testing. I played it and reported what was wrong: controls that didn't feel smooth,
-walking that stalled after a click, blurry scenes, sprites hopping through furniture,
-ink-coloured text on a dark panel, mobile layouts breaking. Those went back until they were
-fixed.
-
-Claude turned those calls into JavaScript and Python, and tracked down the causes.
-
-The judgement in this project is mine. The typing was shared.
-
-## Structure
+Scenes, sprites, logos and showcase slides are generated by Python scripts in
+[`tools/`](tools/) (numpy + pillow, fixed seeds), as is the media in this README —
+[`tools/gh_media.py`](tools/gh_media.py) drives a headless browser over CDP to capture it
+from the running game.
 
 ```
 index.html · css/style.css
 js/     main.js · i18n.js · audio.js
         engine/  camera · input · collision · particles · renderer
         world/   player · objects · map
-        ui/      title (intro) · panels · resume
-        data/    content.js   ← all copy, in all three languages, lives here
-assets/ images · audio · PDFs (generated by tools/)
-tools/  Python generators: scene, sprites, logos, slides, README media
+        ui/      title · panels · resume
+        data/    content.js
+assets/ images · audio · PDFs
+tools/  Python generators · dev server
 ```
 
-## Run it locally
+## Run locally
 
 ```bash
 python tools/serve.py     # → http://localhost:8123
@@ -127,7 +74,6 @@ python tools/serve.py     # → http://localhost:8123
 ## Credits
 
 - Music: **"3:03 PM" by しゃろう (Sharou)**, used under the terms the artist publishes.
-- Company and organisation logos are trademarks of their respective owners, shown only to
-  identify work I was involved in.
-- Code is MIT-licensed; the writing, artwork and personal content are not — see
-  [LICENSE](LICENSE).
+- Company logos are trademarks of their respective owners, shown only to identify work I
+  was involved in.
+- Code is MIT-licensed; writing, artwork and personal content are not — see [LICENSE](LICENSE).

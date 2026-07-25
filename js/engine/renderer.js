@@ -192,7 +192,7 @@ export class Renderer {
     if (this.roomLoaded) return;
     this.roomLoaded = true;
     // ★ prototype 2026-07-20: สลับฉากพื้นด้วย ?room=v2 (หรือ localStorage.room='v2')
-    //   v1 = Python/gen_room.py (noise ล้วน) · v2 = tools/gen_room_v2.py (จัดองค์ประกอบ+ลานหิน)
+    //   v1 = tools/legacy/gen_room.py (noise ล้วน) · v2 = tools/gen_room_v2.py (จัดองค์ประกอบ+ลานหิน)
     // ★ 2026-07-20: เจ้าของเลือก **v2 เป็น default** แล้ว ("v2 ดีกว่า v1")
     //   สวิตช์ ?room=v1 ยังอยู่ไว้เทียบภาพ — v2 ยังไม่ถูกใจ 100% รอปรับต่อ
     const pick = new URLSearchParams(location.search).get('room')

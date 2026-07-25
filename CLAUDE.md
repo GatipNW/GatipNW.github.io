@@ -99,7 +99,7 @@ assets/ (webp เจนแล้ว, showcase/ = ภาพต้นฉบับ�
         showcase/logos/ + logos/sm/, showcase/games/, audio/, PDF 3 ไฟล์)
 tools/  serve.py, gen_slides.py, prep_logos.py, gen_room_v2.py(ฉากห้อง v2),
         gen_sprites.py(โปริ่ง v3)
-Python/ ตัวเจนชุดเดิม: gen_bg.py(เลเยอร์ Title), gen_room.py(ฉากห้อง v1),
+tools/legacy/ ตัวเจนชุดเดิม: gen_bg.py(เลเยอร์ Title), gen_room.py(ฉากห้อง v1),
         gen_furniture.py, gen_sprites.py(เก่า), serve.py(ซ้ำ — ใช้ tools/)
         ★ อาจเก่ากว่า asset ปัจจุบันบางตัว — เช็คก่อนใช้เจนทับ
 scratchpad/ สคริปต์เทส CDP (ดูหัวข้อ "การรัน + เทส") — ไม่ใช่ส่วนของเว็บ
@@ -216,7 +216,7 @@ state machine: `title → charge → leap → lang → dialog → enter → done
     ไม่งั้นแถบผนังเหนือจะเกรดสีไม่ตรงกับภาพฐาน เห็นรอยต่อชัด
   - **default = v2** · สลับกลับดู v1 ด้วย `?room=v1` (หรือ `localStorage.room='v1'`)
   - ตัวเจน `tools/gen_room_v2.py` → `room-base-v2.webp` 3× 292KB + `room-wall-hi.webp` 86KB
-  - ต่างจาก `Python/gen_room.py` ตรง **วิธีคิด**: v1 = fbm noise คูณสีพื้น (ได้เท็กซ์เจอร์
+  - ต่างจาก `tools/legacy/gen_room.py` ตรง **วิธีคิด**: v1 = fbm noise คูณสีพื้น (ได้เท็กซ์เจอร์
     แต่ไม่มีการจัดองค์ประกอบ) · v2 = วาดแบบจิตรกร — วางผัง → โครงค่าน้ำหนัก → แสงมีทิศทาง
     → AO/contact shadow → เก็บไฮไลต์
   - ของใหม่ใน v2: ลานหินปูรอบวงเวท + ขอบทอง (พื้นที่ "ถูกสร้าง" ไม่ใช่ถ้ำสุ่ม) · วงทรายคราด
@@ -226,7 +226,7 @@ state machine: `title → charge → leap → lang → dialog → enter → done
   - **v2.2** (รอบแก้ตามเจ้าของ): ถอด "วง 2 ข้างนอก" ออก = ขอบทองรอบลาน + วงทึบ/ขีดรูน
     ใน `fx.runeRing` → เหลือ **วงประวงเดียว** · ลดแสงอุ่นรอบวงเวทให้แผ่กว้างจนไม่เห็นเป็นวง
     · **ย้าย `MAP.spawn` 620 → 500** (กลางห้องจริง) — ★ ถ้าย้ายอีก ต้องแก้ `SPAWN` ใน
-    ทั้ง `tools/gen_room_v2.py` และ `Python/gen_room.py` ให้ = spawn.y + 30
+    ทั้ง `tools/gen_room_v2.py` และ `tools/legacy/gen_room.py` ให้ = spawn.y + 30
   - **v2.2 หน้าต่าง** (แก้อาการ "ภาพแตก" — ทั้งหมดเกิดจาก "เส้นตัดแข็ง" ไม่ใช่ความละเอียด):
     ภูเขาใช้ smoothstep แทน `Y > ridge` · ประกายน้ำเปลี่ยนจาก noise ตัดค่าเป็นจุดสุ่ม+bloom
     · ดาวเป็นจุด 2×2 + bloom 2 ชั้น · **กรอบใช้ distance field** `4·m·(1−m)` จาก mask ที่เบลอ
@@ -315,9 +315,12 @@ state machine: `title → charge → leap → lang → dialog → enter → done
 
 ## หน้า GitHub (2026-07-25)
 
-- **README แยก 3 ไฟล์**: `README.md` (EN = ตัวหลักที่ GitHub โชว์) · `README.ja.md` ·
-  `README.th.md` — มีแถบสลับภาษาบนสุดทุกไฟล์ ★ แก้เนื้อหาต้องแก้ให้ครบทั้ง 3
-  · จุดขายที่ดันขึ้นหัวเรื่องคือ **"ฉบับ ja รื้อโครงเป็น 職務経歴書 จริง ไม่ใช่แปลทับ"**
+- ★★ **README มีไฟล์เดียว เป็นภาษาอังกฤษ** (2026-07-25 รอบ 2 — เจ้าของ: "ไฟล์ใน repo
+  เยอะเกินไป") เคยแยก th/ja/en 3 ไฟล์แล้วสั่งยุบ **ห้ามแยกกลับ**
+  · สไตล์ที่เอา: สั้น ไม่มีเรียงความ · เคยมีหัวข้อ "Why it's built this way" กับ
+  "How this was built — and by whom" (บอกว่าใช้ Claude ช่วยเขียนโค้ด) → **เจ้าของสั่งตัดทิ้ง**
+  ★ คำอธิบายเรื่องใช้ Claude ยังอยู่ใน `colophon` ท้าย Resume Mode ครบ 3 ภาษา — อันนั้นห้ามลบ
+  · จุดขายที่ยังต้องคงไว้ในหัวข้อ Features: **"ฉบับ ja เรียงตามโครง 職務経歴書 จริง ไม่ใช่แปลทับ"**
 - **`.github/media/`** = สื่อสำหรับ README เท่านั้น (แยกจาก `assets/` ที่เว็บใช้จริง)
   เจนใหม่ด้วย `python tools/gh_media.py [banner|stills|gif|encode|all]`
   - ★★ **คลิปเป็น animated WebP ไม่ใช่ GIF** — ฉากนี้กล้องแพนตลอด ทุกพิกเซลเปลี่ยนทุกเฟรม
@@ -460,7 +463,7 @@ state machine: `title → charge → leap → lang → dialog → enter → done
 
 - **ห้ามแก้ไฟล์ที่มีภาษาไทย/ญี่ปุ่นด้วย PowerShell** — `Get-Content | ... |
   Set-Content -Encoding utf8` จะอ่านเป็น ANSI แล้วเขียนทับเป็น UTF-8 = **encode ซ้อน**
-  คอมเมนต์ไทยพังทั้งไฟล์ (ทำ `Python/gen_room.py` พังมาแล้ว กู้ยากมาก เพราะ
+  คอมเมนต์ไทยพังทั้งไฟล์ (ทำ `tools/legacy/gen_room.py` พังมาแล้ว กู้ยากมาก เพราะ
   ก/แ ทับกันเป็น `U+FFFD\x81` เหมือนกัน แยกไม่ออกต้องเดาจากบริบท)
   → ใช้ **Edit tool** หรือ **Python** (`io.open(p, encoding='utf-8')`) เท่านั้น
 - ไม่มี **node** ในเครื่อง → syntax-check JS ไม่ได้ ต้องเช็คด้วยการโหลดจริงในเบราว์เซอร์
@@ -542,8 +545,8 @@ M9 มือถือ 3 ขนาด ✅ · M10 คลิกเดิน/คล�
 M11 งานเก็บก่อน deploy (meta/OG · ป้ายวิธีเล่น · หัว Resume · โครง 職務経歴書 · CTA ·
 print · focus trap) ✅ · M12 แก้บั๊กการควบคุม ✅ · M13–14 เนื้อหาตรงความจริง + วีซ่า ✅
 **M15 deploy ขึ้น GitHub Pages ✅ (2026-07-20)**
-**M16 หน้า GitHub ✅ (2026-07-25)** — README 3 ภาษา + สื่อจากเกมจริง · LICENSE ·
-CHANGELOG · release v1.0.0 · About/topics (Profile README ทำแล้วแต่เจ้าของสั่งลบ)
+**M16 หน้า GitHub ✅ (2026-07-25)** — README อังกฤษไฟล์เดียว + สื่อจากเกมจริง · LICENSE ·
+`docs/CHANGELOG.md` · release v1.0.0 · About/topics · เก็บกวาดรากrepo เหลือ 6 ไฟล์
 
 ### ค้างอยู่ที่ตรงนี้ — งานถัดไป
 

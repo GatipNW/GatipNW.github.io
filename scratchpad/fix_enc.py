@@ -1,11 +1,11 @@
-# fix_enc.py — ซ่อมคอมเมนต์ภาษาไทยใน Python/gen_room.py ที่ผมทำพังเอง
+# fix_enc.py — ซ่อมคอมเมนต์ภาษาไทยใน tools/legacy/gen_room.py ที่ผมทำพังเอง
 # สาเหตุ: ใช้ PowerShell Get-Content/Set-Content -Encoding utf8 กับไฟล์ UTF-8
 #         → อ่านเป็น ANSI แล้วเขียนทับเป็น UTF-8 = encode ซ้อน 1 ชั้น
 # ★ บทเรียน: แก้ไฟล์ที่มีภาษาไทย/ญี่ปุ่น ให้ใช้ Edit tool หรือ Python เท่านั้น
 import io
 import sys
 
-P = 'Python/gen_room.py'
+P = 'tools/legacy/gen_room.py'
 # ตัวที่เสียคือ 2 อักขระติดกัน: U+FFFD (แทน 2 ไบต์แรก) + ไบต์ที่ 3 ที่รอดมา
 #   �\x81 = ก หรือ แ (ซ้ำกัน! ต้องดูบริบท)  ·  �\x9d = ฝ  ·  �\x8d = ญ
 R = '�\x81'

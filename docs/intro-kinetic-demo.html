@@ -1,0 +1,604 @@
+<title>เดโม Intro คิเนติก — คลื่นหมึกราตรี</title>
+<style>
+  :root {
+    --indigo: #101226;
+    --indigo-deep: #0a0b18;
+    --indigo-panel: #171a33;
+    --washi: #f5efe2;
+    --chad: #e5484d;
+    --gold: #d9a441;
+    --moon: #dfe6f5;
+    --ink-grey: #2b2f4d;      /* neutral biased toward indigo, chosen not defaulted */
+    --line: #2f3358;
+    --font-display: "Yu Mincho", "Noto Serif JP", "Hiragino Mincho ProN", "Shippori Mincho", Georgia, serif;
+    --font-ui: system-ui, "Segoe UI", "Noto Sans Thai", sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background:
+      radial-gradient(120% 80% at 50% -10%, #1a1d3a 0%, var(--indigo) 45%, var(--indigo-deep) 100%);
+    color: var(--washi);
+    font-family: var(--font-ui);
+    min-height: 100vh;
+    padding: clamp(16px, 3vw, 40px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 22px;
+  }
+
+  .page-head {
+    text-align: center;
+    max-width: 62ch;
+  }
+  .page-head .eyebrow {
+    font-size: 0.72rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin: 0 0 8px;
+  }
+  .page-head h1 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(1.5rem, 4vw, 2.3rem);
+    margin: 0 0 6px;
+    text-wrap: balance;
+    background: linear-gradient(100deg, var(--moon) 0%, var(--gold) 55%, var(--chad) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .page-head p {
+    margin: 4px 0 0;
+    color: #b9beda;
+    font-size: 0.92rem;
+    line-height: 1.55;
+  }
+
+  /* ---------- STAGE ---------- */
+  .stage-wrap {
+    width: 100%;
+    max-width: 940px;
+  }
+  .stage {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--indigo-deep);
+    border: 1px solid var(--line);
+    box-shadow: 0 24px 60px -20px rgba(0,0,0,0.8), 0 0 0 1px rgba(217,164,65,0.12) inset;
+    user-select: none;
+  }
+  .stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+  /* letterbox bars */
+  .bar {
+    position: absolute; left: 0; right: 0; height: 12%;
+    background: linear-gradient(var(--indigo-deep), #000);
+    z-index: 6; transform: translateY(-105%);
+    transition: transform 0.5s cubic-bezier(.7,0,.2,1);
+  }
+  .bar.top { top: 0; }
+  .bar.bottom { bottom: 0; transform: translateY(105%); }
+  .stage.charge .bar.top, .stage.charge .bar.bottom,
+  .stage.leap .bar.top, .stage.leap .bar.bottom { transform: translateY(0); }
+
+  /* ---------- logo / type layer ---------- */
+  .type-layer {
+    position: absolute; inset: 0; z-index: 5;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 0.35em; text-align: center; padding: 6%;
+  }
+  .logo { font-family: var(--font-display); font-weight: 700; line-height: 0.98; }
+  .logo .row {
+    display: block;
+    font-size: clamp(1.1rem, 5.4vw, 3.1rem);
+    letter-spacing: 0.04em;
+  }
+  .logo .ltr {
+    display: inline-block;
+    background: linear-gradient(180deg, var(--moon) 0%, var(--gold) 60%, var(--chad) 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    transform: translateY(-90px) scale(2.6); opacity: 0; filter: blur(14px);
+  }
+  .stage.title .logo .ltr,
+  .stage.enter .logo .ltr { animation: slam 0.6s cubic-bezier(.16,1,.3,1) both; animation-delay: var(--d); }
+  @keyframes slam {
+    0%   { transform: translateY(-90px) scale(2.6); opacity: 0; filter: blur(14px); }
+    55%  { transform: translateY(0) scale(1); opacity: 1; filter: blur(0); }
+    72%  { transform: translateY(6px) scale(0.95); }
+    100% { transform: translateY(0) scale(1); opacity: 1; filter: blur(0); }
+  }
+  /* shatter on leap */
+  .stage.leap .logo .ltr {
+    animation: shatter 0.5s ease-in forwards;
+    animation-delay: calc(var(--d) * 0.4);
+  }
+  @keyframes shatter {
+    0%   { transform: translateY(0) scale(1) rotate(0); opacity: 1; filter: blur(0); }
+    100% { transform: translate(var(--sx), var(--sy)) scale(0.4) rotate(var(--sr)); opacity: 0; filter: blur(6px); }
+  }
+
+  /* gold underline sweep */
+  .underline {
+    height: 3px; width: min(58%, 420px); margin-top: 0.5em;
+    background: linear-gradient(90deg, transparent, var(--gold) 20%, var(--chad) 80%, transparent);
+    transform: scaleX(0); transform-origin: left center; border-radius: 2px;
+  }
+  .stage.title .underline { animation: sweep 0.7s cubic-bezier(.2,.8,.2,1) 0.9s both; }
+  @keyframes sweep { to { transform: scaleX(1); } }
+
+  /* role line on vermilion bar */
+  .role {
+    position: relative; display: inline-block; margin-top: 0.7em;
+    font-family: var(--font-ui); font-size: clamp(0.6rem, 1.9vw, 0.98rem);
+    letter-spacing: 0.22em; text-transform: uppercase; color: var(--washi);
+    padding: 0.4em 1em; overflow: hidden; opacity: 0;
+  }
+  .role::before {
+    content: ""; position: absolute; inset: 0; z-index: -1;
+    background: var(--chad); transform: translateX(-101%);
+  }
+  .stage.title .role { animation: roleFade 0.01s linear 1.15s forwards; }
+  .stage.title .role::before { animation: roleBar 0.55s cubic-bezier(.7,0,.2,1) 1.15s both; }
+  @keyframes roleFade { to { opacity: 1; } }
+  @keyframes roleBar { 0%{transform:translateX(-101%);} 60%{transform:translateX(0);} 100%{transform:translateX(0);} }
+
+  .tagline {
+    font-family: var(--font-display); letter-spacing: 0.5em; text-indent: 0.5em;
+    font-size: clamp(0.6rem, 2vw, 1rem); color: var(--gold); opacity: 0; margin-top: 0.4em;
+  }
+  .stage.title .tagline { animation: roleFade 0.01s linear 0.7s forwards, floaty 4s ease-in-out 1s infinite; }
+  @keyframes floaty { 0%,100%{ filter: brightness(1);} 50%{ filter: brightness(1.5);} }
+
+  /* corner kanji stamp 月 (persistent, subtle) */
+  .moon-stamp {
+    position: absolute; right: 3.5%; bottom: 6%; z-index: 5;
+    font-family: var(--font-display); font-size: clamp(1.4rem, 5vw, 3rem);
+    color: var(--gold); opacity: 0; transform: scale(1.6) rotate(-6deg);
+  }
+  .stage.title .moon-stamp { animation: stampSmall 0.6s cubic-bezier(.16,1,.3,1) 1.4s both; }
+  @keyframes stampSmall { to { opacity: 0.85; transform: scale(1) rotate(-6deg); } }
+
+  /* press start */
+  .press {
+    position: absolute; left: 50%; bottom: 12%; transform: translateX(-50%);
+    z-index: 5; font-family: var(--font-ui); font-weight: 600;
+    letter-spacing: 0.28em; font-size: clamp(0.6rem, 1.8vw, 0.9rem);
+    color: var(--washi); padding: 0.55em 1.4em;
+    border: 1.5px solid var(--gold); border-radius: 999px;
+    background: rgba(229,72,77,0.9); opacity: 0;
+  }
+  .stage.title .press { animation: roleFade 0.01s linear 1.7s forwards, breathe 2.4s ease-in-out 1.8s infinite; }
+  @keyframes breathe { 0%,100%{ box-shadow: 0 0 0 0 rgba(217,164,65,0);} 50%{ box-shadow: 0 0 22px 2px rgba(217,164,65,0.5);} }
+
+  /* big kanji slam stamp 翻訳 / 月 for peaks */
+  .kanji-slam {
+    position: absolute; inset: 0; z-index: 7; display: grid; place-items: center;
+    font-family: var(--font-display); font-weight: 700;
+    font-size: clamp(3rem, 22vw, 12rem); color: var(--chad);
+    text-shadow: 0 0 40px rgba(229,72,77,0.5);
+    opacity: 0; pointer-events: none;
+  }
+  .stage.leap .kanji-slam.hon { animation: kanjiSlam 1.1s cubic-bezier(.16,1,.3,1) 0.1s both; }
+  .stage.enter .kanji-slam.tsuki { animation: kanjiSlam 1.1s cubic-bezier(.16,1,.3,1) 0.35s both; color: var(--gold); }
+  @keyframes kanjiSlam {
+    0%   { opacity: 0; transform: scale(3) rotate(-10deg); filter: blur(18px); }
+    30%  { opacity: 1; transform: scale(1) rotate(-6deg); filter: blur(0); }
+    70%  { opacity: 1; transform: scale(1.02) rotate(-6deg); }
+    100% { opacity: 0; transform: scale(1.14) rotate(-5deg); filter: blur(3px); }
+  }
+
+  /* ink-wave (seigaiha) wipe */
+  .inkwipe {
+    position: absolute; top: -10%; bottom: -10%; left: -60%; width: 70%;
+    z-index: 8; transform: skewX(-10deg); opacity: 0;
+    background:
+      radial-gradient(circle at 50% 100%, transparent 34%, rgba(245,239,226,0.14) 35%, rgba(245,239,226,0.14) 38%, transparent 39%) 0 0 / 26px 13px repeat-x,
+      linear-gradient(100deg, rgba(16,18,38,0) 0%, var(--chad) 30%, var(--indigo) 62%, var(--indigo-deep) 100%);
+  }
+  .stage.lang .inkwipe { animation: wipe 1.3s cubic-bezier(.66,0,.34,1) both; }
+  @keyframes wipe {
+    0%   { left: -70%; opacity: 0; }
+    12%  { opacity: 1; }
+    88%  { opacity: 1; }
+    100% { left: 130%; opacity: 0; }
+  }
+
+  /* language cards */
+  .cards {
+    position: absolute; inset: 0; z-index: 6;
+    display: flex; align-items: center; justify-content: center; gap: 3.2%;
+    opacity: 0; pointer-events: none;
+  }
+  .stage.lang .cards { opacity: 1; }
+  .card {
+    width: 22%; max-width: 150px; aspect-ratio: 3 / 4; border-radius: 8px;
+    background: linear-gradient(160deg, var(--washi), #e7dec8);
+    color: var(--indigo); display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 0.3em;
+    font-family: var(--font-display); box-shadow: 0 12px 26px -8px rgba(0,0,0,0.6);
+    border: 1px solid rgba(217,164,65,0.5);
+    transform: translateY(46px) scale(0.9); opacity: 0;
+  }
+  .card .big { font-size: clamp(1.1rem, 4vw, 2rem); font-weight: 700; }
+  .card .sm { font-size: clamp(0.5rem, 1.5vw, 0.75rem); letter-spacing: 0.15em; color: #6a5b3a; font-family: var(--font-ui); }
+  .card .seal { color: var(--chad); font-size: 0.8em; }
+  .stage.lang .card { animation: cardSlam 0.5s cubic-bezier(.16,1,.3,1) both; animation-delay: var(--cd); }
+  @keyframes cardSlam { to { transform: translateY(0) scale(1); opacity: 1; } }
+
+  /* shutter bars (vermilion diagonal) for hard cut into room */
+  .shutter { position: absolute; inset: -20%; z-index: 8; pointer-events: none; }
+  .shutter i {
+    position: absolute; left: -20%; right: -20%; height: 52%;
+    background: linear-gradient(var(--chad), #b5343a);
+    transform: skewY(-6deg);
+  }
+  .shutter i.a { top: -55%; }
+  .shutter i.b { bottom: -55%; background: linear-gradient(#b5343a, var(--chad)); }
+  .stage.enter .shutter i.a { animation: shutA 0.7s cubic-bezier(.7,0,.2,1) 0.15s both; }
+  .stage.enter .shutter i.b { animation: shutB 0.7s cubic-bezier(.7,0,.2,1) 0.15s both; }
+  @keyframes shutA { 0%{top:-55%;} 45%{top:2%;} 100%{top:-70%;} }
+  @keyframes shutB { 0%{bottom:-55%;} 45%{bottom:2%;} 100%{bottom:-70%;} }
+
+  /* flash + room reveal */
+  .flash { position: absolute; inset: 0; z-index: 9; background: var(--washi); opacity: 0; pointer-events: none; }
+  .stage.leap .flash { animation: flash 0.5s ease-out 0.28s both; }
+  .stage.enter .flash { animation: flash 0.6s ease-out 0.55s both; }
+  @keyframes flash { 0%{opacity:0;} 22%{opacity:0.92;} 100%{opacity:0;} }
+
+  .room {
+    position: absolute; inset: 0; z-index: 4; display: grid; place-items: center;
+    background: radial-gradient(80% 70% at 50% 42%, #24284a 0%, #14162e 55%, #0c0d1e 100%);
+    opacity: 0; text-align: center;
+  }
+  .room .r-moon {
+    font-family: var(--font-display); font-size: clamp(2rem, 9vw, 5rem);
+    color: var(--gold); filter: drop-shadow(0 0 26px rgba(217,164,65,0.5));
+  }
+  .room .r-cap { margin-top: 0.6em; letter-spacing: 0.24em; color: #c7cbe6; font-size: clamp(0.6rem,1.8vw,0.9rem); }
+  .stage.enter .room { animation: roomIn 0.8s ease-out 0.85s both; }
+  @keyframes roomIn { from { opacity: 0; } to { opacity: 1; } }
+
+  /* beat caption chip */
+  .beat-chip {
+    position: absolute; left: 14px; top: 12px; z-index: 10;
+    font-family: var(--font-ui); font-size: 0.7rem; letter-spacing: 0.14em;
+    color: var(--gold); background: rgba(10,11,24,0.7);
+    border: 1px solid var(--line); padding: 5px 10px; border-radius: 6px;
+    display: flex; gap: 8px; align-items: center;
+  }
+  .beat-chip b { color: var(--washi); font-weight: 600; }
+
+  /* ---------- controls ---------- */
+  .controls {
+    width: 100%; max-width: 940px;
+    display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center;
+  }
+  .controls .group { display: flex; flex-wrap: wrap; gap: 6px; }
+  button.ctl {
+    font-family: var(--font-ui); font-size: 0.82rem; cursor: pointer;
+    color: var(--washi); background: var(--indigo-panel);
+    border: 1px solid var(--line); border-radius: 8px; padding: 8px 13px;
+    transition: border-color .15s, background .15s, transform .1s;
+  }
+  button.ctl:hover { border-color: var(--gold); background: #1e2240; }
+  button.ctl:active { transform: translateY(1px); }
+  button.ctl.primary { background: var(--chad); border-color: var(--chad); font-weight: 600; }
+  button.ctl.primary:hover { background: #f05a5f; border-color: #f05a5f; }
+  button.ctl[aria-pressed="true"] { border-color: var(--gold); color: var(--gold); box-shadow: 0 0 0 1px var(--gold) inset; }
+  button.ctl:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+  .toggle-row { display: flex; gap: 10px; align-items: center; font-size: 0.82rem; color: #b9beda; }
+
+  /* ---------- legend ---------- */
+  .legend {
+    width: 100%; max-width: 940px;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 10px; margin-top: 6px;
+  }
+  .kit {
+    background: var(--indigo-panel); border: 1px solid var(--line);
+    border-left: 3px solid var(--gold); border-radius: 8px; padding: 12px 13px;
+  }
+  .kit h3 { margin: 0 0 4px; font-size: 0.9rem; font-family: var(--font-display); color: var(--washi); }
+  .kit p { margin: 0; font-size: 0.78rem; line-height: 1.5; color: #a9aecd; }
+  .kit .k { color: var(--gold); font-family: var(--font-display); }
+
+  .foot {
+    max-width: 62ch; text-align: center; color: #8a8fb0;
+    font-size: 0.78rem; line-height: 1.6; margin-top: 4px;
+  }
+  .foot b { color: var(--gold); font-weight: 600; }
+
+  @media (prefers-reduced-motion: reduce) {
+    /* system preference respected; page also has a manual toggle */
+    .stage.reduce * { animation-duration: 0.001s !important; }
+  }
+  .stage.reduce .logo .ltr,
+  .stage.reduce.title .logo .ltr,
+  .stage.reduce.enter .logo .ltr { animation: fadeOnly 0.4s ease both; }
+  .stage.reduce .kanji-slam, .stage.reduce .inkwipe,
+  .stage.reduce .shutter i, .stage.reduce .card { animation: fadeOnly 0.4s ease both !important; }
+  @keyframes fadeOnly { from { opacity: 0; } to { opacity: 1; } }
+</style>
+
+<div class="page-head">
+  <p class="eyebrow">Motion concept · proposal</p>
+  <h1>คลื่นหมึกราตรี — Intro คิเนติกแนว Persona</h1>
+  <p>เดโมโชว์คอนเซ็ปต์ ยังไม่ใช่ของจริงในเว็บ · เอาแค่ “พลังการเคลื่อนไหว” มาใส่บนธีมคราม×ชาด×วาชิเดิม
+    ไม่แตะ WebGL · ชื่ออ่านออกคมชัดเสมอ · เล่นวนอัตโนมัติ หรือกดดูทีละจังหวะได้</p>
+</div>
+
+<div class="stage-wrap">
+  <div class="stage title" id="stage" aria-label="ตัวอย่างฉากเปิดเว็บแบบเคลื่อนไหว">
+    <canvas id="bg"></canvas>
+
+    <div class="bar top"></div>
+    <div class="bar bottom"></div>
+
+    <div class="room">
+      <div>
+        <div class="r-moon">月</div>
+        <div class="r-cap">เข้าสู่ห้องสตูดิโอในดวงจันทร์</div>
+      </div>
+    </div>
+
+    <div class="type-layer" id="typeLayer">
+      <div class="tagline">PORTFOLIO</div>
+      <div class="logo" id="logo">
+        <span class="row" data-text="NIPITH"></span>
+        <span class="row" data-text="WONGSIRIKUL"></span>
+      </div>
+      <div class="underline"></div>
+      <div class="role">Game Localization · Events · PR</div>
+    </div>
+
+    <div class="moon-stamp">月</div>
+    <div class="press">PRESS START ▶</div>
+
+    <div class="kanji-slam hon">翻訳</div>
+    <div class="kanji-slam tsuki">月</div>
+
+    <div class="inkwipe"></div>
+
+    <div class="cards">
+      <div class="card" style="--cd:.0s"><span class="big">ไทย</span><span class="seal">日</span><span class="sm">TH</span></div>
+      <div class="card" style="--cd:.12s"><span class="big">EN</span><span class="seal">日</span><span class="sm">ENGLISH</span></div>
+      <div class="card" style="--cd:.24s"><span class="big">日本語</span><span class="seal">月</span><span class="sm">JA</span></div>
+    </div>
+
+    <div class="shutter"><i class="a"></i><i class="b"></i></div>
+    <div class="flash"></div>
+
+    <div class="beat-chip"><span>จังหวะ</span><b id="beatName">Title</b></div>
+  </div>
+</div>
+
+<div class="controls">
+  <button class="ctl primary" id="playAll">▶ เล่นวนทั้งซีเควนซ์</button>
+  <div class="group" id="beatBtns">
+    <button class="ctl" data-beat="title">1 · Title สแลม</button>
+    <button class="ctl" data-beat="charge">2 · Charge เส้นความเร็ว</button>
+    <button class="ctl" data-beat="leap">3 · Leap ตราคันจิ</button>
+    <button class="ctl" data-beat="lang">4 · คลื่นหมึก เลือกภาษา</button>
+    <button class="ctl" data-beat="enter">5 · ม่านชาด เข้าห้อง</button>
+  </div>
+  <div class="toggle-row">
+    <button class="ctl" id="reduceBtn" aria-pressed="false">โหมดลดการเคลื่อนไหว</button>
+  </div>
+</div>
+
+<div class="legend">
+  <div class="kit"><h3>คลื่นหมึกกวาด</h3><p>คลื่น<span class="k">เซกาอิฮะ</span>คราม/ชาดกวาดข้ามจอ ปิด→เผย แทน fade จืด</p></div>
+  <div class="kit"><h3>ม่านชาด</h3><p>แถบชาดทแยงสแนปเข้า-ออกแบบ shutter สำหรับตัดแรงเข้าห้อง</p></div>
+  <div class="kit"><h3>ตราคันจิ</h3><p>ตัว <span class="k">翻訳 / 月</span> กระแทกลงจอ + หมึกสาด ตอนจังหวะพีค แล้วจาง</p></div>
+  <div class="kit"><h3>ตัวหนังสือคิเนติก</h3><p>role line สแนปบนแถบชาด + ขีดทองกวาดใต้ชื่อ ไม่ใช่ fade เฉยๆ</p></div>
+  <div class="kit"><h3>เส้นความเร็ว</h3><p>เส้นทองพุ่งเข้าศูนย์กลางตอน charge ก่อนกระติ๊บพุ่งทะลุโลโก้</p></div>
+</div>
+
+<p class="foot">
+  ★ นี่คือ <b>mockup โชว์คอนเซ็ปต์</b> — ยังไม่แตะโค้ด intro จริง · ฟอนต์คันจิใช้ Yu Mincho/Noto Serif JP ที่มีในเครื่อง
+  (ของจริงจะเป็น Shippori Mincho + Noto Serif Thai) · background 2 ดวงจันทร์ + ดาวเป็นตัวจริงแบบย่อ ·
+  ทุกจังหวะมี fallback โหมดลดการเคลื่อนไหว
+</p>
+
+<script>
+(function () {
+  "use strict";
+  var stage = document.getElementById("stage");
+  var beatNameEl = document.getElementById("beatName");
+  var BEAT_LABEL = { title: "Title", charge: "Charge", leap: "Leap", lang: "เลือกภาษา", enter: "เข้าห้อง" };
+
+  /* build logo letters as spans */
+  var rows = document.querySelectorAll("#logo .row");
+  rows.forEach(function (row) {
+    var text = row.getAttribute("data-text");
+    var n = text.length;
+    for (var i = 0; i < n; i++) {
+      var s = document.createElement("span");
+      s.className = "ltr";
+      s.textContent = text[i];
+      var order = i;
+      s.style.setProperty("--d", (0.05 + order * 0.05).toFixed(2) + "s");
+      // shatter vectors (deterministic-ish spread)
+      var ang = (i / n) * Math.PI * 2 + (row === rows[1] ? 0.6 : 0);
+      s.style.setProperty("--sx", Math.round(Math.cos(ang) * 120) + "px");
+      s.style.setProperty("--sy", Math.round(Math.sin(ang) * 90 - 40) + "px");
+      s.style.setProperty("--sr", Math.round((Math.random() - 0.5) * 120) + "deg");
+      row.appendChild(s);
+    }
+  });
+
+  /* ---------- background canvas: stars + two moons ---------- */
+  var cv = document.getElementById("bg");
+  var ctx = cv.getContext("2d");
+  var W = 0, H = 0, dpr = Math.min(window.devicePixelRatio || 1, 2);
+  var stars = [];
+  function resize() {
+    var r = cv.getBoundingClientRect();
+    W = r.width; H = r.height;
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    if (!stars.length) {
+      for (var i = 0; i < 130; i++) {
+        stars.push({ x: Math.random(), y: Math.random(), r: Math.random() * 1.3 + 0.3, p: Math.random() * Math.PI * 2, s: Math.random() * 0.8 + 0.3 });
+      }
+    }
+  }
+  window.addEventListener("resize", resize);
+
+  var t0 = performance.now();
+  var speed = { active: false, start: 0 };   // speed lines during charge
+  var splat = [];                            // ink splatter particles
+
+  function spawnSplatter() {
+    splat.length = 0;
+    for (var i = 0; i < 46; i++) {
+      var a = Math.random() * Math.PI * 2, sp = Math.random() * 4.4 + 1.4;
+      splat.push({
+        x: W / 2, y: H / 2, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 1,
+        life: 1, r: Math.random() * 5 + 2,
+        c: Math.random() < 0.6 ? "229,72,77" : "217,164,65"
+      });
+    }
+  }
+  function startSpeed() { speed.active = true; speed.start = performance.now(); }
+  function stopSpeed() { speed.active = false; }
+
+  function draw(now) {
+    var t = (now - t0) / 1000;
+    ctx.clearRect(0, 0, W, H);
+
+    /* sky wash */
+    var g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, "#171a36"); g.addColorStop(0.55, "#101226"); g.addColorStop(1, "#0a0b18");
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+
+    /* big moon (pale blue) with soft glow, drifts slightly */
+    var mx = W * 0.72 + Math.sin(t * 0.15) * 6, my = H * 0.30 + Math.cos(t * 0.12) * 4;
+    var mr = Math.min(W, H) * 0.17;
+    var mg = ctx.createRadialGradient(mx, my, mr * 0.2, mx, my, mr * 2.4);
+    mg.addColorStop(0, "rgba(223,230,245,0.55)"); mg.addColorStop(0.4, "rgba(180,196,235,0.18)"); mg.addColorStop(1, "rgba(180,196,235,0)");
+    ctx.fillStyle = mg; ctx.beginPath(); ctx.arc(mx, my, mr * 2.4, 0, 7); ctx.fill();
+    ctx.fillStyle = "#e8edfb"; ctx.beginPath(); ctx.arc(mx, my, mr, 0, 7); ctx.fill();
+    ctx.fillStyle = "rgba(150,168,214,0.25)";
+    ctx.beginPath(); ctx.arc(mx - mr * 0.3, my - mr * 0.2, mr * 0.22, 0, 7); ctx.fill();
+    ctx.beginPath(); ctx.arc(mx + mr * 0.25, my + mr * 0.3, mr * 0.15, 0, 7); ctx.fill();
+
+    /* small pink crescent */
+    var sx = W * 0.20 + Math.sin(t * 0.2 + 1) * 5, sy = H * 0.24, sr = mr * 0.42;
+    ctx.fillStyle = "rgba(240,180,205,0.9)"; ctx.beginPath(); ctx.arc(sx, sy, sr, 0, 7); ctx.fill();
+    ctx.fillStyle = "#101226"; ctx.beginPath(); ctx.arc(sx + sr * 0.42, sy - sr * 0.2, sr * 0.92, 0, 7); ctx.fill();
+
+    /* stars */
+    for (var i = 0; i < stars.length; i++) {
+      var st = stars[i];
+      var tw = 0.55 + 0.45 * Math.sin(t * st.s * 2 + st.p);
+      ctx.globalAlpha = tw;
+      ctx.fillStyle = i % 7 === 0 ? "#d9a441" : "#dfe6f5";
+      ctx.beginPath(); ctx.arc(st.x * W, st.y * H * 0.82, st.r, 0, 7); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    /* speed lines (charge) */
+    if (speed.active) {
+      var e = Math.min((now - speed.start) / 700, 1);
+      var cxp = W / 2, cyp = H / 2;
+      ctx.strokeStyle = "rgba(217,164,65,0.55)"; ctx.lineWidth = 1.4;
+      for (var k = 0; k < 46; k++) {
+        var ang2 = (k / 46) * Math.PI * 2 + t * 0.4;
+        var r1 = Math.max(W, H) * (0.75 - e * 0.5);
+        var r2 = r1 + 60 + e * 40;
+        ctx.globalAlpha = 0.5 * e;
+        ctx.beginPath();
+        ctx.moveTo(cxp + Math.cos(ang2) * r1, cyp + Math.sin(ang2) * r1);
+        ctx.lineTo(cxp + Math.cos(ang2) * r2, cyp + Math.sin(ang2) * r2);
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    /* ink splatter (leap) */
+    if (splat.length) {
+      for (var j = 0; j < splat.length; j++) {
+        var p = splat[j];
+        p.x += p.vx; p.y += p.vy; p.vy += 0.12; p.life -= 0.018;
+        if (p.life > 0) {
+          ctx.globalAlpha = Math.max(p.life, 0);
+          ctx.fillStyle = "rgba(" + p.c + ",1)";
+          ctx.beginPath(); ctx.arc(p.x, p.y, p.r * p.life, 0, 7); ctx.fill();
+        }
+      }
+      ctx.globalAlpha = 1;
+      if (splat.every(function (p) { return p.life <= 0; })) splat.length = 0;
+    }
+
+    requestAnimationFrame(draw);
+  }
+
+  /* ---------- beat controller ---------- */
+  var BEATS = ["title", "charge", "leap", "lang", "enter"];
+  var timers = [];
+  var reduced = false;
+  function clearTimers() { timers.forEach(clearTimeout); timers = []; }
+  function later(fn, ms) { timers.push(setTimeout(fn, ms)); }
+
+  function setBeat(name) {
+    BEATS.forEach(function (b) { stage.classList.remove(b); });
+    // force reflow so re-adding a class restarts CSS animations
+    void stage.offsetWidth;
+    stage.classList.add(name);
+    stage.classList.toggle("reduce", reduced);
+    beatNameEl.textContent = BEAT_LABEL[name];
+    if (name === "charge") { startSpeed(); } else { stopSpeed(); }
+    if (name === "leap" && !reduced) { later(spawnSplatter, 260); }
+  }
+
+  function playBeat(name) { clearTimers(); setBeat(name); }
+
+  var DUR = { title: 3000, charge: 1300, leap: 1500, lang: 2400, enter: 2600 };
+  var looping = false;
+  function playAll() {
+    clearTimers(); looping = true;
+    var i = 0;
+    function step() {
+      if (!looping) return;
+      var name = BEATS[i % BEATS.length];
+      setBeat(name);
+      later(function () { i++; step(); }, DUR[name]);
+    }
+    step();
+  }
+
+  document.getElementById("playAll").addEventListener("click", playAll);
+  document.getElementById("beatBtns").addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-beat]");
+    if (!b) return;
+    looping = false;
+    playBeat(b.getAttribute("data-beat"));
+  });
+  var rb = document.getElementById("reduceBtn");
+  rb.addEventListener("click", function () {
+    reduced = !reduced;
+    rb.setAttribute("aria-pressed", reduced ? "true" : "false");
+    stage.classList.toggle("reduce", reduced);
+  });
+
+  if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    reduced = true; rb.setAttribute("aria-pressed", "true");
+  }
+
+  resize();
+  requestAnimationFrame(draw);
+  // kick off the loop
+  later(playAll, 400);
+})();
+</script>

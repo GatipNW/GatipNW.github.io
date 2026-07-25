@@ -13,7 +13,7 @@ export const MAP = {
   wallThickness: 56,
 
   // ★ ผนังเหนือ "เห็นหน้าผนัง" สูง 110px (หน้าต่าง 3 บานฝังอยู่ในนี้)
-  //   ต้องตรงกับ NORTH_WALL_H ใน renderer.js + WALL_H ใน Python/gen_room.py
+  //   ต้องตรงกับ NORTH_WALL_H ใน renderer.js + WALL_H ใน tools/legacy/gen_room.py
   //   เดิม collision บนใช้แค่ 24px → ผู้เล่นเดินขึ้นไปทับหน้าต่างได้ (บั๊ก 2.5D)
   northWallH: 110,
 
