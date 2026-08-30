@@ -765,7 +765,7 @@ export const STRINGS = {
           { v: 'AAA', l: 'เกมคอนโซล' },
         ],
         lines: [
-          'Thai Localization & LQA — DIGITAL HEARTS (Thailand), กรุงเทพฯ (มี.ค. – พ.ย. 2026, สัญญาจ้าง)',
+          'Thai Localization & LQA — DIGITAL HEARTS (Thailand), กรุงเทพฯ (มี.ค. – พ.ย. 2026, สัญญาจ้างอิสระ / 業務委託)',
           'แปลเกมคอนโซล AAA ระดับแถวหน้ากว่า 80,000 คำ (EN/JA → TH) ควบคู่งาน LQA เต็มเวลา ภายใต้กำหนดวางจำหน่ายพร้อมกันทั่วโลก',
           'ตรวจพบและแก้บั๊กด้านภาษา ข้อความล้นกรอบ และปัญหา format ครบ 100% ก่อนเกมวางขาย ผ่าน LQA บนเครื่องคอนโซลจริง',
           'เป็นล่ามให้ผู้บริหารที่มาเยือนจากสำนักงานใหญ่ญี่ปุ่น และรายงานต่อผู้บริหารญี่ปุ่นเป็นภาษาญี่ปุ่นทั้งหมด',
@@ -993,6 +993,8 @@ export const STRINGS = {
         lines: [
           'มองหาตำแหน่ง Localization / LQA / Publishing / PR & Marketing ในบริษัทเกมที่ญี่ปุ่น — พร้อมย้ายไปประจำที่ญี่ปุ่น',
           'ปัจจุบันอยู่ที่นนทบุรี ประเทศไทย',
+          'โปรเจกต์ปัจจุบันจบเดือน พ.ย. 2026 → เริ่มงานได้ตั้งแต่ ธ.ค. 2026 เป็นต้นไป',
+          'กำลังพิจารณาเดินทางไปญี่ปุ่นช่วง พ.ย. 2026 (ยังไม่กำหนดวัน) — นัดสัมภาษณ์แบบเจอตัวได้ และสัมภาษณ์ออนไลน์ได้ตลอด',
         ],
         links: [
           { label: '✉️ nipith.w@gmail.com', url: 'mailto:nipith.w@gmail.com' },
@@ -1135,7 +1137,7 @@ export const STRINGS = {
           { v: 'AAA', l: 'console titles' },
         ],
         lines: [
-          'Thai Localization & LQA — DIGITAL HEARTS (Thailand), Bangkok (Mar – Nov 2026, contract)',
+          'Thai Localization & LQA — DIGITAL HEARTS (Thailand), Bangkok (Mar – Nov 2026, freelance contract)',
           'Localized 80,000+ words of high-profile AAA console titles (EN/JA → TH) alongside full-time LQA duties on tight, simultaneous release schedules',
           'Uncovered and resolved 100% of linguistic bugs, text truncations, and formatting issues before launch through LQA on proprietary console hardware',
           'Interpreted for executives visiting from the Japan headquarters and reported to Japanese management entirely in Japanese',
@@ -1359,6 +1361,8 @@ export const STRINGS = {
         lines: [
           'Seeking a Localization / LQA / Publishing / PR & Marketing role at a game company in Japan — ready to relocate',
           'Based in Nonthaburi, Thailand',
+          'Current project ends Nov 2026 — available from Dec 2026 onward',
+          'Considering a trip to Japan around Nov 2026 (dates open) — happy to meet in person for interviews, and available online any time',
         ],
         links: [
           { label: '✉️ nipith.w@gmail.com', url: 'mailto:nipith.w@gmail.com' },
@@ -1502,7 +1506,7 @@ export const STRINGS = {
           { v: 'AAA', l: 'コンソール作品' },
         ],
         lines: [
-          'タイ語ローカライズ＆LQA — DIGITAL HEARTS（タイランド）バンコク（2026年3月〜11月・契約）',
+          'タイ語ローカライズ＆LQA — DIGITAL HEARTS（タイランド）バンコク（2026年3月〜11月・業務委託）',
           '大型AAAコンソールタイトルを8万語以上（英・日→タイ語）ローカライズしつつ、世界同時発売スケジュールの中でフルタイムのLQA業務を並行',
           'コンソール実機でのLQAにより、言語バグ・テキスト切れ・表記の問題を発売前に100%検出・解決',
           '日本本社からの役員来訪時に通訳を務め、日本人マネジメントへの報告はすべて日本語で実施',
@@ -1726,6 +1730,8 @@ export const STRINGS = {
         lines: [
           '日本のゲーム会社でのローカライズ / LQA / パブリッシング / PR＆マーケティング職を希望 — 日本への移住準備あり',
           '現在はタイ・ノンタブリー在住',
+          '現プロジェクトは2026年11月に完了予定 — 2026年12月以降、入社可能です',
+          '2026年11月に日本へ渡航することを検討しております（日程は未定）— 対面での面接をご希望の場合はご都合に合わせて調整いたします。オンライン面接も随時対応可能です',
         ],
         links: [
           { label: '✉️ nipith.w@gmail.com', url: 'mailto:nipith.w@gmail.com' },
