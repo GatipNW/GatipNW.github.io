@@ -15,8 +15,8 @@ const RESUME_PDF = 'assets/resume-nipith-wongsirikul.pdf' + DOC_V;
 const RESUME_PDF_JA = 'assets/resume-nipith-wongsirikul-ja.pdf' + DOC_V;         // 履歴書
 const RESUME_PDF_JA_CV = 'assets/resume-nipith-wongsirikul-ja-cv.pdf' + DOC_V;   // 職務経歴書
 const CARD_PDF = 'assets/business-card-nipith-wongsirikul.pdf' + DOC_V;
-const CARD_FRONT = 'assets/card-front.webp';
-const CARD_BACK = 'assets/card-back.webp';
+const CARD_FRONT = 'assets/card-front.webp' + DOC_V;   // ★ ใส่ ?v ด้วย — เปลี่ยนภาพแล้วเบราว์เซอร์/CDN ยังจำตัวเก่า (เจอ 2026-09-13)
+const CARD_BACK = 'assets/card-back.webp' + DOC_V;
 // โบรชัวร์ทางการ GCA×TGS 2026 (เจ้าของมีติดตัว — ใช้ประกอบพิตช์ "สะพานสู่อีเวนต์เกมไทย" ในโซน event)
 const TGS_BROCHURE = 'assets/tgs26-brochure.pdf';
 

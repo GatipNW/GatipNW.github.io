@@ -140,7 +140,7 @@ export function buildCard(data) {
     fig.type = 'button';
     fig.setAttribute('aria-label', `${data.cardHead} — ${side}`);
     const img = el('img');
-    img.src = src.replace('.webp', '-sm.webp');
+    img.src = src.replace('.webp', '-sm.webp'); // ?v ต่อท้ายยังอยู่
     img.alt = `${data.cardHead} — ${side}`;
     img.loading = 'lazy';
     img.width = 460; img.height = 283;
