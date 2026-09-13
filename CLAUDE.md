@@ -35,7 +35,7 @@
   `職務経歴書_一般_web.html` (ฉบับทั่วไปสำหรับเว็บ: 志望動機 ไม่เจาะบริษัท · ไม่มีชื่อ tool · ทุกสาย เอียงเกม)
   → print ด้วย Edge headless (ดู skill japanese-job-documents) → copy ไป assets ชื่อไฟล์เดิม + `?v=YYYYMMDD`
   · **ห้ามเอา root 履歴書.html/職務経歴書.html (ฉบับยื่นบริษัท) ขึ้นเว็บ** · เครื่องนี้มี pypdf แล้ว
-- **นามบัตร**: `Desktop/Resume/นามบัตร/Business_Card.pdf` (96×61 มี bleed 3mm) → `scratchpad/card_render.py`
+- **นามบัตร**: `ฐานข้อมูล/Nipith_Gogoprint_90x55mm_Final.pdf` = ไฟนอล (ตัวใน Desktop/Resume/นามบัตร ไม่ใช่ · 96×61 มี bleed 3mm) → `scratchpad/card_render.py`
   (Edge `--force-device-scale-factor=4` เปิด PDF แล้วครอป trim box) → `assets/card-front/back(-sm).webp`
   + `assets/business-card-nipith-wongsirikul.pdf` (mediabox = trimbox ผ่าน pdf-lib ใน Desktop/Resume/tools)
 - **ธีม CSS v4** (style.css เขียนใหม่ทั้งไฟล์): token ที่ `:root` (ม่วง/ทอง/ขาวนวล · --sp/--r/--sh) ·
