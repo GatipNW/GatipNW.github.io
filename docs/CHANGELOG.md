@@ -2,6 +2,44 @@
 
 All notable changes to this project. Dates are the day the work landed on `main`.
 
+## [2.0.0] — 2026-09-13
+
+Rebuilt for the Thailand Game Show business card (the QR points at the root URL).
+
+### Scene: the moon library
+
+- New room (`tools/gen_library.py`, layered: exterior view → floor/walls/window frame →
+  objects → labels). Arcade wing (4 cabinets, west), library (6 book sets, east),
+  reception desk (south). Porings, fairies, dragon, rune ring and cave foreground removed.
+- Objects map to the old content zones via `chapters`; nothing was dropped. Zones with
+  several chapters (Content & Community, Languages & Skills, Writing & Esports) get a
+  tab strip in the panel.
+- Quick menu (☰ / `M`) reaches every section without walking.
+
+### Front page
+
+- Name, role line, primary "Explore" and secondary "Read the resume" buttons, three
+  labelled language circles (TH / EN / JP). No forced language prompt or dialogue.
+- Language priority: `?lang=` → saved choice → English.
+
+### Content
+
+- Single `GAMES` dataset (16 titles from Steam appdetails, EN + TH names) drives the
+  cabinet carousel/grid and the Resume Mode list. 13 titles with Thai on Steam,
+  1 translated awaiting release, 2 freelance. Adult titles are text cards until revealed.
+- Facts aligned with the 2026-09-13 documents: manager role at Sticky Rice Games,
+  15% uplift scoped to localized titles, DIGITAL HEARTS duties as documented, no
+  "100% of bugs", network followers described as scale rather than reach.
+- Reception panel: copyable contact, PDF documents (open + download), business card
+  front/back at trim size with lightbox and PDF download.
+- Documents refreshed: English resume, general-purpose 履歴書 and 職務経歴書 (no
+  company-specific motivation, no tool brand names).
+
+### Theme
+
+- New stylesheet: purple surfaces, dull-gold accents, off-white text, shared spacing /
+  radius / shadow tokens. Showcase slides regenerated to match.
+
 ## [1.0.0] — 2026-07-25
 
 First tagged release. The site has been live at

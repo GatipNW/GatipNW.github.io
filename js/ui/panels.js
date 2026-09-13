@@ -1,347 +1,399 @@
 // ============================================
-// panels.js — modal แสดงเนื้อหาเมื่อ interact กับวัตถุในสตูดิโอ
-// สไตล์ "showcase": สไลด์ภาพเลื่อนได้ + stat chip ตัวเลขใหญ่ + คลิปแตะแล้วเล่น
-// ปิดด้วย Esc / ปุ่ม ✕ / คลิกนอกกรอบ — ไม่ reload หน้า
+// panels.js — แผงเนื้อหาเมื่อเปิดวัตถุในห้องสมุดดวงจันทร์ (★ 2026-09-13)
+// - 1 วัตถุ = 1 "โซน" ที่มีหลาย "บท" (chapters = panel id เดิม) → หัวคงที่ + แถบเลือกบท
+// - ตู้เกม: รายชื่อเกมจาก GAMES (carousel + กริด + การ์ดรายละเอียด) — dataset เดียวกับ Resume Mode
+// - โต๊ะต้อนรับ: ติดต่อ (คัดลอกได้) · เอกสาร PDF (ซ่อนอัตโนมัติถ้าไฟล์ยังไม่พร้อม) · นามบัตร
+// - ปิดด้วย Esc / ✕ / คลิกนอกกรอบ (ปุ่มซ้ายเท่านั้น) — ไม่ reload หน้า
 // ============================================
 
 import { i18n } from '../i18n.js';
 import { audio } from '../audio.js';
-import { SHOWCASE } from '../data/content.js';
+import { BRAND, SHOWCASE, GAMES } from '../data/content.js';
+import { OBJECTS } from '../world/objects.js';
 
-// เครื่องที่ตั้ง reduce motion (และไม่ได้กด FULL FX) → เลื่อนสไลด์แบบตัดทันที ไม่ smooth
-const SCROLL_BEHAVIOR =
-  window.matchMedia('(prefers-reduced-motion: reduce)').matches &&
-  localStorage.getItem('fx') !== 'full'
-    ? 'auto' : 'smooth';
+const REDUCED = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  && localStorage.getItem('fx') !== 'full';
+const SCROLL_BEHAVIOR = () => (REDUCED() ? 'auto' : 'smooth');
 
-// caption ของสไลด์เป็นได้ทั้ง string เดียว (ใช้ทุกภาษา) หรือ { th, en, ja }
 function capText(cap) {
   if (!cap) return '';
   return typeof cap === 'string' ? cap : (cap[i18n.lang] ?? cap.en ?? '');
 }
 
-// แถว stat chip ตัวเลขใหญ่ (14 เกม / 1M+ ตัวอักษร ฯลฯ) — ใช้ทั้ง panel และ Resume Mode
+function el(tag, cls, text) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text != null) e.textContent = text;
+  return e;
+}
+
+// ---------- ชิ้นส่วนที่ใช้ร่วมกับ Resume Mode ----------
+
 export function buildStats(stats) {
-  const row = document.createElement('div');
-  row.className = 'stat-row';
+  const row = el('div', 'stat-row');
   for (const s of stats) {
-    const chip = document.createElement('div');
-    chip.className = 'stat-chip';
-    const v = document.createElement('div');
-    v.className = 'stat-v';
-    v.textContent = s.v;
-    const l = document.createElement('div');
-    l.className = 'stat-l';
-    l.textContent = s.l;
-    chip.append(v, l);
+    const chip = el('div', 'stat-chip');
+    chip.append(el('div', 'stat-v', s.v), el('div', 'stat-l', s.l));
     row.appendChild(chip);
   }
   return row;
 }
 
-// แถบระดับภาษา (JLPT/TOEIC) — หลอดไล่สีเรืองแสง เติมตาม p (0..1)
-// ★ 2026-07-20: เลิกใช้แล้ว (เจ้าของสั่งถอดหลอดพลังออก ใช้ buildUses แทน)
-//    เก็บฟังก์ชันไว้เผื่ออยากได้กลับ — ไม่มีที่ไหนเรียกอยู่ตอนนี้
-export function buildBars(bars) {
-  const wrap = document.createElement('div');
-  wrap.className = 'bar-list';
-  for (const b of bars) {
-    const row = document.createElement('div');
-    row.className = 'bar-item';
-    const label = document.createElement('div');
-    label.className = 'bar-label';
-    label.textContent = b.l;
-    const track = document.createElement('div');
-    track.className = 'bar-track';
-    const fill = document.createElement('div');
-    fill.className = 'bar-fill';
-    fill.style.width = `${Math.round(b.p * 100)}%`;
-    track.appendChild(fill);
-    row.append(label, track);
-    wrap.appendChild(row);
-  }
-  return wrap;
-}
-
-// ★ 2026-07-20: การ์ด "ใช้ภาษาทำอะไรจริง" — แทนหลอดพลังเดิมที่เจ้าของสั่งถอด
-// { l: ธง+ชื่อภาษา, lv: ระดับ/คะแนน, d: กรณีใช้งานจริง }
 export function buildUses(uses) {
-  const wrap = document.createElement('div');
-  wrap.className = 'use-list';
+  const wrap = el('div', 'use-list');
   for (const u of uses) {
-    const row = document.createElement('div');
-    row.className = 'use-item';
-
-    const head = document.createElement('div');
-    head.className = 'use-head';
-    const name = document.createElement('span');
-    name.className = 'use-lang';
-    name.textContent = u.l;
-    head.appendChild(name);
-    if (u.lv) {
-      const lv = document.createElement('span');
-      lv.className = 'use-level';
-      lv.textContent = u.lv;
-      head.appendChild(lv);
-    }
-
-    const desc = document.createElement('p');
-    desc.className = 'use-desc';
-    desc.textContent = u.d;
-
-    row.append(head, desc);
+    const row = el('div', 'use-item');
+    const head = el('div', 'use-head');
+    head.appendChild(el('span', 'use-lang', u.l));
+    if (u.lv) head.appendChild(el('span', 'use-level', u.lv));
+    row.append(head, el('p', 'use-desc', u.d));
     wrap.appendChild(row);
   }
   return wrap;
 }
 
-// ★ 2026-07-20: "Arcade Selection Screen" — การ์ดเกมที่ยืนแนะนำหน้าบูท JETRO
-// แทน tag สี่เหลี่ยมเดิม: อาร์ตเวิร์กจริง + ชื่อค่าย + คำอธิบาย + ปุ่มไป Steam
-function buildGames(games) {
-  const zone = document.createElement('section');
-  zone.className = 'game-zone';
-
-  const head = document.createElement('h3');
-  head.className = 'game-head';
-  head.textContent = capText(games.head);
-  zone.appendChild(head);
-
-  const role = document.createElement('p');
-  role.className = 'game-role';
-  role.innerHTML = capText(games.role); // มี <b> ในข้อความ (มาจาก content.js ของเราเอง)
-  zone.appendChild(role);
-
-  const grid = document.createElement('div');
-  grid.className = 'game-grid';
-  for (const g of games.items) {
-    const card = document.createElement('article');
-    card.className = 'game-card';
-
-    const art = document.createElement('div');
-    art.className = 'game-art';
-    const im = document.createElement('img');
-    im.src = g.img;
-    im.alt = g.title;
-    im.loading = 'lazy';
-    art.appendChild(im);
-
-    // แถบค่ายเกม: โลโก้จริง (ถ้ามีไฟล์) + ชื่อค่าย
-    const studio = document.createElement('div');
-    studio.className = 'game-studio';
-    if (g.studioLogo) {
-      const lg = document.createElement('img');
-      lg.src = g.studioLogo;
-      lg.alt = '';
-      lg.loading = 'lazy';
-      lg.addEventListener('error', () => lg.remove()); // ไม่มีไฟล์ = เหลือแค่ชื่อ
-      studio.appendChild(lg);
-    }
-    const sname = document.createElement('span');
-    sname.textContent = g.studio;
-    studio.appendChild(sname);
-
-    const title = document.createElement('h4');
-    title.className = 'game-title';
-    title.textContent = g.title;
-
-    const desc = document.createElement('p');
-    desc.className = 'game-desc';
-    desc.textContent = capText(g.d);
-
-    const body = document.createElement('div');
-    body.className = 'game-body';
-    body.append(studio, title, desc);
-
-    card.append(art, body);
-
-    if (g.url) {
-      const a = document.createElement('a');
-      a.className = 'game-btn';
-      a.href = g.url;
-      a.target = '_blank';
-      a.rel = 'noopener';
-      a.textContent = '▶ STEAM';
-      a.addEventListener('click', () => audio.play('click'));
-      body.appendChild(a);
-    }
-    grid.appendChild(card);
-  }
-  zone.appendChild(grid);
-  return zone;
-}
-
-// ★ 2026-07-20: "กำแพงโลโก้" ของโซนเครือข่าย — แทน carousel ที่ต้องเลื่อนดูทีละใบ
-// เห็นทุกเพจ/องค์กรพร้อมกันในจอเดียว = รู้สึกถึงขนาดของเครือข่ายทันที
-// แตะการ์ด → กางรายละเอียดใต้กลุ่มนั้น (แนวเดียวกับ buildBrands ของโซน YouTube)
-function buildLogoWall(wall) {
-  const zone = document.createElement('section');
-  zone.className = 'net-wall';
-
-  if (wall.hint) {
-    const h = document.createElement('div');
-    h.className = 'net-hint';
-    h.textContent = capText(wall.hint);
-    zone.appendChild(h);
-  }
-
-  for (const g of wall.groups) {
-    const head = document.createElement('h3');
-    head.className = 'net-head';
-    head.textContent = capText(g.head);
-
-    const grid = document.createElement('div');
-    grid.className = 'net-grid';
-    const detail = document.createElement('div');
-    detail.className = 'net-detail hidden';
-    let active = null;
-
-    for (const it of g.items) {
-      const card = document.createElement('button');
-      card.type = 'button';
-      card.className = 'net-card' + (it.light ? ' light' : '');
-
-      const box = document.createElement('div');
-      box.className = 'net-logo';
-      const img = document.createElement('img');
-      img.src = it.img;
-      img.alt = it.name;
-      img.loading = 'lazy';
-      box.appendChild(img);
-
-      const nm = document.createElement('span');
-      nm.className = 'net-name';
-      nm.textContent = it.name;
-      card.append(box, nm);
-
-      // ยอดผู้ติดตามจริง (ดึงจากหน้าเพจ ก.ค. 2026 — ดู scratchpad/followers.py)
-      if (it.stat) {
-        const st = document.createElement('span');
-        st.className = 'net-stat';
-        st.textContent = it.stat;
-        card.appendChild(st);
-      }
-
-      card.addEventListener('click', () => {
-        audio.play('blip');
-        if (active === card) { // กดซ้ำ = หุบ
-          card.classList.remove('active');
-          detail.classList.add('hidden');
-          active = null;
-          return;
-        }
-        if (active) active.classList.remove('active');
-        active = card;
-        card.classList.add('active');
-        detail.innerHTML = '';
-        const t = document.createElement('strong');
-        t.textContent = it.name;
-        const p = document.createElement('span');
-        p.textContent = capText(it.d);
-        detail.append(t, p);
-        if (it.url) {
-          const a = document.createElement('a');
-          a.className = 'net-link';
-          a.href = it.url;
-          a.target = '_blank';
-          a.rel = 'noopener';
-          a.textContent = i18n.t('ui.openLink');
-          a.addEventListener('click', (e) => {
-            e.stopPropagation();
-            audio.play('click');
-          });
-          detail.appendChild(a);
-        }
-        detail.classList.remove('hidden');
-      });
-      grid.appendChild(card);
-    }
-    zone.append(head, grid, detail);
-  }
-  return zone;
-}
-
-// ★ 2026-07-20: เนื้อหาบรรยายทุกโซนเป็น bullet (เจ้าของสั่ง "เข้าใจง่าย")
-// ใช้ร่วมกันทั้ง panel ในเกมและ Resume Mode → รูปแบบเดียวกันทั้งเว็บ
 export function buildBullets(lines, cls = '') {
-  const ul = document.createElement('ul');
-  ul.className = 'bullets' + (cls ? ` ${cls}` : '');
+  const ul = el('ul', 'bullets' + (cls ? ` ${cls}` : ''));
   for (const line of lines) {
-    const li = document.createElement('li');
-    li.textContent = line;
-    if (line.startsWith('TODO')) li.className = 'todo';
+    const li = el('li', null, line);
+    if (line.startsWith('━')) li.className = 'divider';
     ul.appendChild(li);
   }
   return ul;
 }
 
-// ชิปรายชื่อ (เครือข่าย/พันธมิตร) — ใช้ทั้ง panel และ Resume Mode
 export function buildTags(tags) {
-  const row = document.createElement('div');
-  row.className = 'tag-row';
-  for (const t of tags) {
-    const chip = document.createElement('span');
-    chip.className = 'tag';
-    chip.textContent = t;
-    row.appendChild(chip);
-  }
+  const row = el('div', 'tag-row');
+  for (const t of tags) row.appendChild(el('span', 'tag', t));
   return row;
 }
 
-// แถวปุ่มลิงก์ท้าย panel (email / LinkedIn / ดาวน์โหลด PDF ฯลฯ)
-// ใช้ร่วมกันทั้ง panel ในเกมและ Resume Mode — โครงจาก data.links ใน content.js
+// แถวปุ่มลิงก์ — l.copy = มีปุ่มคัดลอกข้อความ · l.mature = เตือนก่อนเปิด (title)
 export function buildLinks(links) {
-  const row = document.createElement('div');
-  row.className = 'panel-links';
+  const row = el('div', 'panel-links');
   for (const l of links) {
-    const a = document.createElement('a');
-    a.className = 'panel-link';
-    a.textContent = l.label;
+    if (!l.url) continue;
+    const a = el('a', 'panel-link', l.label);
     a.href = l.url;
-    if (l.download) {
-      a.setAttribute('download', '');
-    } else if (!l.url.startsWith('mailto:')) {
-      a.target = '_blank';
-      a.rel = 'noopener';
-    }
+    if (l.download) a.setAttribute('download', '');
+    else if (!l.url.startsWith('mailto:')) { a.target = '_blank'; a.rel = 'noopener'; }
+    if (l.mature) a.title = i18n.t('games.matureLink');
     a.addEventListener('click', () => audio.play('click'));
     row.appendChild(a);
+    if (l.copy) row.appendChild(buildCopyBtn(l.copy));
   }
   return row;
 }
 
-// ส่วนหัวโชว์ภาพเดี่ยว: key art เต็มกว้าง หรือโลโก้บนการ์ด gradient
+function buildCopyBtn(text) {
+  const b = el('button', 'copy-btn', i18n.t('ui.copy'));
+  b.type = 'button';
+  b.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(text);
+      b.textContent = i18n.t('ui.copied');
+      audio.play('blip');
+      setTimeout(() => { b.textContent = i18n.t('ui.copy'); }, 1600);
+    } catch {
+      // clipboard ถูกบล็อก → เลือกข้อความให้แทน
+      const r = document.createRange();
+      r.selectNodeContents(b.previousSibling);
+      const sel = getSelection();
+      sel.removeAllRanges();
+      sel.addRange(r);
+    }
+  });
+  return b;
+}
+
+// เอกสาร PDF: เปิดในแท็บใหม่ + ปุ่มดาวน์โหลด — ไฟล์ที่เป็น null ถูกซ่อน (ยังไม่พร้อมเผยแพร่)
+export function buildDocs(docs, head) {
+  const list = docs.filter((d) => d.url);
+  if (!list.length) return null;
+  const sec = el('section', 'doc-list');
+  if (head) sec.appendChild(el('h3', 'sec-head', head));
+  for (const d of list) {
+    const row = el('div', 'doc-row');
+    const open = el('a', 'doc-open', `📄 ${d.label}`);
+    open.href = d.url;
+    open.target = '_blank';
+    open.rel = 'noopener';
+    const dl = el('a', 'doc-dl', `⤓ ${i18n.t('ui.download')}`);
+    dl.href = d.url;
+    dl.setAttribute('download', '');
+    for (const a of [open, dl]) a.addEventListener('click', () => audio.play('click'));
+    row.append(open, dl);
+    sec.appendChild(row);
+  }
+  sec.appendChild(el('p', 'doc-note', i18n.t('resume.docNote')));
+  return sec;
+}
+
+// นามบัตร: หน้า–หลัง (ขนาดตัดจริง) แตะดูใหญ่ + ดาวน์โหลด PDF
+export function buildCard(data) {
+  const sec = el('section', 'card-zone');
+  sec.appendChild(el('h3', 'sec-head', data.cardHead));
+  sec.appendChild(el('p', 'card-note', data.cardNote));
+  const row = el('div', 'card-row');
+  for (const [side, src] of [[data.cardFront, BRAND.cardFront], [data.cardBack, BRAND.cardBack]]) {
+    const fig = el('button', 'card-fig');
+    fig.type = 'button';
+    fig.setAttribute('aria-label', `${data.cardHead} — ${side}`);
+    const img = el('img');
+    img.src = src.replace('.webp', '-sm.webp');
+    img.alt = `${data.cardHead} — ${side}`;
+    img.loading = 'lazy';
+    img.width = 460; img.height = 283;
+    fig.append(img, el('span', 'card-side', side));
+    fig.addEventListener('click', () => { audio.play('pop'); openLightbox(src, img.alt); });
+    row.appendChild(fig);
+  }
+  sec.appendChild(row);
+  const dl = el('a', 'panel-link', data.cardDownload);
+  dl.href = BRAND.cardPdf;
+  dl.setAttribute('download', '');
+  dl.addEventListener('click', () => audio.play('click'));
+  sec.appendChild(el('div', 'panel-links')).appendChild(dl);
+  return sec;
+}
+
+// กล่องดูภาพใหญ่ (นามบัตร) — ปิดด้วยคลิก/Esc
+function openLightbox(src, alt) {
+  let box = document.getElementById('lightbox');
+  if (!box) {
+    box = el('div');
+    box.id = 'lightbox';
+    box.setAttribute('role', 'dialog');
+    box.setAttribute('aria-modal', 'true');
+    const img = el('img');
+    const close = el('button', 'lb-close', '✕');
+    close.type = 'button';
+    close.addEventListener('click', () => box.classList.add('hidden'));
+    box.addEventListener('click', (e) => { if (e.target === box) box.classList.add('hidden'); });
+    window.addEventListener('keydown', (e) => { if (e.code === 'Escape') box.classList.add('hidden'); });
+    box.append(img, close);
+    document.body.appendChild(box);
+  }
+  const img = box.querySelector('img');
+  img.src = src;
+  img.alt = alt;
+  box.querySelector('.lb-close').setAttribute('aria-label', i18n.t('ui.close'));
+  box.classList.remove('hidden');
+  box.querySelector('.lb-close').focus({ preventScroll: true });
+}
+
+// ---------- ★ ผลงานเกม: carousel + กริด + การ์ด (dataset = GAMES) ----------
+function gameCard(g, T, idx) {
+  const card = el('article', 'gcard');
+  card.dataset.idx = idx;
+  const art = el('div', 'gcard-art' + (g.mature ? ' mature' : ''));
+  const img = el('img');
+  img.alt = g.en;
+  img.width = 460; img.height = 215;
+  if (g.mature) {
+    // การ์ดตัวอักษรก่อน — โหลดภาพเฉพาะเมื่อกด (ไม่โหลดล่วงหน้า)
+    const tcard = el('div', 'gcard-text');
+    tcard.append(el('strong', null, g.en), el('span', null, g.th !== g.en ? g.th : ''));
+    const tag = el('span', 'gcard-18', '18+');
+    const btn = el('button', 'gcard-reveal', T.showCover);
+    btn.type = 'button';
+    btn.setAttribute('aria-label', `${T.showCover} — ${g.en}`);
+    btn.addEventListener('click', () => {
+      audio.play('blip');
+      if (art.classList.toggle('revealed')) {
+        if (!img.src) { img.src = g.img; art.appendChild(img); }
+        btn.textContent = T.hideCover;
+      } else {
+        btn.textContent = T.showCover;
+      }
+    });
+    art.append(tcard, tag, btn);
+  } else {
+    img.src = g.img;
+    img.loading = 'lazy';
+    art.appendChild(img);
+  }
+  const body = el('div', 'gcard-body');
+  body.appendChild(el('h4', 'gcard-title', g.en));
+  if (g.th !== g.en) body.appendChild(el('div', 'gcard-th', g.th));
+  const roles = el('div', 'gcard-roles');
+  for (const r of g.roles) roles.appendChild(el('span', 'role-tag', T.roles[r] ?? r));
+  body.appendChild(roles);
+  body.appendChild(el('div', `gcard-status s-${g.status}`, T.status[g.status]));
+  // รายละเอียดเมื่อกด
+  const det = el('div', 'gcard-det hidden');
+  const meta = [];
+  if (g.via) meta.push(`${T.via} ${g.via}`);
+  if (g.dev) meta.push(`${T.dev}: ${g.dev}`);
+  if (g.pub) meta.push(`${T.pub}: ${g.pub}`);
+  meta.push(`Steam app ${g.appid}`);
+  det.appendChild(el('p', null, meta.join(' · ')));
+  const btns = el('div', 'gcard-btns');
+  const more = el('button', 'gcard-more', i18n.t('ui.details'));
+  more.type = 'button';
+  more.setAttribute('aria-expanded', 'false');
+  more.addEventListener('click', () => {
+    const open = det.classList.toggle('hidden');
+    more.setAttribute('aria-expanded', String(!open));
+    audio.play('blip');
+  });
+  const steam = el('a', 'gcard-steam', T.steam);
+  steam.href = g.url;
+  steam.target = '_blank';
+  steam.rel = 'noopener';
+  if (g.mature) steam.title = T.matureLink;
+  steam.addEventListener('click', () => audio.play('click'));
+  btns.append(more, steam);
+  body.append(btns, det);
+  card.append(art, body);
+  return card;
+}
+
+function buildGamesShowcase(groups) {
+  const T = i18n.t('games');
+  const wrap = el('section', 'games-zone');
+  const list = GAMES.filter((g) => groups.includes(g.group));
+  // หัวหมวด + คำอธิบายระดับหมวด (ไม่ซ้ำทุกการ์ด)
+  for (const gid of groups) {
+    const grp = T.groups[gid];
+    const n = list.filter((g) => g.group === gid).length;
+    if (!grp || !n) continue;
+    const h = el('div', 'games-group');
+    h.appendChild(el('h3', 'sec-head', `${grp.head} · ${n}`));
+    h.appendChild(el('p', 'games-desc', grp.desc));
+    wrap.appendChild(h);
+  }
+  // carousel
+  const car = el('div', 'gcar');
+  const track = el('div', 'gcar-track');
+  track.setAttribute('tabindex', '0');
+  list.forEach((g, i) => {
+    const slide = el('div', 'gcar-slide');
+    slide.appendChild(gameCard(g, T, i));
+    track.appendChild(slide);
+  });
+  const nav = el('div', 'gcar-nav');
+  const prev = el('button', 'gcar-btn prev', '‹');
+  prev.type = 'button';
+  prev.setAttribute('aria-label', i18n.t('ui.prev'));
+  const next = el('button', 'gcar-btn next', '›');
+  next.type = 'button';
+  next.setAttribute('aria-label', i18n.t('ui.next'));
+  const counter = el('span', 'gcar-count');
+  counter.setAttribute('aria-live', 'polite');
+  nav.append(prev, counter, next);
+  car.append(track, nav);
+  wrap.appendChild(car);
+  // กริดรูปย่อ: ข้ามไปเกมใดก็ได้ทันที
+  const grid = el('div', 'ggrid');
+  grid.setAttribute('role', 'list');
+  wrap.appendChild(el('p', 'ggrid-hint', T.gridHint));
+  const thumbs = list.map((g, i) => {
+    const b = el('button', 'gthumb' + (g.mature ? ' mature' : ''));
+    b.type = 'button';
+    b.setAttribute('role', 'listitem');
+    b.setAttribute('aria-label', `${i + 1}. ${g.en}`);
+    b.title = g.en;
+    if (g.mature) {
+      b.append(el('span', 'gthumb-n', String(i + 1)), el('span', 'gthumb-t', g.th || g.en));
+    } else {
+      const im = el('img');
+      im.src = g.img;
+      im.alt = '';
+      im.loading = 'lazy';
+      b.append(im, el('span', 'gthumb-n', String(i + 1)));
+    }
+    b.addEventListener('click', () => { audio.play('blip'); goTo(i); });
+    grid.appendChild(b);
+    return b;
+  });
+  wrap.appendChild(grid);
+
+  let cur = 0;
+  const goTo = (i) => {
+    cur = (i + list.length) % list.length;
+    track.scrollTo({ left: track.clientWidth * cur, behavior: SCROLL_BEHAVIOR() });
+    sync();
+  };
+  const sync = () => {
+    counter.textContent = `${cur + 1} ${i18n.t('ui.of')} ${list.length}`;
+    thumbs.forEach((t, k) => t.classList.toggle('on', k === cur));
+  };
+  prev.addEventListener('click', () => { audio.play('blip'); goTo(cur - 1); });
+  next.addEventListener('click', () => { audio.play('blip'); goTo(cur + 1); });
+  track.addEventListener('scroll', () => {
+    const i = Math.round(track.scrollLeft / Math.max(1, track.clientWidth));
+    if (i !== cur) { cur = i; sync(); }
+  }, { passive: true });
+  track.addEventListener('keydown', (e) => {
+    if (e.code === 'ArrowRight') { e.preventDefault(); goTo(cur + 1); }
+    if (e.code === 'ArrowLeft') { e.preventDefault(); goTo(cur - 1); }
+  });
+  sync();
+  return wrap;
+}
+
+// รายการเกมแบบกะทัดรัดสำหรับ Resume Mode (ข้อความล้วน ไม่มีปก — อ่านเร็ว/พิมพ์ได้)
+export function buildGamesList(groups) {
+  const T = i18n.t('games');
+  const wrap = el('section', 'games-list');
+  for (const gid of groups) {
+    const items = GAMES.filter((g) => g.group === gid);
+    const grp = T.groups[gid];
+    if (!items.length || !grp) continue;
+    wrap.appendChild(el('h3', 'sec-head', `${grp.head} · ${items.length}`));
+    wrap.appendChild(el('p', 'games-desc', grp.desc));
+    const ul = el('ul', 'glist');
+    for (const g of items) {
+      const li = el('li', 'glist-item');
+      const name = el('div', 'glist-name');
+      const a = el('a', null, g.en);
+      a.href = g.url;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      if (g.mature) a.title = T.matureLink;
+      name.appendChild(a);
+      if (g.th !== g.en) name.appendChild(el('span', 'glist-th', g.th));
+      const meta = el('div', 'glist-meta');
+      for (const r of g.roles) meta.appendChild(el('span', 'role-tag', T.roles[r] ?? r));
+      meta.appendChild(el('span', `gcard-status s-${g.status}`, T.status[g.status]));
+      if (g.via) meta.appendChild(el('span', 'glist-via', `${T.via} ${g.via}`));
+      if (g.mature) meta.appendChild(el('span', 'gcard-18 inline', '18+'));
+      li.append(name, meta);
+      ul.appendChild(li);
+    }
+    wrap.appendChild(ul);
+  }
+  return wrap;
+}
+
+// ---------- ชิ้นส่วนเดิม (โลโก้/สไลด์/คลิป) ----------
 function buildHero(show, alt) {
-  const img = document.createElement('img');
+  const img = el('img');
   img.src = show.hero || show.heroLogo;
   img.alt = alt;
-  if (show.hero) {
-    img.className = 'panel-hero';
-    return img;
-  }
-  const card = document.createElement('div');
-  card.className = 'panel-hero logo-card';
+  img.loading = 'lazy';
+  if (show.hero) { img.className = 'panel-hero'; return img; }
+  const card = el('div', 'panel-hero logo-card');
   card.appendChild(img);
   return card;
 }
 
-// คลิป YouTube แบบ "แตะแล้วเล่น": โชว์ thumbnail ในเครื่องก่อน (เบา ไม่ยิง request)
-// แตะ → สลับเป็น iframe autoplay — โหลด YouTube เฉพาะคลิปที่ผู้ชมกดจริง
 function buildVideoThumb({ id, vertical }) {
-  const box = document.createElement('div');
-  // ทุกคลิปใช้กรอบ 16:9 เท่ากันหมด (thumb ของ Shorts ถูก normalize บนพื้นเบลอแล้ว)
-  box.className = 'panel-video thumb';
-  const img = document.createElement('img');
+  const box = el('div', 'panel-video thumb');
+  const img = el('img');
   img.src = `assets/showcase/slides/yt${vertical ? 's' : ''}-${id}.webp`;
   img.alt = '';
   img.loading = 'lazy';
-  const play = document.createElement('div');
-  play.className = 'video-play';
+  const play = el('button', 'video-play');
+  play.type = 'button';
+  play.setAttribute('aria-label', 'Play video');
   box.append(img, play);
   box.addEventListener('click', () => {
     if (box.dataset.playing) return;
     box.dataset.playing = '1';
     audio.play('click');
-    const f = document.createElement('iframe');
+    const f = el('iframe');
     f.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1`;
     f.title = 'YouTube video';
     f.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
@@ -352,90 +404,62 @@ function buildVideoThumb({ id, vertical }) {
   return box;
 }
 
-// สไลด์โชว์เลื่อนได้ (scroll-snap — ปัดนิ้วบนมือถือ / ปุ่ม ‹ › บนเดสก์ท็อป)
 function buildCarousel(slides) {
-  const wrap = document.createElement('div');
-  wrap.className = 'car-wrap';
-  const track = document.createElement('div');
-  track.className = 'carousel';
-
+  const wrap = el('div', 'car-wrap');
+  const track = el('div', 'carousel');
   for (const s of slides) {
-    const slide = document.createElement('div');
-    slide.className = 'car-slide';
+    const slide = el('div', 'car-slide');
     let inner;
-    if (s.video) {
-      inner = buildVideoThumb(s.video);
-    } else if (s.mystery) {
-      inner = document.createElement('div');
-      inner.className = 'mystery-card';
-      inner.textContent = '?';
-    } else if (s.text) {
-      inner = document.createElement('div');
-      inner.className = 'text-card';
-      inner.textContent = s.text;
-    } else {
-      inner = document.createElement('img');
+    if (s.video) inner = buildVideoThumb(s.video);
+    else if (s.mystery) inner = el('div', 'mystery-card', '?');
+    else if (s.text) inner = el('div', 'text-card', s.text);
+    else {
+      inner = el('img', 'car-img' + (s.tall ? ' tall' : ''));
       inner.src = s.img;
       inner.alt = capText(s.cap);
       inner.loading = 'lazy';
-      inner.className = 'car-img' + (s.tall ? ' tall' : '');
       if (s.logoCard) {
-        const card = document.createElement('div');
-        // โลโก้พื้นขาว (เช่นโลโก้องค์กรราชการ) → การ์ดพื้นสว่าง ไม่ให้เป็นก้อนขาวลอยบนพื้นมืด
-        card.className = 'logo-card car-img' + (s.light ? ' light' : '');
+        const card = el('div', 'logo-card car-img' + (s.light ? ' light' : ''));
         card.appendChild(inner);
         inner.className = '';
         inner = card;
       }
     }
-    // ห่อลิงก์ (ยกเว้นคลิป — คลิกคือเล่นในที่)
     if (s.url && !s.video) {
-      const a = document.createElement('a');
+      const a = el('a', 'car-link');
       a.href = s.url;
       a.target = '_blank';
       a.rel = 'noopener';
-      a.className = 'car-link';
       a.addEventListener('click', () => audio.play('click'));
       a.appendChild(inner);
       inner = a;
     }
     slide.appendChild(inner);
-    if (s.cap) {
-      const c = document.createElement('div');
-      c.className = 'car-cap';
-      c.textContent = capText(s.cap);
-      slide.appendChild(c);
-    }
+    if (s.cap) slide.appendChild(el('div', 'car-cap', capText(s.cap)));
     track.appendChild(slide);
   }
   wrap.appendChild(track);
-
-  // สไลด์เดียวไม่ต้องมีปุ่ม/จุดบอกตำแหน่ง
   if (slides.length > 1) {
-    const dots = document.createElement('div');
-    dots.className = 'car-dots';
+    const dots = el('div', 'car-dots');
     const dotEls = slides.map((_, i) => {
-      const d = document.createElement('button');
-      d.className = 'car-dot' + (i === 0 ? ' on' : '');
+      const d = el('button', 'car-dot' + (i === 0 ? ' on' : ''));
+      d.type = 'button';
       d.setAttribute('aria-label', `slide ${i + 1}`);
-      d.addEventListener('click', () => {
-        track.scrollTo({ left: track.clientWidth * i, behavior: SCROLL_BEHAVIOR });
-      });
+      d.addEventListener('click', () => track.scrollTo({ left: track.clientWidth * i, behavior: SCROLL_BEHAVIOR() }));
       dots.appendChild(d);
       return d;
     });
     track.addEventListener('scroll', () => {
-      const i = Math.round(track.scrollLeft / track.clientWidth);
+      const i = Math.round(track.scrollLeft / Math.max(1, track.clientWidth));
       dotEls.forEach((d, k) => d.classList.toggle('on', k === i));
     }, { passive: true });
-
-    for (const [cls, dir] of [['prev', -1], ['next', 1]]) {
-      const b = document.createElement('button');
-      b.className = `car-btn ${cls}`;
-      b.textContent = dir < 0 ? '‹' : '›';
+    for (const [cls, dir, lbl] of [['prev', -1, 'ui.prev'], ['next', 1, 'ui.next']]) {
+      const b = el('button', `car-btn ${cls}`, dir < 0 ? '‹' : '›');
+      b.type = 'button';
+      b.setAttribute('aria-label', i18n.t(lbl));
       b.addEventListener('click', () => {
         audio.play('blip');
-        track.scrollBy({ left: track.clientWidth * dir, behavior: SCROLL_BEHAVIOR });
+        track.scrollBy({ left: track.clientWidth * dir, behavior: SCROLL_BEHAVIOR() });
       });
       wrap.appendChild(b);
     }
@@ -444,24 +468,19 @@ function buildCarousel(slides) {
   return wrap;
 }
 
-// แถบโลโก้แบรนด์ที่ร่วมงาน — ★ v4: การ์ดกดได้ กางรายละเอียดใต้แถบ (b.d = {th,en,ja})
 function buildBrands(brands) {
-  const wrap = document.createElement('div');
-  wrap.className = 'brand-zone';
-  const row = document.createElement('div');
-  row.className = 'brand-strip';
-  const detail = document.createElement('div');
-  detail.className = 'brand-detail hidden';
+  const wrap = el('div', 'brand-zone');
+  const row = el('div', 'brand-strip');
+  const detail = el('div', 'brand-detail hidden');
   let activeCard = null;
-
   for (const b of brands) {
-    const card = document.createElement('div');
-    card.className = 'brand-card' + (b.light ? ' light' : '');
+    const card = el('div', 'brand-card' + (b.light ? ' light' : ''));
     if (b.img) {
-      const img = document.createElement('img');
+      const img = el('img');
       img.src = b.img;
       img.alt = b.alt || '';
       img.title = b.alt || '';
+      img.loading = 'lazy';
       card.appendChild(img);
     } else {
       card.classList.add('text');
@@ -474,7 +493,6 @@ function buildBrands(brands) {
       const toggle = () => {
         audio.play('blip');
         if (activeCard === card) {
-          // กดซ้ำ = หุบ
           card.classList.remove('active');
           detail.classList.add('hidden');
           activeCard = null;
@@ -484,19 +502,12 @@ function buildBrands(brands) {
         activeCard = card;
         card.classList.add('active');
         detail.innerHTML = '';
-        const nm = document.createElement('strong');
-        nm.textContent = b.name || b.alt || b.text || '';
-        const p = document.createElement('span');
-        p.textContent = capText(b.d);
-        detail.append(nm, p);
+        detail.append(el('strong', null, b.name || b.alt || b.text || ''), el('span', null, capText(b.d)));
         detail.classList.remove('hidden');
       };
       card.addEventListener('click', toggle);
       card.addEventListener('keydown', (e) => {
-        if (e.code === 'Enter' || e.code === 'Space') {
-          e.preventDefault();
-          toggle();
-        }
+        if (e.code === 'Enter' || e.code === 'Space') { e.preventDefault(); toggle(); }
       });
     }
     row.appendChild(card);
@@ -505,47 +516,166 @@ function buildBrands(brands) {
   return wrap;
 }
 
-// โลโก้เด่นขององค์กรที่ทำงานภายใต้ (TGS → JETRO → AFA) — การ์ดใหญ่เรียงกัน
-// ★ 2026-07-20: รองรับมากกว่า 2 ใบแล้ว (class .n3 เมื่อมี 3 ใบขึ้นไป)
 function buildBigLogos(logos) {
-  const row = document.createElement('div');
-  row.className = 'logo-duo' + (logos.length > 2 ? ' n3' : '');
+  const row = el('div', 'logo-duo' + (logos.length > 2 ? ' n3' : ''));
   for (const l of logos) {
-    const card = document.createElement(l.url ? 'a' : 'div');
+    const card = el(l.url ? 'a' : 'div', 'logo-card duo' + (l.light ? ' light' : '') + (l.tile ? ' tile' : ''));
     if (l.url) {
       card.href = l.url;
       card.target = '_blank';
       card.rel = 'noopener';
       card.addEventListener('click', () => audio.play('click'));
     }
-    card.className = 'logo-card duo' + (l.light ? ' light' : '') + (l.tile ? ' tile' : '');
-    const img = document.createElement('img');
+    const img = el('img');
     img.src = l.img;
     img.alt = l.alt || '';
     img.title = l.alt || '';
+    img.loading = 'lazy';
     card.appendChild(img);
     row.appendChild(card);
   }
   return row;
 }
 
-// หัวช่อง YouTube: avatar กลม + ชื่อช่อง
+function buildGames(games) {
+  const zone = el('section', 'game-zone');
+  zone.appendChild(el('h3', 'game-head', capText(games.head)));
+  const role = el('p', 'game-role');
+  role.innerHTML = capText(games.role); // มี <b> จาก content.js ของเราเอง
+  zone.appendChild(role);
+  const grid = el('div', 'game-grid');
+  for (const g of games.items) {
+    const card = el('article', 'game-card');
+    const art = el('div', 'game-art');
+    const im = el('img');
+    im.src = g.img;
+    im.alt = g.title;
+    im.loading = 'lazy';
+    art.appendChild(im);
+    const studio = el('div', 'game-studio');
+    if (g.studioLogo) {
+      const lg = el('img');
+      lg.src = g.studioLogo;
+      lg.alt = '';
+      lg.loading = 'lazy';
+      lg.addEventListener('error', () => lg.remove());
+      studio.appendChild(lg);
+    }
+    studio.appendChild(el('span', null, g.studio));
+    const body = el('div', 'game-body');
+    body.append(studio, el('h4', 'game-title', g.title), el('p', 'game-desc', capText(g.d)));
+    card.append(art, body);
+    if (g.url) {
+      const a = el('a', 'game-btn', '▶ STEAM');
+      a.href = g.url;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.addEventListener('click', () => audio.play('click'));
+      body.appendChild(a);
+    }
+    grid.appendChild(card);
+  }
+  zone.appendChild(grid);
+  return zone;
+}
+
+function buildLogoWall(wall) {
+  const zone = el('section', 'net-wall');
+  if (wall.hint) zone.appendChild(el('div', 'net-hint', capText(wall.hint)));
+  for (const g of wall.groups) {
+    const head = el('h3', 'net-head', capText(g.head));
+    const grid = el('div', 'net-grid');
+    const detail = el('div', 'net-detail hidden');
+    let active = null;
+    for (const it of g.items) {
+      const card = el('button', 'net-card' + (it.light ? ' light' : ''));
+      card.type = 'button';
+      const box = el('div', 'net-logo');
+      const img = el('img');
+      img.src = it.img;
+      img.alt = it.name;
+      img.loading = 'lazy';
+      box.appendChild(img);
+      card.append(box, el('span', 'net-name', it.name));
+      if (it.stat) card.appendChild(el('span', 'net-stat', it.stat));
+      card.addEventListener('click', () => {
+        audio.play('blip');
+        if (active === card) {
+          card.classList.remove('active');
+          detail.classList.add('hidden');
+          active = null;
+          return;
+        }
+        if (active) active.classList.remove('active');
+        active = card;
+        card.classList.add('active');
+        detail.innerHTML = '';
+        detail.append(el('strong', null, it.name), el('span', null, capText(it.d)));
+        if (it.url) {
+          const a = el('a', 'net-link', i18n.t('ui.openLink'));
+          a.href = it.url;
+          a.target = '_blank';
+          a.rel = 'noopener';
+          a.addEventListener('click', (e) => { e.stopPropagation(); audio.play('click'); });
+          detail.appendChild(a);
+        }
+        detail.classList.remove('hidden');
+      });
+      grid.appendChild(card);
+    }
+    zone.append(head, grid, detail);
+  }
+  return zone;
+}
+
 function buildChannelHead(show) {
-  const head = document.createElement('div');
-  head.className = 'yt-head';
-  const av = document.createElement('img');
+  const head = el('div', 'yt-head');
+  const av = el('img');
   av.src = show.avatar;
   av.alt = '';
-  const name = document.createElement('span');
-  name.textContent = show.channelName || '';
-  head.append(av, name);
+  head.append(av, el('span', null, show.channelName || ''));
   return head;
+}
+
+// เนื้อหาของ 1 บท (panel id เดิม) — ใช้ทั้งใน panel เกมและเป็นฐานให้ Resume Mode
+export function buildChapter(id, { full = false } = {}) {
+  const data = i18n.t(`panels.${id}`);
+  if (!data) return null;
+  const show = SHOWCASE[id] || {};
+  const frag = document.createDocumentFragment();
+  if (data.sub) frag.appendChild(el('p', 'chapter-sub', data.sub));
+  if (!full && show.brands && show.brandsTop) {
+    if (data.brandsHead) frag.appendChild(el('div', 'brand-head', data.brandsHead));
+    const zone = buildBrands(show.brands);
+    zone.classList.add('top');
+    frag.appendChild(zone);
+  }
+  if (!full && show.avatar) frag.appendChild(buildChannelHead(show));
+  if (!full && (show.hero || show.heroLogo)) frag.appendChild(buildHero(show, data.title));
+  if (!full && show.slides) frag.appendChild(buildCarousel(show.slides));
+  if (!full && show.wall) frag.appendChild(buildLogoWall(show.wall));
+  if (data.uses) frag.appendChild(buildUses(data.uses));
+  if (data.stats) frag.appendChild(buildStats(data.stats));
+  frag.appendChild(buildBullets(full ? data.lines : (data.brief || data.lines)));
+  if (show.gameGroups) frag.appendChild(full ? buildGamesList(show.gameGroups) : buildGamesShowcase(show.gameGroups));
+  if (!full && show.bigLogos) frag.appendChild(buildBigLogos(show.bigLogos));
+  if (!full && show.games) frag.appendChild(buildGames(show.games));
+  if (!full && show.brands && !show.brandsTop) frag.appendChild(buildBrands(show.brands));
+  else if (data.tags && (full || !show.brandsTop)) frag.appendChild(buildTags(data.tags));
+  if (data.contactHead) frag.appendChild(el('h3', 'sec-head', data.contactHead));
+  if (data.links) frag.appendChild(buildLinks(data.links));
+  if (data.docs) {
+    const docs = buildDocs(data.docs, data.docsHead);
+    if (docs) frag.appendChild(docs);
+  }
+  if (data.cardHead) frag.appendChild(buildCard(data));
+  return frag;
 }
 
 export class Panels {
   /**
    * @param onOpenChange  callback(isOpen) — main ใช้หยุด/คืนการเดินของผู้เล่น
-   * @param onOpenZone    callback(id) — main ใช้นับว่าสำรวจโซนไหนไปแล้วบ้าง
+   * @param onOpenZone    callback(zoneId) — main ใช้นับความคืบหน้า
    */
   constructor({ onOpenChange, onOpenZone }) {
     this.onOpenChange = onOpenChange;
@@ -553,43 +683,33 @@ export class Panels {
     this.root = document.getElementById('panel');
     this.box = document.getElementById('panel-box');
     this.titleEl = document.getElementById('panel-title');
+    this.tabsEl = document.getElementById('panel-tabs');
     this.bodyEl = document.getElementById('panel-body');
     this.closeBtn = document.getElementById('panel-close');
-    this.openId = null;
-
     this.scrollEl = document.getElementById('panel-scroll');
+    this.openId = null;     // zone id (หรือ panel id ตรงๆ)
+    this.chapter = 0;
 
-    // ★ A4: เงาขอบล่างบอกว่ายังมีเนื้อหาต่อ — ซ่อนเองเมื่อเลื่อนถึงท้าย
-    //   (โซน Sticky Rice สูง 838px แต่จอเห็น 554px หายไป 1/3 โดยไม่มีสัญญาณ)
     this.scrollEl.addEventListener('scroll', () => this.syncScrollCue(), { passive: true });
     window.addEventListener('resize', () => this.syncScrollCue());
 
-    // ★ N5: focus trap — กด Tab แล้วโฟกัสต้องวนอยู่ในกล่อง ไม่หลุดไปหลังฉากมืด
+    // focus trap
     this.root.addEventListener('keydown', (e) => {
       if (e.code !== 'Tab' || !this.openId) return;
       const items = [...this.box.querySelectorAll(
         'a[href], button:not([disabled]), iframe, [tabindex]:not([tabindex="-1"])')]
-        .filter((el) => el.offsetParent !== null);
+        .filter((it) => it.offsetParent !== null);
       if (!items.length) return;
       const first = items[0];
       const last = items[items.length - 1];
-      if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault();
-        last.focus();
-      } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault();
-        first.focus();
-      }
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
     });
 
     this.closeBtn.addEventListener('click', () => this.close());
-    // คลิกฉากหลังมืด (นอกกรอบ) = ปิด
     this.root.addEventListener('pointerdown', (e) => {
-      // ★ 2026-07-20: เฉพาะปุ่มซ้ายเท่านั้น — เดิมคลิกขวาบนฉากมืดก็ปิด panel
-      //   แล้ว contextmenu ที่ตามมาไปโดน onRightClick ซึ่งเปิด panel เดิมซ้ำ = วนไม่รู้จบ
       if (e.button === 0 && e.target === this.root) this.close();
     });
-    // คลิกขวาบนตัวกล่อง/ฉากมืด = ปิด (และห้ามเมนู "บันทึกภาพ" ของเบราว์เซอร์โผล่)
     this.root.addEventListener('contextmenu', (e) => {
       e.preventDefault();
       if (this.openId) this.close();
@@ -599,92 +719,86 @@ export class Panels {
     });
   }
 
-  get isOpen() {
-    return this.openId !== null;
-  }
+  get isOpen() { return this.openId !== null; }
 
-  // มีเนื้อหาต่อข้างล่างไหม → เติม/ถอด class ที่ #panel-box (CSS วาดเงาไล่)
   syncScrollCue() {
-    const el = this.scrollEl;
-    const more = el.scrollHeight - el.clientHeight - el.scrollTop > 12;
-    this.box.classList.toggle('has-more', more);
+    const s = this.scrollEl;
+    this.box.classList.toggle('has-more', s.scrollHeight - s.clientHeight - s.scrollTop > 12);
   }
 
-  open(id) {
-    if (!this.render(id)) return;
+  // รายการบทของโซน (วัตถุในห้อง) — ถ้าไม่ใช่โซนก็ถือว่าเป็น panel id เดี่ยว
+  chaptersOf(id) {
+    const zone = OBJECTS.find((o) => o.id === id);
+    return zone ? zone.chapters : [id];
+  }
+
+  open(id, chapter = 0) {
+    if (!this.render(id, chapter)) return;
     clearTimeout(this._closeTimer);
-    // ★ 2026-07-20: เอฟเฟกต์เด้งเข้า (CSS `.opening`) — เอาออกหลังจบเพื่อให้เล่นซ้ำได้
     this.root.classList.remove('hidden', 'closing');
     this.box.classList.remove('opening');
-    void this.box.offsetWidth;              // บังคับ reflow ให้ animation เริ่มใหม่จริง
+    void this.box.offsetWidth;
     this.box.classList.add('opening');
     this.scrollEl.scrollTop = 0;
     this.syncScrollCue();
     audio.play('pop');
     this.onOpenChange(true);
     this.onOpenZone?.(id);
-    // โฟกัสเข้ากล่องเพื่อให้ Tab/Esc ทำงานกับ panel ทันที (a11y)
     this.closeBtn.focus({ preventScroll: true });
   }
 
-  // สลับภาษาระหว่าง panel เปิดอยู่ → วาดเนื้อหาใหม่เงียบๆ (ไม่เล่นเสียง/ไม่ยุ่ง state)
   refresh() {
-    if (this.openId) this.render(this.openId);
+    if (this.openId) this.render(this.openId, this.chapter);
   }
 
-  render(id) {
-    const data = i18n.t(`panels.${id}`);
-    if (!data) return false;
+  render(id, chapter = 0) {
+    const chapters = this.chaptersOf(id);
+    const zoneName = i18n.t('zones')?.[id];
+    const first = i18n.t(`panels.${chapters[0]}`);
+    if (!first) return false;
     this.openId = id;
-    const show = SHOWCASE[id] || {};
-    this.titleEl.textContent = data.title;
+    this.chapter = Math.min(chapter, chapters.length - 1);
+    const cur = chapters[this.chapter];
+    const data = i18n.t(`panels.${cur}`);
+    this.titleEl.textContent = zoneName || data.title;
+
+    // แถบเลือกบท (เฉพาะโซนที่มี >1 บท) — role tablist + ลูกศรซ้ายขวา
+    this.tabsEl.innerHTML = '';
+    this.tabsEl.classList.toggle('hidden', chapters.length < 2);
+    if (chapters.length > 1) {
+      this.tabsEl.setAttribute('role', 'tablist');
+      this.tabsEl.setAttribute('aria-label', i18n.t('ui.chapters'));
+      chapters.forEach((cid, i) => {
+        const d = i18n.t(`panels.${cid}`);
+        const b = el('button', 'tab' + (i === this.chapter ? ' on' : ''), d?.title || cid);
+        b.type = 'button';
+        b.setAttribute('role', 'tab');
+        b.setAttribute('aria-selected', String(i === this.chapter));
+        b.tabIndex = i === this.chapter ? 0 : -1;
+        b.addEventListener('click', () => {
+          if (i === this.chapter) return;
+          audio.play('blip');
+          this.render(id, i);
+          this.scrollEl.scrollTop = 0;
+          this.tabsEl.querySelectorAll('.tab')[i]?.focus();
+        });
+        b.addEventListener('keydown', (e) => {
+          if (e.code === 'ArrowRight' || e.code === 'ArrowLeft') {
+            e.preventDefault();
+            const n = (i + (e.code === 'ArrowRight' ? 1 : -1) + chapters.length) % chapters.length;
+            this.render(id, n);
+            this.tabsEl.querySelectorAll('.tab')[n]?.focus();
+          }
+        });
+        this.tabsEl.appendChild(b);
+      });
+    }
+
     this.bodyEl.innerHTML = '';
-
-    // brandsTop: หัวข้อ "เคยร่วมงานกับแบรนด์เหล่านี้" + โลโก้กดได้ อยู่บนสุดของ panel
-    // (เจ้าของสั่ง 2026-07-18 — ต้องมาก่อนทุกอย่าง)
-    if (show.brands && show.brandsTop) {
-      if (data.brandsHead) {
-        const bh = document.createElement('div');
-        bh.className = 'brand-head';
-        bh.textContent = data.brandsHead;
-        this.bodyEl.appendChild(bh);
-      }
-      const zone = buildBrands(show.brands);
-      zone.classList.add('top');
-      this.bodyEl.appendChild(zone);
-    }
-    if (show.avatar) this.bodyEl.appendChild(buildChannelHead(show));
-    if (show.hero || show.heroLogo) this.bodyEl.appendChild(buildHero(show, data.title));
-    if (show.slides) this.bodyEl.appendChild(buildCarousel(show.slides));
-    // กำแพงโลโก้เครือข่าย (แทน carousel ในโซน network)
-    if (show.wall) this.bodyEl.appendChild(buildLogoWall(show.wall));
-    if (data.uses) this.bodyEl.appendChild(buildUses(data.uses));
-    if (data.stats) this.bodyEl.appendChild(buildStats(data.stats));
-
-    // ภาพสถิติจาก YouTube Studio — โชว์อัตโนมัติเมื่อเจ้าของวางไฟล์ไว้ (ไม่มีไฟล์ = ซ่อน)
-    if (show.statImg) {
-      const si = document.createElement('img');
-      si.className = 'panel-hero stat-img';
-      si.src = show.statImg;
-      si.alt = '';
-      si.addEventListener('error', () => si.remove());
-      this.bodyEl.appendChild(si);
-    }
-
-    // ในเกมโชว์ฉบับย่อ (brief) เน้นภาพ+ตัวเลข — ฉบับเต็ม (lines) อยู่ใน Resume Mode
-    // ★ 2026-07-20: เจ้าของสั่งให้ทุกโซนเป็น bullet (อ่านง่ายกว่าย่อหน้ายาว)
-    this.bodyEl.appendChild(buildBullets(data.brief || data.lines));
-    // โลโก้องค์กรเด่น (TGS → JETRO → AFA) วางใหญ่หลังข้อความ — "ทำงานภายใต้เขา"
-    if (show.bigLogos) this.bodyEl.appendChild(buildBigLogos(show.bigLogos));
-    // การ์ดเกมที่ยืนแนะนำหน้าบูท (Arcade Selection UI) — แทน tag เดิม
-    if (show.games) this.bodyEl.appendChild(buildGames(show.games));
-    // มีโลโก้แบรนด์จริง → ใช้แทนชิปตัวอักษร (tags ยังใช้ใน Resume Mode)
-    // brandsTop = โชว์ไปแล้วด้านบน ไม่ต้องซ้ำล่าง
-    if (show.brands && !show.brandsTop) this.bodyEl.appendChild(buildBrands(show.brands));
-    else if (data.tags && !show.brandsTop) this.bodyEl.appendChild(buildTags(data.tags));
-    if (data.links) this.bodyEl.appendChild(buildLinks(data.links));
+    if (chapters.length > 1) this.bodyEl.appendChild(el('h3', 'chapter-title', data.title));
+    const frag = buildChapter(cur);
+    if (frag) this.bodyEl.appendChild(frag);
     this.closeBtn.setAttribute('aria-label', i18n.t('ui.close'));
-    // เนื้อหาเปลี่ยน = ความสูงเปลี่ยน → คำนวณเงา "มีต่อข้างล่าง" ใหม่หลังจัดหน้าเสร็จ
     requestAnimationFrame(() => this.syncScrollCue());
     return true;
   }
@@ -692,18 +806,14 @@ export class Panels {
   close() {
     if (!this.openId) return;
     this.openId = null;
-    // ★ เด้งกลับก่อนค่อยซ่อนจริง — reduce motion ข้ามอนิเมชันไปเลย
-    const quick = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-      && localStorage.getItem('fx') !== 'full';
     this.box.classList.remove('opening');
     this.root.classList.add('closing');
     clearTimeout(this._closeTimer);
     this._closeTimer = setTimeout(() => {
       this.root.classList.add('hidden');
       this.root.classList.remove('closing');
-      // ถอด iframe คลิปทิ้ง — ไม่งั้นเสียงคลิปเล่นต่อทั้งที่ panel ปิดไปแล้ว
       this.bodyEl.querySelectorAll('iframe').forEach((f) => f.remove());
-    }, quick ? 0 : 190);
+    }, REDUCED() ? 0 : 190);
     audio.play('click');
     this.onOpenChange(false);
   }

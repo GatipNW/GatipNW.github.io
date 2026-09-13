@@ -34,10 +34,11 @@ const smoothstep = (t) => {
 
 // ไล่สีตัวอักษรโลโก้ เงินแสงจันทร์ → ทองโคม → ชาด (THEME v2 ราตรีญี่ปุ่น —
 // ใช้ทั้ง CSS gradient และ particle ตอนโลโก้แตก)
+// ★ 2026-09-13: ไล่สีให้เข้ากับนามบัตร (ขาวเงินจันทร์ → ทอง → ม่วง) — ไม่มีชาดแล้ว
 const LOGO_STOPS = [
-  [235, 240, 252],
-  [217, 164, 65],
-  [229, 72, 77],
+  [240, 236, 252],
+  [240, 209, 138],
+  [169, 140, 255],
 ];
 function logoColorAt(t) {
   const seg = clamp(t, 0, 1) * (LOGO_STOPS.length - 1);
@@ -114,10 +115,6 @@ export class IntroScene {
     this.img = document.getElementById('kratib');
     this.title = document.getElementById('intro-title');
     this.flash = document.getElementById('intro-flash');
-    this.dialog = document.getElementById('intro-dialog');
-    this.dialogText = document.getElementById('dialog-text');
-    this.dialogNext = document.getElementById('dialog-next');
-    this.dialogChoices = document.getElementById('dialog-choices');
     this.skipBtn = document.getElementById('intro-skip');
 
     this.particles = new Particles();
@@ -253,31 +250,69 @@ export class IntroScene {
     document.title = `${BRAND.logo} — ${BRAND.tagline}`;
     this.buildLogo();
     document.getElementById('intro-tagline').textContent = BRAND.tagline;
-    // ★ 2026-07-20: บรรทัดบอกสายงาน (ครบ 3 ภาษา) — วาดใหม่ตอนสลับภาษาด้วย
+    // ★ 2026-09-13 หน้าแรกตามบรีฟ: ชื่อ · สายงาน · ปุ่มสำรวจ (หลัก) · ปุ่ม Resume (รอง) · ปุ่มภาษา 3 วง
     const roleEl = document.getElementById('intro-role');
+    const pairEl = document.getElementById('intro-pair');
+    const startBtn = document.getElementById('press-start');
     const titleResume = document.getElementById('title-resume');
+    const langPick = document.getElementById('lang-pick');
     const syncTitleText = () => {
       roleEl.textContent = i18n.t('intro.role');
-      titleResume.textContent = i18n.t('resume.openTitle');
+      pairEl.textContent = i18n.t('intro.pair');
+      startBtn.querySelector('.btn-main').textContent = i18n.t('intro.explore');
+      startBtn.querySelector('.btn-sub').textContent = i18n.t('intro.exploreSub');
+      titleResume.querySelector('.btn-main').textContent = i18n.t('intro.resume');
+      titleResume.querySelector('.btn-sub').textContent = i18n.t('intro.resumeSub');
       this.skipBtn.textContent = i18n.t('intro.skip');
+      langPick.setAttribute('aria-label', i18n.t('intro.langHead'));
+      langPick.querySelectorAll('.lang-circle').forEach((b) => {
+        const on = b.dataset.lang === i18n.lang;
+        b.classList.toggle('on', on);
+        b.setAttribute('aria-pressed', String(on));
+      });
     };
+    // วงกลมภาษา TH / EN / JP + ชื่อกำกับ (ไม่ใช้ธง) — ขนาดแตะ ≥ 44px (CSS)
+    langPick.innerHTML = '';
+    const CODES = { th: 'TH', en: 'EN', ja: 'JP' };
+    for (const l of BRAND.langs) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'lang-circle';
+      b.dataset.lang = l.id;
+      b.setAttribute('lang', l.id);
+      b.setAttribute('aria-label', l.label);
+      const code = document.createElement('span');
+      code.className = 'lc-code';
+      code.textContent = CODES[l.id] || l.id.toUpperCase();
+      const name = document.createElement('span');
+      name.className = 'lc-name';
+      name.textContent = l.label;
+      b.append(code, name);
+      b.addEventListener('pointerdown', (e) => e.stopPropagation());
+      b.addEventListener('click', (e) => {
+        e.stopPropagation();
+        audio.play('blip');
+        i18n.set(l.id);
+      });
+      langPick.appendChild(b);
+    }
     syncTitleText();
     i18n.onChange(syncTitleText);
-    // ปุ่มลัดไป Resume Mode — ต้อง stopPropagation กันไปโดน handler PRESS START
+    // ปุ่มรอง → Resume Mode ทันที (stopPropagation กันชนปุ่มเริ่มเกม)
     titleResume.addEventListener('pointerdown', (e) => e.stopPropagation());
     titleResume.addEventListener('click', (e) => {
       e.stopPropagation();
       audio.play('click');
       document.getElementById('resume-btn').click();
     });
-    document.getElementById('press-start').textContent = BRAND.pressStart;
 
     // เครื่องนี้ตั้ง reduce motion ไว้ → เสนอปุ่มเปิดเอฟเฟกต์เต็ม (opt-in แล้วจำค่า)
     if (REDUCED) {
       const fxBtn = document.createElement('button');
       fxBtn.id = 'fx-btn';
+      fxBtn.type = 'button';
       fxBtn.textContent = BRAND.fullFx;
-      fxBtn.addEventListener('pointerdown', (e) => e.stopPropagation()); // กันชน PRESS START
+      fxBtn.addEventListener('pointerdown', (e) => e.stopPropagation());
       fxBtn.addEventListener('click', () => {
         localStorage.setItem('fx', 'full');
         location.reload();
@@ -288,33 +323,30 @@ export class IntroScene {
     // กระติ๊บโผล่หัวแอบมองจากขอบล่างจอ (key visual) — จะมุดลงตอน charge แล้วค่อยพุ่ง
     this.imgState = { cx: innerWidth / 2, cy: innerHeight + 320, sx: 1, sy: 1, rot: 0 };
     this.applyImgTransform();
-    this.img.classList.add('ready'); // ตั้งตำแหน่งเสร็จแล้วค่อยให้มองเห็น (กันค้างมุมซ้ายบน)
+    this.img.classList.add('ready');
 
-    // Title พร้อมแล้ว → เอาจอ boot ออก
     const boot = document.getElementById('boot');
     if (boot) {
       boot.classList.add('gone');
       setTimeout(() => boot.remove(), 500);
     }
 
-    // เริ่ม: คลิก/แตะ/Enter/Space ที่ไหนก็ได้
+    // เริ่มสำรวจ: ปุ่มหลัก (คลิก/แตะ) หรือ Enter/Space เมื่อโฟกัสไม่ได้อยู่บนปุ่มอื่น
     const startHandler = (e) => {
       if (this.state !== 'title') return;
-      if (e.type === 'keydown' && !['Enter', 'Space'].includes(e.code)) return;
-      audio.ensure(); // user gesture แรก — ปลุก AudioContext ตรงนี้
-      audio.startBgm(); // BGM ambient เริ่มตรงนี้แล้ววนตลอดทั้งเว็บ (mute ก็แค่เงียบ)
+      if (e.type === 'keydown') {
+        if (!['Enter', 'Space'].includes(e.code)) return;
+        const t = document.activeElement;
+        if (t && t.tagName === 'BUTTON' && t !== startBtn) return; // ให้ปุ่มนั้นทำงานเอง
+        if (document.getElementById('resume-mode').classList.contains('hidden') === false) return;
+        e.preventDefault();
+      }
+      audio.ensure(); // user gesture แรก — ปลุก AudioContext ตรงนี้ (ห้ามตัด)
+      audio.startBgm();
       this.beginCharge();
     };
-    this.root.addEventListener('pointerdown', startHandler);
+    startBtn.addEventListener('click', startHandler);
     window.addEventListener('keydown', startHandler);
-
-    // คลิก dialog / กดปุ่ม เพื่อไปบรรทัดต่อไปของบทแนะนำตัว
-    this.dialog.addEventListener('pointerdown', (e) => {
-      if (this.state === 'dialog' && !e.target.closest('button')) this.advanceLine();
-    });
-    window.addEventListener('keydown', (e) => {
-      if (this.state === 'dialog' && ['Enter', 'Space', 'KeyE'].includes(e.code)) this.advanceLine();
-    });
 
     this.skipBtn.addEventListener('click', () => {
       audio.play('click');
@@ -389,7 +421,7 @@ export class IntroScene {
       this.setState('leap');
       this.imgState.cy = innerHeight * 0.44;
       this.img.classList.add('fade-in');
-      setTimeout(() => this.showLang(), 500);
+      setTimeout(() => this.finish(null, false), 500);
       return;
     }
 
@@ -467,79 +499,10 @@ export class IntroScene {
     audio.play('sparkle');
   }
 
-  showLang() {
-    this.setState('lang');
-    this.root.classList.remove('bars'); // เก็บ letterbox ไม่ให้ทับกรอบกล่องเลือกภาษา
-    this.dialog.classList.remove('hidden');
-    this.dialogText.textContent = BRAND.langPrompt;
-    this.dialogChoices.innerHTML = '';
-    for (const lang of BRAND.langs) {
-      const btn = document.createElement('button');
-      btn.className = 'choice-btn lang-btn';
-      btn.textContent = lang.label;
-      btn.addEventListener('click', () => {
-        audio.play('click');
-        i18n.set(lang.id);
-        this.skipBtn.textContent = i18n.t('intro.skip');
-        this.showDialog();
-      });
-      this.dialogChoices.appendChild(btn);
-    }
-  }
-
-  // บทแนะนำตัวกระติ๊บแบบ typewriter — จบบรรทัดสุดท้ายแล้วเข้าห้องสตูดิโอเลย (ไม่มีช้อย)
-  showDialog() {
-    this.setState('dialog');
-    this.dialog.classList.add('talk'); // โหมดบทพูด: ชิดซ้าย + สูงคงที่ ไม่กระตุกตอนพิมพ์
-    this.dialogChoices.innerHTML = '';
-    this.lineIndex = 0;
-    this.typeLine(i18n.t('intro.lines')[0]);
-  }
-
-  advanceLine() {
-    const lines = i18n.t('intro.lines');
-    if (this.typing) {
-      // กำลังพิมพ์อยู่ → โชว์ทั้งบรรทัดทันที
-      clearInterval(this.typing);
-      this.typing = null;
-      this.dialogText.textContent = lines[this.lineIndex];
-      this.dialogNext.classList.remove('hidden');
-      return;
-    }
-    this.lineIndex++;
-    if (this.lineIndex < lines.length) {
-      this.typeLine(lines[this.lineIndex]);
-    } else {
-      this.finish(null, false);
-    }
-  }
-
-  typeLine(text) {
-    this.dialogNext.classList.add('hidden');
-    if (REDUCED) {
-      this.dialogText.textContent = text;
-      this.dialogNext.classList.remove('hidden');
-      return;
-    }
-    this.dialogText.textContent = '';
-    let i = 0;
-    this.typing = setInterval(() => {
-      i++;
-      this.dialogText.textContent = text.slice(0, i);
-      if (i % 3 === 0) audio.play('blip');
-      if (i >= text.length) {
-        clearInterval(this.typing);
-        this.typing = null;
-        this.dialogNext.classList.remove('hidden');
-      }
-    }, 28);
-  }
-
   finish(targetId, fast) {
     if (this.state === 'enter' || this.state === 'zoom' || this.state === 'done') return;
     this.finishTarget = targetId;
     this.finishFast = fast;
-    this.dialog.classList.add('hidden');
     this.skipBtn.classList.add('hidden');
     this.title.classList.add('fade-out');
     this.root.classList.remove('bars', 'charging');
@@ -915,7 +878,7 @@ export class IntroScene {
     // ก็ร่อนวนช้าๆ กลางจอบนแทน ไม่ให้ไปกองนิ่งอยู่จุดเดียว
     const anchorX = this.mouseSeen ? this.px * innerWidth : innerWidth * 0.5;
     // ยังไม่ขยับเมาส์ → ให้ร่อนแถวเชิงเขา/ผิวน้ำ ไม่ใช่กลางจอบน (จะไปกวนโลโก้)
-    const anchorY = this.mouseSeen ? this.py * innerHeight : innerHeight * 0.62;
+    const anchorY = this.mouseSeen ? this.py * innerHeight : innerHeight * 0.76; // ★ ต่ำกว่าปุ่มภาษา
     for (const f of this.fairies) {
       if (!REDUCED) {
         f.orbitA += f.orbitSpd * dt;
@@ -1267,7 +1230,8 @@ export class IntroScene {
         s.sx = 1 + 0.1 * squash;
         s.rot = 0;
       } else {
-        this.showLang();
+        // ★ 2026-09-13: ไม่มีขั้นเลือกภาษา/บทพูดแล้ว (ภาษาเลือกจากหน้าแรก) → บินเข้าดวงจันทร์เลย
+        this.finish(null, false);
       }
     } else if (this.state === 'lang' || this.state === 'dialog') {
       // ลอยหายใจนุ่มๆ ระหว่างรอเลือกภาษา/แนะนำตัว

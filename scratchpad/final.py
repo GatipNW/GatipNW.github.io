@@ -8,8 +8,10 @@ from drive import CDP, launch  # noqa: E402
 
 # ★ 2026-07-20: + 'esport' (ตู้ที่ 5 แถวเหนือ) = 13 วัตถุ / Resume Mode 13 section
 #   (Resume มี 'skills' เพิ่มแต่ไม่มี 'door' → จำนวนเท่ากันพอดี)
-IDS = ['arcade-1', 'arcade-2', 'arcade-3', 'arcade-4', 'youtube',
-       'bookshelf', 'other', 'event', 'esport', 'writing', 'network', 'language', 'desk', 'door']
+# ★ 2026-09-13 ห้องสมุดดวงจันทร์: 11 โซน (ตู้เกม 4 · หนังสือ 6 · โต๊ะต้อนรับ 1) — บางโซนมีหลายบท
+#   Resume Mode = 14 section (panel id เดิมทั้งหมด รวม skills)
+IDS = ['cab-sticky', 'cab-dh', 'cab-free', 'cab-next', 'book-events', 'book-content',
+       'book-lang', 'book-journey', 'book-write', 'book-other', 'reception']
 RESUME_SECTIONS = 14
 
 
@@ -32,7 +34,7 @@ def main():
         for _ in range(20):
             c.send('Page.bringToFront')
             c.js("document.getElementById('intro-skip')?.click()")
-            c.js("document.querySelector('#lang-pick button, .choice-btn')?.click()")
+            pass
             time.sleep(0.5)
             if c.js('!!(window.__game && window.__game.inGame)'):
                 break
@@ -53,10 +55,18 @@ def main():
                 time.sleep(0.28)
                 t = c.js("document.getElementById('panel-title')?.textContent")
                 body = c.js("document.getElementById('panel-body')?.textContent?.length")
-                if not t or not body:
+                # โซนหลายบท: กดทุกแท็บต้องมีเนื้อหา
+                ntab = c.js("document.querySelectorAll('#panel-tabs .tab').length")
+                tab_ok = True
+                for k in range(1, ntab):
+                    c.js(f"document.querySelectorAll('#panel-tabs .tab')[{k}].click()")
+                    time.sleep(0.2)
+                    if not c.js("document.getElementById('panel-body')?.textContent?.length"):
+                        tab_ok = False
+                if not t or not body or not tab_ok:
                     missing.append(pid)
                 else:
-                    print(f'  ✓ {pid:10} {t}  ({body} ตัวอักษร)')
+                    print(f'  ✓ {pid:13} {t}  ({body} ตัวอักษร · {ntab} บท)')
             if missing:
                 print('  ❌ panel ที่พัง:', missing)
                 errors.append(f'{cur}: {missing}')

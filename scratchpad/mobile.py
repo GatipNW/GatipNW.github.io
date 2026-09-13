@@ -126,7 +126,9 @@ def main():
             #   ตรงนั้นคือปุ่ม PRESS START / ดู Resume พอดี (เคยแตะโดนปุ่ม Resume
             #   แล้วเปิด Resume Mode ค้าง → เทสรายงานว่า "360px ไม่เข้าโหมด touch"
             #   ทั้งที่เว็บไม่ได้พัง — เสียเวลาไล่อยู่ 3 รอบ)
-            tap(c, w // 2, int(h * 0.22))
+            # ★ 2026-09-13: เริ่มเกมต้องแตะปุ่ม "สำรวจ" (ไม่ใช่แตะที่ว่าง) — หา rect ของปุ่มแล้วแตะจริง
+            pr = json.loads(c.js("JSON.stringify((r=>[r.left+r.width/2,r.top+r.height/2])(document.getElementById('press-start').getBoundingClientRect()))"))
+            tap(c, int(pr[0]), int(pr[1]))
             for _ in range(20):
                 c.send('Page.bringToFront')
                 c.js("document.getElementById('intro-skip')?.click()")
@@ -156,7 +158,7 @@ def main():
             # ปุ่ม ✦ ต้องโผล่เมื่อเข้าใกล้วัตถุ
             c.send('Page.bringToFront')
             c.js("""(() => { const g = window.__game;
-              const o = g.objects.find(o => o.id === 'youtube');
+              const o = g.objects.find(o => o.id === 'reception');
               g.player.x = o.x + o.w / 2; g.player.y = o.y - 40; })()""")
             time.sleep(0.8)
             c.send('Page.bringToFront')
@@ -164,7 +166,7 @@ def main():
                   '· ปุ่ม ✦ โผล่ =', c.js("!document.getElementById('interact-btn').classList.contains('hidden')"))
 
             # เปิด panel แล้วเช็คว่าอ่าน/เลื่อนได้ ไม่ล้นจอ
-            c.js("window.__game.panels.open('event')")
+            c.js("window.__game.panels.open('book-events')")
             time.sleep(1.0)
             c.send('Page.bringToFront')
             pv = c.js("""(() => { const b = document.getElementById('panel-box');

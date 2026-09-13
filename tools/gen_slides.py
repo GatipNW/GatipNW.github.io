@@ -4,8 +4,7 @@
 # โลโก้องค์กรก็ต้องใหญ่เท่ากัน" + รอบสอง: "การ์ดโลโก้ดูไม่สวย ปรับให้สวยๆ"
 # - photo  : crop เต็มเฟรม (cover) + sharpen เบาๆ
 # - tall   : ภาพแนวตั้ง (ปกมังงะ/โปสเตอร์/Shorts) วางกลางบนพื้นหลังตัวเองเบลอ
-# - logo   : การ์ดวาชิ v2 — ลายคลื่นเซกาอิฮะครามจางบนหัว + กรอบทองคู่มุมประดับ
-#            + เงานุ่มใต้โลโก้ + ตราประทับชาดมุมขวาล่าง (ธีมราตรีญี่ปุ่น)
+# - logo   : ★ 2026-09-13 การ์ดม่วงเข้ม + แผ่นรองขาวนวลมุมมน + กรอบทองหม่นบาง (ธีม Moon Library)
 # วิธีรัน:  python tools/gen_slides.py   (ต้องมี pillow + numpy)
 # ============================================
 import os
@@ -29,83 +28,42 @@ rng = np.random.default_rng(7)
 
 K = W / 1920.0  # ★ ตัวคูณสเกลลาย/กรอบ ให้สัดส่วนเท่าเดิมตอนขยายผืนผ้าใบ
 
-AI = (16, 18, 38)        # ครามมิดไนต์
-KIN = (217, 164, 65)     # ทองบยศ
-SHU = (229, 72, 77)      # ชาด
+# ★ 2026-09-13 ธีม Moon Library: ม่วงเข้ม × ทองหม่น × ขาวนวล (ธีมวาชิ×ชาดเดิมถูกแทนที่)
+AI = (30, 24, 48)        # ม่วงเข้ม (พื้นการ์ด)
+AI2 = (52, 42, 80)       # ม่วงกลาง (ไล่สีตรงกลาง)
+KIN = (217, 181, 106)    # ทองหม่น
+PAPER = (243, 236, 221)  # ขาวนวล (แผ่นรองโลโก้ — โลโก้สีเข้มยังอ่านออก)
 
 
-def washi_bg():
-    """กระดาษวาชิ #f5efe2 + เสี้ยนกระดาษ + แสงอุ่นกลางการ์ด + vignette"""
-    base = np.full((H, W, 3), (245, 239, 226), dtype=np.float32)
-    noise = rng.normal(0, 4.0, (H, W, 1)).astype(np.float32)
-    base += noise
+def moon_bg():
+    """การ์ดม่วงเข้ม: ไล่สว่างกลางการ์ด + ฝุ่นดาวจางๆ + vignette (แทนกระดาษวาชิเดิม)"""
     yy, xx = np.mgrid[0:H, 0:W]
     d = np.sqrt(((xx - W / 2) / (W / 2)) ** 2 + ((yy - H / 2) / (H / 2)) ** 2)
-    # แสงอุ่นตรงกลาง (โลโก้เด่นขึ้น) + ขอบหม่นลงนุ่มๆ
-    base += (np.clip(0.5 - d, 0, 1) * 14)[..., None] * np.array([1.0, 0.98, 0.9])
-    base -= (np.clip(d - 0.55, 0, 1) ** 2 * 30)[..., None]
+    t = np.clip(1 - d * 0.9, 0, 1)[..., None]
+    base = np.array(AI, np.float32) * (1 - t) + np.array(AI2, np.float32) * t
+    base += rng.normal(0, 2.0, (H, W, 1)).astype(np.float32)
     img = Image.fromarray(np.clip(base, 0, 255).astype(np.uint8))
     d2 = ImageDraw.Draw(img, 'RGBA')
-    for _ in range(90):
-        y = int(rng.uniform(0, H))
-        x = int(rng.uniform(0, W))
-        ln = int(rng.uniform(40, 220))
-        d2.line([(x, y), (x + ln, y)], fill=(255, 255, 255, 14), width=1)
+    for _ in range(160):
+        x, y = int(rng.uniform(0, W)), int(rng.uniform(0, H))
+        r = rng.uniform(1, 2.6) * K
+        d2.ellipse([x - r, y - r, x + r, y + r], fill=(235, 228, 255, int(rng.uniform(40, 120))))
     return img
 
 
-def seigaiha(img, y0, y1, alpha=22):
-    """แถบลายคลื่นเซกาอิฮะ (วงโค้งซ้อน) โทนคราม — ลายเซ็นเดียวกับหัว panel"""
-    ov = Image.new('RGBA', (W, H), (0, 0, 0, 0))
-    d = ImageDraw.Draw(ov)
-    r = round(56 * K)
-    row = 0
-    y = y0
-    while y < y1 + r:
-        off = 0 if row % 2 == 0 else r
-        for x in range(-r + off - r, W + r, r * 2):
-            for k, rr in enumerate((r, int(r * 0.66), int(r * 0.33))):
-                d.arc([x - rr, y - rr, x + rr, y + rr], 180, 360,
-                      fill=(AI[0], AI[1], AI[2], alpha - k * 4), width=max(1, round(3 * K)))
-        y += r // 2
-        row += 1
-    # เฟดลายให้จางลงตอนใกล้ขอบล่างของแถบ
-    mask = Image.new('L', (W, H), 0)
-    md = ImageDraw.Draw(mask)
-    for yy2 in range(y0 - r, y1 + r):
-        t = max(0.0, min(1.0, (y1 - yy2) / max(1, (y1 - y0))))
-        md.line([(0, yy2), (W, yy2)], fill=int(255 * t))
-    ov.putalpha(Image.composite(ov.split()[3], Image.new('L', (W, H), 0), mask))
-    img.paste(ov, (0, 0), ov)
-    return img
+# (seigaiha ลายคลื่นเซกาอิฮะ ถูกถอด 2026-09-13 — ธีมใหม่ไม่ใช้)
 
 
 def gold_frame_v2(img, inset=None):
-    """กรอบทองคู่ + วงเล็บมุมหนา + เพชรทองกึ่งกลางขอบบน/ล่าง"""
+    """กรอบทองหม่นเส้นเดียว + วงเล็บมุมบาง (ลดของตกแต่ง — บรีฟ 2026-09-13)"""
     if inset is None:
         inset = round(40 * K)
     d = ImageDraw.Draw(img, 'RGBA')
     x0, y0, x1, y1 = inset, inset, W - inset, H - inset
-    d.rectangle([x0, y0, x1, y1], outline=(*KIN, 210), width=max(1, round(3 * K)))
-    g12 = round(12 * K)
-    d.rectangle([x0 + g12, y0 + g12, x1 - g12, y1 - g12], outline=(43, 39, 64, 70), width=max(1, round(2 * K)))
-    # วงเล็บมุม (L-bracket) หนาขึ้น = งานประณีต
-    L = round(74 * K)
+    d.rectangle([x0, y0, x1, y1], outline=(*KIN, 150), width=max(1, round(2 * K)))
+    L = round(60 * K)
     for cx, cy, sx, sy in ((x0, y0, 1, 1), (x1, y0, -1, 1), (x0, y1, 1, -1), (x1, y1, -1, -1)):
-        d.line([(cx, cy + sy * L), (cx, cy), (cx + sx * L, cy)], fill=(*KIN, 255), width=max(1, round(7 * K)))
-        e12, e18 = round(12 * K), round(18 * K)
-        d.line([(cx + sx * e12, cy + sy * (L - e18)), (cx + sx * e12, cy + sy * e12),
-                (cx + sx * (L - e18), cy + sy * e12)], fill=(*KIN, 120), width=max(1, round(3 * K)))
-    # เพชรเล็กกึ่งกลางขอบบน/ล่าง
-    for cy in (y0, y1):
-        dm = round(10 * K)
-        d.polygon([(W / 2, cy - dm), (W / 2 + dm, cy), (W / 2, cy + dm), (W / 2 - dm, cy)],
-                  fill=(*KIN, 235))
-    # ตราประทับชาดมุมขวาล่าง (ลายเซ็นธีม)
-    s66, s44, s6, s38 = (round(v * K) for v in (66, 44, 6, 38))
-    sx0, sy0 = x1 - s66, y1 - s66
-    d.rounded_rectangle([sx0, sy0, sx0 + s44, sy0 + s44], round(6 * K), fill=(*SHU, 215))
-    d.rectangle([sx0 + s6, sy0 + s6, sx0 + s38, sy0 + s38], outline=(245, 239, 226, 180), width=max(1, round(2 * K)))
+        d.line([(cx, cy + sy * L), (cx, cy), (cx + sx * L, cy)], fill=(*KIN, 255), width=max(1, round(5 * K)))
     return img
 
 
@@ -164,18 +122,17 @@ def logo(src, box=(0.56, 0.4)):
     if s > 1.2:
         im = im.filter(ImageFilter.UnsharpMask(radius=1.6, percent=150, threshold=1))
 
-    bg = washi_bg()
-    bg = seigaiha(bg, round(40 * K), round(210 * K))
-    lx, ly = (W - im.width) // 2, (H - im.height) // 2 + round(14 * K)
-
-    # เงานุ่มใต้โลโก้ — ยกโลโก้ให้ลอยจากกระดาษ
+    bg = moon_bg()
+    lx, ly = (W - im.width) // 2, (H - im.height) // 2
+    # แผ่นรองขาวนวลมุมมน (โลโก้สีเข้ม/ดำยังอ่านออกบนการ์ดม่วง) + เงานุ่ม
+    pad = round(90 * K)
+    px0, py0 = lx - pad, ly - pad
+    px1, py1 = lx + im.width + pad, ly + im.height + pad
     sh = Image.new('RGBA', (W, H), (0, 0, 0, 0))
-    shd = ImageDraw.Draw(sh)
-    shd.ellipse([W / 2 - im.width * 0.46, ly + im.height - round(8 * K),
-                 W / 2 + im.width * 0.46, ly + im.height + round(34 * K)],
-                fill=(43, 39, 64, 70))
-    sh = sh.filter(ImageFilter.GaussianBlur(round(16 * K)))
+    ImageDraw.Draw(sh).rounded_rectangle([px0, py0 + round(18 * K), px1, py1 + round(18 * K)], round(28 * K), fill=(0, 0, 0, 110))
+    sh = sh.filter(ImageFilter.GaussianBlur(round(22 * K)))
     bg.paste(sh, (0, 0), sh)
+    ImageDraw.Draw(bg, 'RGBA').rounded_rectangle([px0, py0, px1, py1], round(28 * K), fill=(*PAPER, 255), outline=(*KIN, 200), width=max(1, round(2 * K)))
 
     bg.paste(im, (lx, ly), im)
     return gold_frame_v2(bg)
@@ -184,9 +141,6 @@ def logo(src, box=(0.56, 0.4)):
 JOBS = [
     # (ชนิด, ไฟล์ต้นทาง, ไฟล์ปลายทาง) — ★ ปลายทางเป็น .webp ทั้งหมด (2026-07-20 รอบ 5)
     #   kind 'logo' อ่านจาก assets/showcase/logos/ (ชุดมาตรฐานพื้นโปร่งใส)
-    ('cover', 'wuwa-wallpaper.jpg', 'wuwa.webp'),
-    ('cover', 'battlerealms.jpg', 'battlerealms.webp'),
-    ('cover', 'ck-waifupillows-th.jpg', 'ck-waifu.webp'),
     # คลิป YouTube ที่ใช้ใน panel (thumbnail ในเครื่อง — แตะแล้วค่อยสร้าง iframe)
     ('cover', 'yt-8vhh2Yo2yBQ.jpg', 'yt-8vhh2Yo2yBQ.webp'),
     ('cover', 'yt-8VmGQ52IpFo.jpg', 'yts-8VmGQ52IpFo.webp'),

@@ -7,7 +7,7 @@ import { Camera } from './engine/camera.js';
 import { Renderer } from './engine/renderer.js';
 import { Player } from './world/player.js';
 import { MAP } from './world/map.js';
-import { OBJECTS } from './world/objects.js';
+import { OBJECTS, DECOR } from './world/objects.js';
 import { IntroScene } from './ui/title.js';
 import { Panels } from './ui/panels.js';
 import { ResumeMode } from './ui/resume.js';
@@ -27,13 +27,15 @@ const input = new Input();
 const camera = new Camera(MAP.width, MAP.height);
 const player = new Player(MAP.spawn.x, MAP.spawn.y);
 
-// สิ่งกีดขวางทั้งหมด = กำแพง + วัตถุ solid
-const solids = [...MAP.walls, ...OBJECTS.filter((o) => o.solid)];
+// สิ่งกีดขวางทั้งหมด = กำแพง + วัตถุ solid + ของตกแต่ง
+const solids = [...MAP.walls, ...OBJECTS.filter((o) => o.solid), ...DECOR];
+renderer.decor = DECOR;
 
 // ระหว่าง intro: ห้ามเดิน และยังไม่วาดตัวละคร (กระติ๊บจะบินลงมาเอง)
 input.enabled = false;
 player.hidden = true;
 let inGame = false; // true หลัง intro จบ
+let menuOpen = false; // เมนูทางลัดเปิดอยู่
 
 // ลูกศรชี้ทางไปวัตถุที่เลือกจาก intro
 let waypoint = null;
@@ -60,11 +62,11 @@ function findHover() {
 
 // เดินได้เฉพาะตอนอยู่ในเกม และไม่มี overlay (panel/resume) เปิดทับอยู่
 function refreshInputLock() {
-  input.enabled = inGame && !panels.isOpen && !resumeMode.isOpen;
+  input.enabled = inGame && !panels.isOpen && !resumeMode.isOpen && !menuOpen;
   // ★ 2026-07-20: จอ ≤820px ต้องซ่อน HUD ตอนมี overlay เปิด — ไม่งั้นปุ่ม HUD
   //   (fixed มุมขวาบน) ไปทับปุ่มปิด ✕ ของ panel จนกดไม่ได้ (ดู CSS THEME v2.9)
   document.documentElement.classList.toggle(
-    'overlay-open', panels.isOpen || resumeMode.isOpen,
+    'overlay-open', panels.isOpen || resumeMode.isOpen || menuOpen,
   );
   // ★ ป้ายวิธีเล่นต้องไม่ลอยทับกล่องข้อความ (z-index สูงกว่า panel)
   if (panels.isOpen || resumeMode.isOpen) hintEl?.classList.add('gone');
@@ -118,7 +120,7 @@ window.addEventListener('keydown', (e) => {
   if (!inGame || panels.isOpen || resumeMode.isOpen) return;
   if (['KeyE', 'Enter', 'Space'].includes(e.code) && hover) {
     e.preventDefault();
-    panels.open(hover.id);
+    openZone(hover.id);
   }
 });
 
@@ -197,8 +199,14 @@ input.onRightClick = (sx, sy) => {
   clickIntent = null;
   const w = screenToWorld(sx, sy);
   renderer.addClickFx(w.x, w.y, '#ffd24d');
-  if (hover && !panels.isOpen && !resumeMode.isOpen) panels.open(hover.id);
+  if (hover && !panels.isOpen && !resumeMode.isOpen) openZone(hover.id);
 };
+
+// เปิดโซนจากในห้อง (มีท่า interact) — เมนูทางลัดเรียก panels.open ตรงๆ ไม่ต้องมีท่า
+function openZone(id) {
+  player.interact();
+  panels.open(id);
+}
 
 // ★ 2026-07-20: ป้ายบอกวิธีเล่น — โผล่ 6 วิแรกหลังเข้าห้องแล้วจางหายเอง
 //   ข้อความเปลี่ยนตามอุปกรณ์ (เมาส์/คีย์บอร์ด vs จอสัมผัส) และตามภาษา
@@ -219,7 +227,7 @@ const interactBtn = document.getElementById('interact-btn');
 let interactShown = false;
 interactBtn.addEventListener('pointerdown', (e) => {
   e.preventDefault();
-  if (hover && !panels.isOpen) panels.open(hover.id);
+  if (hover && !panels.isOpen) openZone(hover.id);
 });
 
 function handleResize() {
@@ -248,7 +256,8 @@ const intro = new IntroScene({
     inGame = true;
     refreshInputLock();
     waypoint = targetId ? OBJECTS.find((o) => o.id === targetId) ?? null : null;
-    homeBtn.classList.remove('hidden'); // เข้าสตูดิโอแล้วค่อยโชว์ปุ่มกลับหน้าหลัก
+    homeBtn.classList.remove('hidden'); // เข้าห้องแล้วค่อยโชว์ปุ่มกลับหน้าหลัก + เมนูทางลัด
+    menuBtn.classList.remove('hidden');
     progressEl.classList.remove('hidden');
     renderProgress();
     showHint();
@@ -277,10 +286,101 @@ homeBtn.addEventListener('click', () => {
   setTimeout(() => location.reload(), 430); // รอ fade จบ (CSS 0.4s) ค่อยเริ่ม intro ใหม่
 });
 
+// ---- ★ เมนูทางลัด (2026-09-13): เปิดหมวดไหนก็ได้โดยไม่ต้องเดิน — คีย์บอร์ดใช้ได้ ----
+const menuBtn = document.getElementById('menu-btn');
+const menuEl = document.getElementById('menu');
+const menuList = document.getElementById('menu-list');
+function renderMenu() {
+  document.getElementById('menu-title').textContent = i18n.t('ui.menuTitle');
+  document.getElementById('menu-hint').textContent = i18n.t('ui.menuHint');
+  document.getElementById('menu-close').setAttribute('aria-label', i18n.t('ui.close'));
+  menuBtn.setAttribute('aria-label', i18n.t('ui.menu'));
+  menuBtn.title = i18n.t('ui.menu');
+  menuList.innerHTML = '';
+  const groups = i18n.t('ui.menuGroups');
+  const zones = i18n.t('zones') || {};
+  const byGroup = { arcade: [], library: [], reception: [] };
+  for (const o of OBJECTS) {
+    byGroup[o.type === 'arcade' ? 'arcade' : o.type === 'book' ? 'library' : 'reception'].push(o);
+  }
+  for (const [g, list] of Object.entries(byGroup)) {
+    if (!list.length) continue;
+    const h = document.createElement('h3');
+    h.textContent = groups[g];
+    menuList.appendChild(h);
+    for (const o of list) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'menu-item' + (seenZones.has(o.id) ? ' seen' : '');
+      b.style.setProperty('--c', o.color);
+      const name = document.createElement('span');
+      name.textContent = zones[o.id] || o.id;
+      b.appendChild(name);
+      if (o.chapters.length > 1) {
+        const sub = document.createElement('small');
+        sub.textContent = o.chapters
+          .map((c) => (i18n.t(`panels.${c}`)?.title || c).replace(/^\S+\s/, ''))
+          .join(' · ');
+        b.appendChild(sub);
+      }
+      b.addEventListener('click', () => {
+        audio.play('blip');
+        closeMenu();
+        panels.close();
+        resumeMode.close();
+        panels.open(o.id);
+      });
+      menuList.appendChild(b);
+    }
+  }
+  const r = document.createElement('button');
+  r.type = 'button';
+  r.className = 'menu-item resume';
+  r.textContent = i18n.t('resume.openTitle');
+  r.addEventListener('click', () => {
+    audio.play('click');
+    closeMenu();
+    panels.close();
+    resumeMode.open();
+  });
+  menuList.appendChild(r);
+}
+function openMenu() {
+  if (menuOpen) return;
+  menuOpen = true;
+  renderMenu();
+  menuEl.classList.remove('hidden');
+  refreshInputLock();
+  audio.play('pop');
+  menuList.querySelector('button')?.focus({ preventScroll: true });
+}
+function closeMenu() {
+  if (!menuOpen) return;
+  menuOpen = false;
+  menuEl.classList.add('hidden');
+  refreshInputLock();
+  menuBtn.focus({ preventScroll: true });
+}
+menuBtn.addEventListener('click', () => (menuOpen ? closeMenu() : openMenu()));
+document.getElementById('menu-close').addEventListener('click', () => { audio.play('click'); closeMenu(); });
+menuEl.addEventListener('pointerdown', (e) => { if (e.button === 0 && e.target === menuEl) closeMenu(); });
+window.addEventListener('keydown', (e) => {
+  if (e.code === 'Escape' && menuOpen) { e.preventDefault(); closeMenu(); }
+  if (e.code === 'KeyM' && inGame && !panels.isOpen && !resumeMode.isOpen && !menuOpen) openMenu();
+  if (e.code === 'Tab' && menuOpen) {
+    const items = [...menuEl.querySelectorAll('button')];
+    const first = items[0], last = items[items.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }
+});
+
 // ---- ปุ่มเสียง ----
 const muteBtn = document.getElementById('mute-btn');
 function renderMuteBtn() {
   muteBtn.textContent = audio.muted ? '🔇' : '🔊';
+  muteBtn.setAttribute('aria-label', i18n.t('ui.mute'));
+  muteBtn.setAttribute('aria-pressed', String(audio.muted));
 }
 muteBtn.addEventListener('click', () => {
   audio.setMuted(!audio.muted);
@@ -326,9 +426,9 @@ let promptText = '';
 let promptTouch = null;
 function rebuildLabels() {
   objectLabels = {};
+  const zones = i18n.t('zones') || {};
   for (const o of OBJECTS) {
-    const d = i18n.t(`panels.${o.id}`);
-    if (d) objectLabels[o.id] = d.title;
+    objectLabels[o.id] = zones[o.id] || i18n.t(`panels.${o.chapters[0]}`)?.title || o.id;
   }
   promptTouch = null; // บังคับคำนวณ prompt ใหม่เฟรมถัดไป
 }
@@ -343,9 +443,12 @@ i18n.onChange(() => {
   if (!ctaEl.classList.contains('hidden')) showCta();
   renderLangBtn();
   renderResumeBtn();
+  renderMuteBtn();
   rebuildLabels();
   panels.refresh();
   renderProgress();
+  if (menuOpen) renderMenu();
+  homeBtn.setAttribute('aria-label', i18n.t('ui.home'));
 });
 document.documentElement.lang = i18n.lang;
 renderLangBtn();
@@ -395,15 +498,28 @@ function frame(now) {
     if (!g.via && d > 40) {
       const hit = blockerOnPath(player.x, player.y, g.x, g.y);
       if (hit) {
+        // ★ 2026-09-13: เลือก "มุม" ของวัตถุที่ขวาง (ขยาย pad) ที่ทำให้ระยะ ผู้เล่น→มุม→เป้า สั้นสุด
+        //   และทั้งสองช่วงไม่โดนวัตถุเดิมขวางซ้ำ — เดิมเลือกฝั่งใกล้ผู้เล่นเสมอ ทำให้วัตถุแถวหลัง
+        //   (ตู้ซ้ายสุด/ชั้นขวาสุด) วนอยู่ที่จุดพักเดิมไม่ไปไหน (เจอตอนเทส walk_all.py)
         const pad = 52;
-        const left = hit.x - pad;
-        const right = hit.x + hit.w + pad;
-        const viaX = Math.abs(left - player.x) < Math.abs(right - player.x) ? left : right;
-        const viaY = player.y < hit.y ? hit.y - pad : hit.y + hit.h + pad;
-        g.via = {
-          x: Math.min(Math.max(viaX, MAP.floor.x0 + 30), MAP.floor.x1 - 30),
-          y: Math.min(Math.max(viaY, MAP.floor.y0 + 30), MAP.floor.y1 - 30),
-        };
+        const cl = (x, y) => ({
+          x: Math.min(Math.max(x, MAP.floor.x0 + 30), MAP.floor.x1 - 30),
+          y: Math.min(Math.max(y, MAP.floor.y0 + 30), MAP.floor.y1 - 30),
+        });
+        const corners = [
+          cl(hit.x - pad, hit.y - pad), cl(hit.x + hit.w + pad, hit.y - pad),
+          cl(hit.x - pad, hit.y + hit.h + pad), cl(hit.x + hit.w + pad, hit.y + hit.h + pad),
+        ];
+        let best = null;
+        let bestCost = Infinity;
+        for (const v of corners) {
+          const cost = Math.hypot(v.x - player.x, v.y - player.y) + Math.hypot(g.x - v.x, g.y - v.y);
+          const blockedA = blockerOnPath(player.x, player.y, v.x, v.y) === hit;
+          const blockedB = blockerOnPath(v.x, v.y, g.x, g.y) === hit;
+          const c2 = cost + (blockedA ? 400 : 0) + (blockedB ? 800 : 0);
+          if (c2 < bestCost) { bestCost = c2; best = v; }
+        }
+        g.via = best;
         g.finalX = g.x;
         g.finalY = g.y;
         g.x = g.via.x;
@@ -425,13 +541,14 @@ function frame(now) {
       // ★ เช็คด้วย "ระยะจากขอบวัตถุ" แบบเดียวกับระบบ interact — ถึงจะเดินไปติดขัด
       //   แต่ถ้ายืนใกล้พอแล้วก็เปิดให้เลย (คลิกเดียวจบตามที่ตั้งใจ)
       const target = clickIntent ? OBJECTS.find((o) => o.id === clickIntent) : null;
-      if (target && edgeDist(target) < INTERACT_RANGE + 12) panels.open(target.id);
+      if (target && edgeDist(target) < INTERACT_RANGE + 12) openZone(target.id);
       clickIntent = null;
     }
   }
 
   player.update(dt, input, solids);
-  camera.follow(player.x, player.y, dt);
+  // ★ กล้องเล็งสูงกว่าตัวละครเล็กน้อย — หน้าต่าง/โลกอยู่ด้านบน (ของสวยที่สุดในห้อง) ไม่โดนตัดตอนยืนกลางห้อง
+  camera.follow(player.x, player.y - 56, dt);
 
   // SFX ฝีเท้า: เล่นเป็นจังหวะระหว่างเดิน (ก้าวแรกดังทันทีที่ขยับ)
   if (player.moving && !player.hidden) {
@@ -452,7 +569,7 @@ function frame(now) {
   }
 
   // วัตถุใกล้ตัว → เรืองแสง + ป้าย prompt (ปิดไว้ตอน panel/resume เปิด)
-  hover = inGame && !panels.isOpen && !resumeMode.isOpen ? findHover() : null;
+  hover = inGame && !panels.isOpen && !resumeMode.isOpen && !menuOpen ? findHover() : null;
 
   // จอสัมผัส: โชว์ปุ่ม ✦ เฉพาะตอนมีวัตถุในระยะ (toggle class เฉพาะตอนสถานะเปลี่ยน)
   // ป้ายวิธีเล่นยังโชว์อยู่แล้วเพิ่งรู้ว่าเป็นจอสัมผัส → สลับข้อความให้ตรงอุปกรณ์

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -7,15 +7,15 @@
        บอทของ LinkedIn / X / Facebook / Google อ่านแต่ HTML ดิบ ไม่รัน JS
        ก่อนหน้านี้ title คือ "Interactive Game Resume" → แปะลิงก์แล้วขึ้นกล่องเปล่า
        (document.title ยังถูกเขียนทับด้วย BRAND ใน title.js สำหรับคนที่เปิดจริง) -->
-  <title>Nipith Wongsirikul — Game Localization JA/EN→TH · LQA · PR &amp; Marketing</title>
-  <meta name="description" content="เว็บเรซูเม่แบบเกมที่เดินสำรวจผลงานได้จริง — Game Localization ญี่ปุ่น/อังกฤษ → ไทย · LQA · Publishing · PR &amp; Marketing | A playable top-down game resume by Nipith Wongsirikul (Gatip).">
+  <title>Nipith Wongsirikul — Game Localization · LQA · Thai-market Marketing (JA/EN→TH)</title>
+  <meta name="description" content="Nipith Wongsirikul — game localization (JA/EN→TH), LQA and Thai-market marketing. Portfolio and resume: 13 titles shipped with Thai on Steam, console LQA at DIGITAL HEARTS, JETRO pavilion at Thailand Game Show. Explore it as a small moon library, or read the plain resume.">
   <meta name="author" content="Nipith Wongsirikul">
   <meta name="theme-color" content="#101226">
 
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Nipith Wongsirikul — Portfolio">
-  <meta property="og:title" content="Nipith Wongsirikul — Game Localization JA/EN→TH">
-  <meta property="og:description" content="เว็บเรซูเม่แบบเกม เดินสำรวจผลงานได้จริง · 14 เกมบน Steam · 1M+ ตัวอักษรที่แปล · เคยทำงานที่โตเกียว 3 เดือน · พร้อมย้ายไปญี่ปุ่น">
+  <meta property="og:title" content="Nipith Wongsirikul — Game Localization · LQA · Thai-market Marketing">
+  <meta property="og:description" content="JA/EN→TH game localization, LQA and Thai-market marketing · 13 titles shipped with Thai on Steam · 1M+ characters · JETRO pavilion at Thailand Game Show · portfolio + resume">
   <!-- ★★ og:image / og:url ต้องเป็น URL เต็มเสมอ — บอทบางเจ้า (โดยเฉพาะ LinkedIn)
        ไม่ยอม resolve path สัมพัทธ์ แล้วจะขึ้นการ์ดไม่มีรูป
        ถ้าย้ายโดเมนเมื่อไหร่ ต้องกลับมาแก้ 3 บรรทัดนี้ (og:image · og:url · canonical) -->
@@ -23,13 +23,13 @@
   <meta property="og:image" content="https://gatipnw.github.io/assets/og-image.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:locale" content="th_TH">
+  <meta property="og:locale" content="en_US">
   <meta property="og:locale:alternate" content="ja_JP">
-  <meta property="og:locale:alternate" content="en_US">
+  <meta property="og:locale:alternate" content="th_TH">
 
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Nipith Wongsirikul — Game Localization JA/EN→TH">
-  <meta name="twitter:description" content="เว็บเรซูเม่แบบเกม เดินสำรวจผลงานได้จริง · LQA · Publishing · PR &amp; Marketing">
+  <meta name="twitter:title" content="Nipith Wongsirikul — Game Localization · LQA · Thai-market Marketing">
+  <meta name="twitter:description" content="JA/EN→TH game localization · LQA · Thai-market marketing — portfolio and resume">
   <meta name="twitter:image" content="https://gatipnw.github.io/assets/og-image.jpg">
 
   <link rel="canonical" href="https://gatipnw.github.io/">
@@ -64,16 +64,17 @@
     <div id="intro-title">
       <div id="intro-logo"></div>
       <div id="intro-tagline"></div>
-      <!-- ★ 2026-07-20: บอกสายงานตั้งแต่วินาทีแรก — HR เปิดมาต้องรู้ทันทีว่าเราคือสายอะไร -->
+      <!-- ★ 2026-09-13: สายงาน + คู่ภาษา เห็นตั้งแต่วินาทีแรก (ครบ 3 ภาษา ผ่าน content.js) -->
       <div id="intro-role"></div>
-      <div id="press-start"></div>
-      <!-- ทางลัดสำหรับ HR ที่ไม่อยากเล่นเกม — เปิด Resume Mode ได้ตั้งแต่หน้า Title -->
-      <button id="title-resume"></button>
-    </div>
-    <div id="intro-dialog" class="hidden">
-      <div id="dialog-text"></div>
-      <div id="dialog-next" class="hidden">▾</div>
-      <div id="dialog-choices"></div>
+      <div id="intro-pair"></div>
+      <div id="intro-actions">
+        <!-- ปุ่มหลัก = สำรวจพอร์ตแบบเกม (user gesture แรก → เสียงเล่นได้) -->
+        <button id="press-start" type="button" class="btn-primary"><span class="btn-main"></span><span class="btn-sub"></span></button>
+        <!-- ปุ่มรอง = Resume Mode ทันที ไม่ต้องเล่นเกม -->
+        <button id="title-resume" type="button" class="btn-secondary"><span class="btn-main"></span><span class="btn-sub"></span></button>
+      </div>
+      <!-- ปุ่มภาษา 3 วง TH / EN / JP + ชื่อกำกับ (เติมโดย title.js) -->
+      <div id="lang-pick" role="group"></div>
     </div>
     <button id="intro-skip" class="hidden"></button>
   </div>
@@ -84,7 +85,9 @@
     <div id="panel-box">
       <div id="panel-head">
         <h2 id="panel-title"></h2>
-        <button id="panel-close">✕</button>
+        <button id="panel-close" type="button">✕</button>
+        <!-- แถบเลือกบท (โซนที่มีหลายหมวด เช่น คอนเทนต์ & คอมมูนิตี้) -->
+        <div id="panel-tabs" class="hidden"></div>
       </div>
       <div id="panel-scroll">
         <div id="panel-body"></div>
@@ -94,23 +97,35 @@
 
   <!-- Resume Mode: หน้า resume แบบ scroll ปกติสำหรับ HR ที่รีบ (เนื้อหาเติมโดย JS จาก content.js) -->
   <div id="resume-mode" class="hidden" role="dialog" aria-modal="true" aria-labelledby="resume-name">
-    <button id="resume-close">✕</button>
+    <button id="resume-close" type="button">✕</button>
     <div id="resume-box"></div>
   </div>
 
   <!-- ตัวควบคุมจอสัมผัส: จอยสติ๊กลอยตามจุดแตะ (ครึ่งซ้าย) + ปุ่ม interact (ขวาล่าง) -->
   <div id="joystick" class="hidden" aria-hidden="true"><div id="joystick-knob"></div></div>
-  <button id="interact-btn" class="hidden" aria-label="interact">✦</button>
+  <button id="interact-btn" type="button" class="hidden" aria-label="interact">✦</button>
 
   <!-- screen transition: ม่านมืด fade ตอนสลับฉาก (เช่น กด 🏠 กลับหน้า Title) -->
   <div id="screen-fade" aria-hidden="true"></div>
 
   <!-- HUD มุมขวาบน: เสียง / ภาษา / Resume Mode / กลับหน้าหลัก -->
   <div id="hud">
-    <button id="mute-btn" aria-label="toggle sound">🔊</button>
-    <button id="lang-btn" aria-label="change language">🌐</button>
-    <button id="resume-btn"></button>
-    <button id="home-btn" class="hidden" aria-label="back to title">🏠</button>
+    <button id="mute-btn" type="button" aria-label="toggle sound">🔊</button>
+    <button id="lang-btn" type="button" aria-label="change language">🌐</button>
+    <button id="resume-btn" type="button"></button>
+    <!-- ★ เมนูทางลัด: เปิดหมวดไหนก็ได้โดยไม่ต้องเดิน (โชว์หลังเข้าห้อง) -->
+    <button id="menu-btn" type="button" class="hidden" aria-haspopup="dialog">☰</button>
+    <button id="home-btn" type="button" class="hidden" aria-label="back to title">🏠</button>
+  </div>
+
+  <!-- เมนูทางลัด (เติมรายการโดย main.js จาก OBJECTS + zones) -->
+  <div id="menu" class="hidden" role="dialog" aria-modal="true" aria-labelledby="menu-title">
+    <div id="menu-box">
+      <h2 id="menu-title"></h2>
+      <p id="menu-hint"></p>
+      <button id="menu-close" type="button">✕</button>
+      <div id="menu-list"></div>
+    </div>
   </div>
 
   <!-- ★ 2026-07-20: ตัวนับความคืบหน้า "สำรวจแล้ว x/13 โซน" — โผล่หลังเข้าห้องแล้ว
@@ -123,7 +138,7 @@
 
   <!-- ★ การ์ดปิดท้ายตอนสำรวจครบทุกโซน — เปลี่ยนคนดูให้เป็นคนทัก -->
   <div id="cta" class="hidden" role="dialog" aria-modal="false">
-    <button id="cta-close" aria-label="close">✕</button>
+    <button id="cta-close" type="button" aria-label="close">✕</button>
     <h3 id="cta-head"></h3>
     <p id="cta-body"></p>
     <div id="cta-links"></div>

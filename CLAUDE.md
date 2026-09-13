@@ -2,6 +2,52 @@
 
 > เจ้าของเป็นคนไทย สื่อสาร**ภาษาไทย** / ลังเลให้ยึด "สวยอลังไว้ก่อน + 60fps"
 
+## ★★ v2.0 "ห้องสมุดบนดวงจันทร์" (2026-09-13 — บรีฟฉบับรวมสำหรับนามบัตร TGS) — สถานะปัจจุบัน
+
+อ่านหัวข้อนี้ก่อน · หัวข้อเก่าด้านล่างที่พูดถึง "ห้องสตูดิโอ/โพรงในดวงจันทร์ · โปริ่ง · แฟรี่ · มังกร ·
+วงเวท · room-base-v2 · gen_room_v2 · furn-*.webp · ผัง 14 วัตถุ · ธีมวาชิ×ชาด" = **ประวัติ ไม่ใช่ของปัจจุบัน**
+(ย้อนดูได้ที่ tag `checkpoint-2026-09-13-pre-moon-library`)
+
+- **เป้าหมาย**: ปลายทาง QR บนนามบัตร Thailand Game Show → บริษัทเกม/บันเทิง (ญี่ปุ่นเป็นหลัก)
+  สายงาน = Game Localization (JA/EN→TH) · LQA · Thai-market Marketing · **URL ราก `gatipnw.github.io/` ห้ามเปลี่ยน**
+- **หน้าแรก**: ชื่อ · `BRAND.role` · ปุ่มหลัก "Explore" (`#press-start` เป็นปุ่มจริง ไม่ใช่กดทั้งจอ) ·
+  ปุ่มรอง "Read resume" · ปุ่มภาษา 3 วง `#lang-pick` (title.js สร้าง) — ไม่มีขั้นเลือกภาษา/บทพูดแล้ว
+  · intro: title → charge → leap → enter(บินเข้าดวงจันทร์) → zoom → done
+- **ภาษา**: `?lang=` > localStorage > **en** (i18n.js) · `i18n.set` เขียน `?lang` กลับลง URL ด้วย
+- **ฉาก** (`js/world/map.js` 1400×900 · T=48 · NH=170 · หน้าต่างโค้ง 330–1070):
+  `tools/gen_library.py` → `assets/lib-view.webp` (วิวนอกหน้าต่าง โลก+พื้นผิวจันทร์ · parallax k=0.05)
+  + `assets/lib-base.webp` (RGBA พื้น/ผนัง/กรอบ ช่องหน้าต่างโปร่ง) · วัตถุทั้งหมด = JS เวกเตอร์ใน renderer.js
+  (ตู้เกม = ของเดิมที่เจ้าของชอบ · ชั้นหนังสือ `drawBookSet` · โต๊ะต้อนรับ · โคม/ต้นไม้ในโดม = `DECOR`)
+  · ★ เจ้าของสั่งถอด (2026-09-13): **วงเวท/ลายวงโคจรกลางห้อง · ลูกโลกจันทร์** ห้ามใส่กลับ
+- **วัตถุ 11 ชิ้น** (`objects.js`): ตู้เกม 4 (ตะวันตก 2×2: cab-sticky/cab-dh/cab-free/cab-next) ·
+  หนังสือ 6 (ตะวันออก 2×3) · reception 1 (ใต้) — แต่ละชิ้นมี `chapters` = panel id เดิม
+  (arcade-1..4, youtube, network, event, language, skills, bookshelf, writing, esport, other, desk)
+  → **ข้อมูลทุกหมวดเดิมยังอยู่ครบ** · ชื่อโซน = `STRINGS[lang].zones` · progress = 11
+  · ช่องระหว่างคอลัมน์ ≥ 100px (เดิม 70 → ระบบคลิกเดินไปวัตถุแถวหลังไม่ถึง) · detour เลือกมุมที่
+  ระยะรวมสั้นสุด (main.js) · เทส `python scratchpad/walk_all.py` ต้องเดินถึงครบ 11
+- **Panel** (`panels.js`): หัว = ชื่อโซน · `#panel-tabs` เมื่อมี >1 บท · `buildChapter(id,{full})`
+  ใช้ร่วมกับ Resume Mode (full = ไม่มีสไลด์/คลิป แต่มีรายชื่อเกมแบบข้อความ)
+- **★ GAMES dataset** (content.js): 16 เกม ชื่อ EN/TH จาก Steam appdetails (`scratchpad/steam/`) ·
+  `GAME_COUNTS` = 13 shipped / 1 pending / 2 freelance — **ห้ามพิมพ์ตัวเลขเกมซ้ำที่อื่น** ·
+  `mature:true` = การ์ดตัวอักษรก่อน กดค่อยโหลดปก (ไม่โหลดล่วงหน้า · ไม่ใช้ในหน้าแรก/OG)
+  · Battle Realms: หน้าร้าน Steam ยังไม่ระบุไทย (ก.ย. 2026) → status `unlisted`
+- **เอกสาร**: EN = `Desktop/Resume/HTML/Resume.html` · JA = `履歴書_一般_web.html` /
+  `職務経歴書_一般_web.html` (ฉบับทั่วไปสำหรับเว็บ: 志望動機 ไม่เจาะบริษัท · ไม่มีชื่อ tool · ทุกสาย เอียงเกม)
+  → print ด้วย Edge headless (ดู skill japanese-job-documents) → copy ไป assets ชื่อไฟล์เดิม + `?v=YYYYMMDD`
+  · **ห้ามเอา root 履歴書.html/職務経歴書.html (ฉบับยื่นบริษัท) ขึ้นเว็บ** · เครื่องนี้มี pypdf แล้ว
+- **นามบัตร**: `Desktop/Resume/นามบัตร/Business_Card.pdf` (96×61 มี bleed 3mm) → `scratchpad/card_render.py`
+  (Edge `--force-device-scale-factor=4` เปิด PDF แล้วครอป trim box) → `assets/card-front/back(-sm).webp`
+  + `assets/business-card-nipith-wongsirikul.pdf` (mediabox = trimbox ผ่าน pdf-lib ใน Desktop/Resume/tools)
+- **ธีม CSS v4** (style.css เขียนใหม่ทั้งไฟล์): token ที่ `:root` (ม่วง/ทอง/ขาวนวล · --sp/--r/--sh) ·
+  ไม่มีกับดัก `#panel-body p` แล้ว · สไลด์ showcase เจนใหม่ธีมม่วง (`gen_slides.py`: การ์ดม่วง +
+  แผ่นรองขาวนวล + กรอบทองบาง — ไม่มีวาชิ/เซกาอิฮะ/ตราชาด)
+- **PixelLab**: token อยู่ใน `~/.claude.json` (โปรเจกต์ "Game Online - Claude") — helper
+  `scratchpad/pixellab/pl.py` อ่านตอนรัน ห้าม copy ลง repo · **บัญชีมี 0 generations/0 credits (402)**
+  → ยังไม่ได้ใช้ · กระติ๊บ = `kratib.webp` เดิม + อนิเมชัน transform (idle หายใจ/walk/interact ย่อ)
+- **เทส**: `final.py` (11 โซน × 3 ภาษา + Resume 14 + tabs) · `walk_all.py` · `mobile.py` · `controls.py`
+  · renderer.draw ≈ 0.5ms median
+- **เมนูทางลัด** `#menu` (ปุ่ม ☰ / M) — เปิดทุกโซน + Resume โดยไม่ต้องเดิน · focus trap
+
 ## เป้าหมาย + ตัวตน
 
 - เว็บ Resume แบบเกม top-down explorable hub ให้ HR/สตูดิโอเกม "เล่น" ดูผลงาน
@@ -466,10 +512,10 @@ state machine: `title → charge → leap → lang → dialog → enter → done
   คอมเมนต์ไทยพังทั้งไฟล์ (ทำ `tools/legacy/gen_room.py` พังมาแล้ว กู้ยากมาก เพราะ
   ก/แ ทับกันเป็น `U+FFFD\x81` เหมือนกัน แยกไม่ออกต้องเดาจากบริบท)
   → ใช้ **Edit tool** หรือ **Python** (`io.open(p, encoding='utf-8')`) เท่านั้น
-- ไม่มี **node** ในเครื่อง → syntax-check JS ไม่ได้ ต้องเช็คด้วยการโหลดจริงในเบราว์เซอร์
+- **มี node v24 แล้ว** (2026-09-13) → `node --check file.js` เช็ค syntax ได้ · แต่ runtime ยังต้องโหลดจริง
   (`scratchpad/final.py` ดัก JS error ให้แล้ว)
-- ไม่มี **pdftoppm / pypdf / pymupdf / reportlab / fpdf / python-docx** → **อ่านและเขียน
-  PDF ไม่ได้เลย** ข้อมูล resume ต้องดูจาก `js/data/content.js` (ครบ 3 ภาษา) หรือถามเจ้าของ
+- **มี pypdf แล้ว** (นับหน้า/ดึงข้อความได้) · ยังไม่มี pdftoppm/pymupdf/reportlab — เรนเดอร์ PDF เป็นภาพ
+  ใช้ Edge headless เปิดไฟล์แล้ว screenshot (ดู scratchpad/card_render.py) · เขียน PDF จาก HTML ใช้ Edge --print-to-pdf ข้อมูล resume ต้องดูจาก `js/data/content.js` (ครบ 3 ภาษา) หรือถามเจ้าของ
   · เวลาเจ้าของสั่ง "อัปเดต PDF ให้ตรงกับเว็บ" ให้ทำเป็น **ไฟล์ข้อความสำเร็จรูปให้ copy ไปวาง**
     (ดู `docs/resume-pdf-updates-2026-07.md`) และบอกทางลัด: Resume Mode มี `@media print`
     อยู่แล้ว → เปิดแล้ว Ctrl+P → Save as PDF ได้เอกสารที่ตรงกับเว็บ 100%

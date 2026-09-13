@@ -20,6 +20,13 @@ export class Player {
     // ความเร็วจริง (มี accel/decel — ออกตัวนุ่ม หยุดมีแรงไถลนิดๆ ไม่กระตุกทันที)
     this.vx = 0;
     this.vy = 0;
+    // ★ 2026-09-13: อนิเมชัน interact (ย่อตัวสั้นๆ 0.25s ตอนเปิดวัตถุ) — renderer อ่านค่านี้
+    this.interactT = 0;
+  }
+
+  // เรียกตอนเปิด panel — ท่า "ย่อ" สั้นๆ แล้วคืนตัว (ไม่บังคับทุกครั้งถ้า reduced motion — renderer จัดการ)
+  interact() {
+    this.interactT = 0.25;
   }
 
   // AABB ของตัวละคร (มุมซ้ายบน)
@@ -28,6 +35,7 @@ export class Player {
   }
 
   update(dt, input, solids) {
+    if (this.interactT > 0) this.interactT = Math.max(0, this.interactT - dt);
     const dir = input.getMoveVector(); // {x, y} normalized แล้ว
     const pressing = dir.x !== 0 || dir.y !== 0;
 

@@ -1,56 +1,42 @@
 // ============================================
-// objects.js — วัตถุในห้อง (ตู้ arcade, ชั้นหนังสือ, ...)
-// แต่ละวัตถุ: { id, type, x, y, w, h, color, cat, solid }
-// ★ cat = หมวดของป้ายชื่อ (2026-07-20): work = ผลงาน · about = ประวัติ/ทักษะ ·
-//   connect = เครือข่าย/ติดต่อ — renderer ใช้แต้มสีขีดเล็กๆ ข้างป้าย (LABEL_CATS)
-//   เจ้าของสั่ง "อย่าให้ฉูดฉาด" → เป็นแค่ขีดบางๆ ไม่ใช่ป้ายทั้งใบเปลี่ยนสี
+// objects.js — วัตถุในห้องสมุดดวงจันทร์ (★ ผังใหม่ 2026-09-13 ตามบรีฟฉบับรวม)
+// แต่ละวัตถุ: { id, type, x, y, w, h, color, cat, solid, chapters, icon? }
+//   chapters = รายการ panel id (STRINGS[lang].panels.*) ที่วัตถุนี้เปิด — ข้อมูลทุกหมวดเดิม
+//              ยังอยู่ครบ แค่ย้ายที่อยู่ (mapping ด้านล่าง) · ชื่อโซนอยู่ที่ STRINGS[lang].zones[id]
+//   cat      = สีขีดบอกหมวดบนป้ายชื่อ (work / about / connect)
 //
-// ★ ผังห้อง 2.5D (HD-2D) — จัดใหม่ 2026-07-20
-//   พื้นที่เดินได้จริง = x 24–1576 · y 110–976 (ผนังเหนือสูง 110 = เดินขึ้นไปไม่ได้แล้ว)
-//   วางเป็น "วงแหวน" รอบวงเวทกลางห้อง (spawn 800,620) — เว้นกลางไว้เป็นลานโล่ง
-//   ระยะห่างระหว่างวัตถุแถวเดียวกัน ≥ 160px ทุกคู่ (เดิมแถวล่างชิดกันแค่ 90px)
+// ผัง (world 1400×900 · พื้นที่เดินได้ x 48–1352 · y 170–852):
+//   เหนือ     = หน้าต่างโค้งใหญ่ (ไม่มีวัตถุ)
+//   ตะวันตก   = Arcade Wing — ตู้เกม 4 ตู้ (2×2) ผลงานเกม = ผลงานหลัก
+//   ตะวันออก  = ชั้นหนังสือ 6 ชุด (2×3) หมวดประสบการณ์ · 1 ชุด = 1 หมวด (แตะง่าย)
+//   ใต้กลาง   = โต๊ะต้อนรับ (Contact · เอกสาร · นามบัตร) ใกล้จุดเกิด
+//   ระยะห่างแถวเดียวกัน ≥ 100px · ต่างแถว ≥ 90px → ระยะ interact 64px ไม่ตีกัน
 // ============================================
 
 export const OBJECTS = [
-  // ── แถวเหนือ: ตู้เกม 5 ตู้ ใต้ผนังหน้าต่าง — ระยะห่างเท่ากัน 300px ──
-  // (1 ตู้ = ผลงาน 1 กลุ่ม: Sticky Rice / Freelance / DIGITAL HEARTS / โปรเจ็คลับ
-  //  + ★ ตู้ที่ 5 = Esport (นักแข่ง Dota 2 / Pokémon UNITE) เพิ่ม 2026-07-20)
-  // ★ 2026-07-20 (เจ้าของติว่าไม่สมมาตร): จัดแถวให้ **สมมาตรรอบกลางห้อง x=800**
-  //   ศูนย์กลางตู้ = 300 / 550 / 800 / 1050 / 1300 (ห่างกัน 250) → x = center − 55
-  //   ขอบซ้ายสุด 245 · ขอบขวาสุด 1355 → เว้นจากผนังเท่ากัน 189px ทั้งสองข้าง
-  //   ★ ห้ามเพิ่มระยะห่างเกิน 250 — ตู้ขวาสุดจะไปใกล้บูทอีเวนต์ (x 1396) จนผู้เล่น
-  //     ที่ยืนหน้าตู้โดนระยะ interact 64px ของบูทอีเวนต์แทน (เจอมาแล้ว)
-  { id: 'arcade-1', type: 'arcade', x: 245,  y: 150, w: 110, h: 130, color: '#4de3ff', cat: 'work', solid: true },
-  { id: 'arcade-2', type: 'arcade', x: 495,  y: 150, w: 110, h: 130, color: '#a06bff', cat: 'work', solid: true },
-  { id: 'arcade-3', type: 'arcade', x: 745,  y: 150, w: 110, h: 130, color: '#ff6bd6', cat: 'work', solid: true },
-  { id: 'arcade-4', type: 'arcade', x: 995,  y: 150, w: 110, h: 130, color: '#ffd24d', cat: 'work', solid: true },
-  // ★ type = 'arcade' (เจ้าของสั่ง 2026-07-20 รอบ 4: "ทำให้เหมือนตู้อื่นๆ แค่เปลี่ยนสี")
-  //   ตู้เวกเตอร์เฉพาะกิจ drawEsport ถูกถอดทิ้งแล้ว
-  { id: 'esport',   type: 'arcade', x: 1245, y: 150, w: 110, h: 130, color: '#b8ff3d', cat: 'work', solid: true },
+  // ── Arcade Wing (ตะวันตก) — ตู้เวกเตอร์เดิมที่เจ้าของชอบ แค่ย้ายที่ ──
+  { id: 'cab-sticky', type: 'arcade', x: 70,  y: 200, w: 110, h: 130, color: '#4de3ff', cat: 'work', solid: true, chapters: ['arcade-1'] },
+  { id: 'cab-dh',     type: 'arcade', x: 280, y: 200, w: 110, h: 130, color: '#ff6bd6', cat: 'work', solid: true, chapters: ['arcade-3'] },
+  { id: 'cab-free',   type: 'arcade', x: 70,  y: 440, w: 110, h: 130, color: '#a06bff', cat: 'work', solid: true, chapters: ['arcade-2'] },
+  { id: 'cab-next',   type: 'arcade', x: 280, y: 440, w: 110, h: 130, color: '#ffd24d', cat: 'work', solid: true, chapters: ['arcade-4'] },
 
-  // ── ผนังซ้าย: ชั้นหนังสือ (ประวัติ/การศึกษา) ──
-  { id: 'bookshelf', type: 'bookshelf', x: 74, y: 330, w: 90, h: 220, color: '#4de3ff', cat: 'about', solid: true },
+  // ── ห้องสมุด (ตะวันออก) — ชุดหนังสือ 1 ชุดต่อหมวด + สัญลักษณ์ช่วยจำ ──
+  //   ตั๋ว/เวที = อีเวนต์ · ปุ่มเล่น = คอนเทนต์ · ฟองคำพูด = ภาษา · เข็มทิศ = ประวัติ ·
+  //   ปากกา = งานเขียน(+ถ้วย = อีสปอร์ต) · แฟ้ม = งานอื่น
+  { id: 'book-events',  type: 'book', icon: 'ticket',  x: 1020, y: 200, w: 104, h: 124, color: '#ff9d4d', cat: 'work',    solid: true, chapters: ['event'] },
+  { id: 'book-content', type: 'book', icon: 'play',    x: 1240, y: 200, w: 104, h: 124, color: '#ff5f6d', cat: 'work',    solid: true, chapters: ['youtube', 'network'] },
+  { id: 'book-lang',    type: 'book', icon: 'speech',  x: 1020, y: 420, w: 104, h: 124, color: '#9db8ff', cat: 'about',   solid: true, chapters: ['language', 'skills'] },
+  { id: 'book-journey', type: 'book', icon: 'compass', x: 1240, y: 420, w: 104, h: 124, color: '#7de0c3', cat: 'about',   solid: true, chapters: ['bookshelf'] },
+  { id: 'book-write',   type: 'book', icon: 'pen',     x: 1020, y: 640, w: 104, h: 124, color: '#ffb0d8', cat: 'work',    solid: true, chapters: ['writing', 'esport'] },
+  { id: 'book-other',   type: 'book', icon: 'folder',  x: 1240, y: 640, w: 104, h: 124, color: '#c9a4ff', cat: 'about',   solid: true, chapters: ['other'] },
 
-  // ── ผนังซ้ายล่าง: ตู้เก็บแฟ้ม "งานอื่นๆ" (Accenture / Pasona) — โซนใหม่ 2026-07-20 ──
-  // ★ 2026-07-20: ขยับขึ้น 640 → 615 (เจ้าของติว่าติดโซนติดต่อเกินไป)
-  { id: 'other', type: 'other', x: 74, y: 615, w: 96, h: 140, color: '#c9a4ff', cat: 'about', solid: true },
+  // ── โต๊ะต้อนรับ (ใต้ ใกล้จุดเกิด) — Contact + เอกสาร + นามบัตร ──
+  { id: 'reception', type: 'reception', x: 590, y: 700, w: 220, h: 84, color: '#d9a441', cat: 'connect', solid: true, chapters: ['desk'] },
+];
 
-  // ── ผนังขวาบน: บูทอีเวนต์ (JETRO/TGS/สาวม้า/AFA) ──
-  { id: 'event', type: 'event', x: 1396, y: 340, w: 140, h: 150, color: '#ff9d4d', cat: 'work', solid: true },
-
-  // ── ผนังขวาล่าง: โฮโลแกรมเครือข่ายวงการ ──
-  { id: 'network', type: 'network', x: 1440, y: 660, w: 90, h: 140, color: '#7dffa8', cat: 'connect', solid: true },
-
-  // ── แถวล่าง 5 ชิ้น: โต๊ะ → จอ YouTube → ศิลาภาษา → โต๊ะเขียน → ชั้นเอกสาร ──
-  // ★ 2026-07-20 รอบ 7: แทรก 'writing' (โซนงานเขียนนิยาย) → จัดระยะใหม่ทั้งแถว
-  //   ช่องว่างระหว่างชิ้น 132px (น้อยกว่ากติกา 160 นิดหน่อย แต่ y เหลื่อมกันอยู่แล้ว
-  //   จึงไม่ดูอึดอัด · ระยะ interact 64px ยังไม่ทับกันเลย — ห่างกันจริง ≥177px)
-  //   ★ ชิ้นขวาสุดต้องจบก่อน x=1340 ไม่งั้นชนระยะ interact ของ network (x1440, y660–800)
-  // ★ 2026-07-20: เลื่อนโต๊ะติดต่อขวา 110 → 250 เพราะเดิมอยู่ใต้ตู้ "งานอื่นๆ" พอดี
-  //   (ห่างกันแค่ 6px · ยืนหน้าโต๊ะแล้วโดนระยะ interact ของตู้แทน) → ไล่ระยะแถวใหม่ 97px
-  { id: 'desk',     type: 'desk',     x: 250,  y: 786, w: 200, h: 100, color: '#a06bff', cat: 'connect', solid: true },
-  { id: 'youtube',  type: 'youtube',  x: 547,  y: 838, w: 160, h: 90,  color: '#ff4d4d', cat: 'work', solid: true },
-  { id: 'language', type: 'language', x: 804,  y: 806, w: 90,  h: 125, color: '#9db8ff', cat: 'about', solid: true },
-  { id: 'writing',  type: 'writing',  x: 991,  y: 820, w: 110, h: 118, color: '#ffb0d8', cat: 'work', solid: true },
-  { id: 'door',     type: 'door',     x: 1198, y: 856, w: 140, h: 76,  color: '#ff6bd6', cat: 'connect', solid: true },
+// ของตกแต่ง (ชน แต่กดไม่ได้) — น้อยชิ้นตามบรีฟ: โคมอ่านหนังสือ + ต้นไม้ในโดม (ลูกโลก/วงเวทกลางห้องถูกถอด 2026-09-13 เจ้าของสั่ง)
+export const DECOR = [
+  { type: 'lamp',  x: 1290, y: 800, w: 26, h: 26 },
+  { type: 'plant', x: 232,  y: 172, w: 56, h: 40 },   // ขนาบสองข้างหน้าต่าง (บนพื้น ชิดผนังเหนือ)
+  { type: 'plant', x: 1112, y: 172, w: 56, h: 40 },
 ];

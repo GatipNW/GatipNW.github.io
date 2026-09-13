@@ -43,18 +43,18 @@ def main():
         for _ in range(20):
             c.send('Page.bringToFront')
             c.js("document.getElementById('intro-skip')?.click()")
-            c.js("document.querySelector('#lang-pick button, .choice-btn')?.click()")
+            c.js("void 0")
             time.sleep(0.5)
             if c.js('!!(window.__game && window.__game.inGame)'):
                 break
 
         # ---- 1) คลิกขวาปิด panel แล้วห้ามวนเปิดใหม่ ----
         c.send('Page.bringToFront')
-        c.js("""(() => { const g = window.__game, o = g.objects.find(o => o.id === 'youtube');
+        c.js("""(() => { const g = window.__game, o = g.objects.find(o => o.id === 'reception');
           g.player.x = o.x + o.w / 2; g.player.y = o.y - 40; })()""")
         time.sleep(0.6)
         c.send('Page.bringToFront')
-        c.js("window.__game.panels.open('youtube')")
+        c.js("window.__game.panels.open('reception')")
         time.sleep(0.6)
         c.send('Page.bringToFront')
         c.js("""document.getElementById('panel').dispatchEvent(
