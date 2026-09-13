@@ -10,7 +10,7 @@
 //   ★ 履歴書/職務経歴書 = ฉบับทั่วไปสำหรับเว็บ (2026-09-13 เจ้าของสั่ง): HTML/履歴書_一般_web.html +
 //     HTML/職務経歴書_一般_web.html → *_web.pdf (志望動機 ไม่เจาะบริษัท · ไม่ระบุ tool · เรียงทุกสาย เอียงทางเกม)
 //     ฉบับยื่นบริษัท (root 履歴書.html/職務経歴書.html) แยกต่างหาก ห้ามเอาขึ้นเว็บ
-const DOC_V = '?v=20260913';
+const DOC_V = '?v=20260913b';
 const RESUME_PDF = 'assets/resume-nipith-wongsirikul.pdf' + DOC_V;
 const RESUME_PDF_JA = 'assets/resume-nipith-wongsirikul-ja.pdf' + DOC_V;         // 履歴書
 const RESUME_PDF_JA_CV = 'assets/resume-nipith-wongsirikul-ja-cv.pdf' + DOC_V;   // 職務経歴書

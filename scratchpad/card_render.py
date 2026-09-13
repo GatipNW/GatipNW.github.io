@@ -4,7 +4,7 @@ import drive
 from drive import CDP
 from PIL import Image
 import numpy as np
-PDF='file:///C:/Users/Gatip/Desktop/Resume/นามบัตร/Business_Card.pdf'
+PDF='file:///C:/Users/Gatip/Desktop/Reume Game Web/ฐานข้อมูล/Nipith_Gogoprint_90x55mm_Final.pdf'  # ★ ไฟนอล 2026-09-13 (เจ้าของวางในฐานข้อมูล/)
 shutil.rmtree(drive.UDD, ignore_errors=True)
 proc = subprocess.Popen([drive.EDGE, f'--remote-debugging-port={drive.PORT}', '--remote-allow-origins=*',
     f'--user-data-dir={drive.UDD}', '--headless=new', '--mute-audio', '--no-first-run',
@@ -15,7 +15,7 @@ for _ in range(60):
     try: tabs=json.load(urllib.request.urlopen(f'http://127.0.0.1:{drive.PORT}/json/list',timeout=3))
     except Exception: continue
     for t in tabs:
-        if t.get('type')=='page' and 'Business_Card' in t.get('url',''): ws=t['webSocketDebuggerUrl']
+        if t.get('type')=='page' and 'Gogoprint' in t.get('url',''): ws=t['webSocketDebuggerUrl']
     if ws: break
 c = CDP(ws)
 try:
@@ -36,11 +36,14 @@ for y in range(len(rowany)):
         if y-start>100: runs.append((start,y))
         start=None
 print('pages', runs)
-for i,(y0,y1) in enumerate(runs[:2]):
-    sub = mask[y0:y1]; cs = np.where(sub.any(axis=0))[0]
-    page = im.crop((cs.min(), y0, cs.max()+1, y1))
-    W,H = page.size; print('page',i,W,H, W/H)
-    tx = round(W*8.50393701/272.126); ty = round(H*8.50393701/172.9134)
-    trimmed = page.crop((tx,ty,W-tx,H-ty))
-    trimmed.save(f'scratchpad/shots/card-{["front","back"][i]}.png')
-    print(' trimmed', trimmed.size, trimmed.size[0]/trimmed.size[1])
+# ★ หน้าแรกโดน mask toolbar ตัดหัว → ใช้ความสูงของหน้า 2 (ครบ) เป็นมาตรฐาน แล้วนับย้อนจากขอบล่างของหน้า 1
+y0b, y1b = runs[1]
+Hp = y1b - y0b
+sub = mask[y0b:y1b]; cs = np.where(sub.any(axis=0))[0]; x0, x1 = cs.min(), cs.max() + 1
+Wp = x1 - x0
+for i, (y0, y1) in enumerate([(runs[0][1] - Hp, runs[0][1]), (y0b, y1b)]):
+    page = im.crop((x0, y0, x1, y1))
+    tx = round(Wp * 8.50393701 / 272.126); ty = round(Hp * 8.50393701 / 172.9134)
+    trimmed = page.crop((tx, ty, Wp - tx, Hp - ty))
+    trimmed.save(f'scratchpad/shots/card-{["front", "back"][i]}.png')
+    print(' trimmed', trimmed.size, round(trimmed.size[0] / trimmed.size[1], 3))
