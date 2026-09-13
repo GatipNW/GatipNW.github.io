@@ -830,7 +830,8 @@ export class Renderer {
   drawLabels(ctx, objects, labels, hover, prompt, time, camera) {
     if (!labels) return;
     const viewL = camera ? camera.left : -Infinity;
-    const viewR = camera ? camera.left + camera.viewW : Infinity;
+    // ★ เว้นขวา 100px (CSS) ให้ HUD — ป้ายฝั่งขวาสุดเคยมุดใต้ปุ่มภาษา/Resume
+    const viewR = camera ? camera.left + camera.viewW - 100 / camera.scale : Infinity;
     ctx.save();
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -905,27 +906,60 @@ export class Renderer {
     ctx.restore();
   }
 
-  // ---------- ตัวละคร: กระติ๊บ (สไปรต์เดิม) — idle นิ่ง/หายใจเบา · walk เด้ง+เอียง · interact ย่อ ----------
-  // ★ ไม่มีเงาใต้ตัว (เจ้าของสั่งถอดถาวร 2026-07-20) — แสงบนพื้น (drawPlayerLight) ผูกตัวกับพื้นแทน
+  // ---------- ตัวละคร: กระติ๊บ — ★ แอนิเมชันจาก "ภาพเดิม" ด้วยโค้ด (2026-09-13) ไม่ได้สร้างสไปรต์ใหม่ ----------
+  //   idle  = หายใจ (scaleY เบาๆ) + โยกตัวช้าๆ · walk = เด้งตามจังหวะก้าว + เอียงตัวเข้าหาทิศที่เดิน +
+  //   ย่อ/ยืดตอนลงพื้น · interact = ย่อตัวสั้นๆ · flip ซ้าย/ขวา · เงาสัมผัสพื้นนุ่มๆ ที่หดตอนตัวลอย
+  //   (ตามบรีฟ: ไม่ฝืนแยกชิ้นส่วน/วาดทิศใหม่ — รักษาหน้าตาเดิม 100%)
   drawPlayer(ctx, player, time) {
     if (player.hidden) return;
     const feetY = player.y + player.h / 2;
     const sprite = this.sprites.player;
+    const R = this.reduced;
     if (sprite && sprite.complete && sprite.naturalWidth > 0) {
-      const idle = this.reduced ? 0 : Math.sin(time * 1.6) * 1.2;         // หายใจเบาๆ ไม่เด้งตลอดเวลา
-      const bob = player.moving ? Math.abs(Math.sin(player.walkTime * 10)) * 5 : idle;
-      const tilt = player.moving ? Math.sin(player.walkTime * 10) * 0.05 : 0;
-      const squash = player.interactT > 0 ? 1 - 0.12 * Math.sin(Math.min(player.interactT / 0.25, 1) * Math.PI) : 1;
       const h = player.spriteH;
       const w = h * (sprite.naturalWidth / sprite.naturalHeight);
+      const spd = Math.hypot(player.vx, player.vy) / Math.max(1, player.speed); // 0..1
+      const ph = player.walkTime * 10;                                          // เฟสก้าว (ตรงกับเสียงฝีเท้า 0.26s)
+      let bob = 0, sx = 1, sy = 1, rot = 0;
+      if (player.moving) {
+        const k = 0.35 + 0.65 * spd;
+        bob = Math.abs(Math.sin(ph)) * 5 * k;
+        const land = Math.max(0, Math.cos(ph * 2)) * k;     // จังหวะเท้าแตะพื้น → ย่อนิด
+        sy = 1 - 0.04 * land;
+        sx = 1 + 0.03 * land;
+        const dirX = player.facingLeft ? -1 : 1;
+        const lean = (Math.abs(player.vx) > Math.abs(player.vy) ? 0.05 : 0.02) * k;
+        rot = Math.sin(ph) * 0.035 * k + lean * dirX;   // เอียงตัวเข้าหาทิศที่เดิน
+      } else if (!R) {
+        const br = Math.sin(time * 1.7);
+        sy = 1 + 0.012 * br;                                 // หายใจ
+        sx = 1 - 0.006 * br;
+        rot = Math.sin(time * 0.9) * 0.01;                    // โยกช้าๆ
+      }
+      if (player.interactT > 0) {
+        const q = Math.sin(Math.min(player.interactT / 0.25, 1) * Math.PI);
+        sy *= 1 - 0.12 * q;
+        sx *= 1 + 0.08 * q;
+      }
+      if (R) { bob = Math.min(bob, 2); rot = 0; }
+
+      // เงาสัมผัสพื้น (สัมพันธ์กับตัวละคร: หด/จางตอนตัวลอยขึ้น)
+      ctx.save();
+      ctx.globalAlpha = 0.30 * (1 - bob / 14);
+      ctx.fillStyle = '#08060f';
+      ctx.beginPath();
+      ctx.ellipse(player.x, feetY + 2, w * 0.38 * (1 - bob / 40) * sx, 7 * (1 - bob / 30), 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
       ctx.save();
       ctx.translate(player.x, feetY - bob);
-      ctx.rotate(tilt);
+      ctx.rotate(rot);
       if (player.facingLeft) ctx.scale(-1, 1);
-      ctx.scale(1 / squash, squash);
+      ctx.scale(sx, sy);
       const gl = this.fx && this.fx.glow;
       if (gl) {
-        ctx.globalAlpha = 0.35;
+        ctx.globalAlpha = 0.3;
         const gs = h * 1.4;
         ctx.drawImage(gl, -gs / 2, -h - (gs - h) / 2, gs, gs);
         ctx.globalAlpha = 1;

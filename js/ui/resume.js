@@ -22,7 +22,22 @@ export class ResumeMode {
 
     this.closeBtn.addEventListener('click', () => this.close());
     window.addEventListener('keydown', (e) => {
-      if (this._open && e.code === 'Escape') this.close();
+      if (!this._open) return;
+      if (e.code === 'Escape') { e.preventDefault(); this.close(); return; }
+      // focus trap: Tab วนอยู่ในหน้าต่าง Resume (พื้นหลัง/HUD ไม่รับโฟกัส)
+      if (e.code === 'Tab') {
+        // ★ ห้ามใช้ offsetParent — ปุ่มปิดเป็น position:fixed จึงได้ null แล้วหลุดจาก trap (เจอตอนเทส a11y.py)
+        const items = [this.closeBtn, ...this.box.querySelectorAll(
+          'a[href], button:not([disabled]), summary, [tabindex]:not([tabindex="-1"])')]
+          .filter((it) => it.getClientRects().length > 0);
+        if (!items.length) return;
+        const first = items[0];
+        const last = items[items.length - 1];
+        const cur = document.activeElement;
+        if (!this.root.contains(cur)) { e.preventDefault(); first.focus(); return; }
+        if (e.shiftKey && cur === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && cur === last) { e.preventDefault(); first.focus(); }
+      }
     });
     i18n.onChange(() => { if (this._open) this.render(); });
   }
@@ -32,6 +47,7 @@ export class ResumeMode {
   open() {
     if (this._open) return;
     this._open = true;
+    this.returnFocus = document.activeElement;
     this.render();
     this.root.classList.remove('hidden');
     this.root.scrollTop = 0;
@@ -46,6 +62,9 @@ export class ResumeMode {
     this.root.classList.add('hidden');
     audio.play('click');
     this.onOpenChange(false);
+    const rf = this.returnFocus;
+    this.returnFocus = null;
+    if (rf && rf.isConnected && rf !== document.body) rf.focus({ preventScroll: true });
   }
 
   render() {
@@ -107,13 +126,14 @@ export class ResumeMode {
     // สารบัญสั้นๆ (กระโดดได้ — หน้าอ่านยาว)
     const groups = i18n.t('resume.groups');
     const toc = mk('nav', 'resume-toc');
-    toc.setAttribute('aria-label', 'Sections');
+    toc.setAttribute('aria-label', i18n.t('ui.sections'));
     groups.forEach((g, i) => {
       const a = mk('a', null, g.head);
       a.href = `#rs-${i}`;
       a.addEventListener('click', (e) => {
         e.preventDefault();
-        document.getElementById(`rs-${i}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches && localStorage.getItem('fx') !== 'full';
+        document.getElementById(`rs-${i}`)?.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
       });
       toc.appendChild(a);
     });
@@ -137,11 +157,20 @@ export class ResumeMode {
 
     // ท้ายหน้า
     const foot = mk('footer', 'resume-foot');
-    for (const key of ['resume.updated', 'resume.colophon', 'resume.credit']) {
-      const txt = i18n.t(key);
-      if (!txt) continue;
-      foot.appendChild(mk('p', key === 'resume.updated' ? 'resume-updated' : 'resume-note', txt));
+    foot.appendChild(mk('p', 'resume-updated', i18n.t('resume.updated')));
+    foot.appendChild(mk('p', 'resume-note', i18n.t('resume.colophon')));
+    // รายละเอียดกระบวนการ → "About this site" เปิดอ่านเพิ่มได้ ไม่ขวางเส้นทางหลักของผู้รับสมัคร
+    const about = i18n.t('resume.about');
+    if (about) {
+      const det = mk('details', 'resume-about');
+      const sum = mk('summary', null, `${i18n.t('resume.aboutHead')} · ${i18n.t('ui.aboutToggle')}`);
+      det.appendChild(sum);
+      const ul = mk('ul', 'bullets');
+      for (const line of about) ul.appendChild(mk('li', null, line));
+      det.appendChild(ul);
+      foot.appendChild(det);
     }
+    foot.appendChild(mk('p', 'resume-note', i18n.t('resume.credit')));
     box.appendChild(foot);
     this.closeBtn.setAttribute('aria-label', i18n.t('ui.close'));
   }

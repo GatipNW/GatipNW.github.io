@@ -622,6 +622,11 @@ img { display: block; max-width: 100%; }
 .resume-foot { margin-top: var(--sp-6); padding-top: var(--sp-4); border-top: 1px solid var(--line); color: var(--text-3); font-size: 0.8rem; }
 .resume-foot p { margin: 0 0 8px; }
 .resume-updated { color: var(--text-2); }
+.resume-about { margin: var(--sp-3) 0; padding: 10px 14px; border-radius: var(--r-2); background: var(--surface); border: 1px solid var(--line); }
+.resume-about summary { cursor: pointer; font-weight: 600; color: var(--text-2); }
+.resume-about summary:hover { color: var(--gold-2); }
+.resume-about .bullets li { font-size: 0.82rem; color: var(--text-2); }
+.gcard-thai { color: var(--text) !important; }
 
 /* ============================================
    7) Responsive · จอสัมผัส · reduced motion · print

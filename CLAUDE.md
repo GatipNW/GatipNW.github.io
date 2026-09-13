@@ -47,6 +47,12 @@
 - **เทส**: `final.py` (11 โซน × 3 ภาษา + Resume 14 + tabs) · `walk_all.py` · `mobile.py` · `controls.py`
   · renderer.draw ≈ 0.5ms median
 - **เมนูทางลัด** `#menu` (ปุ่ม ☰ / M) — เปิดทุกโซน + Resume โดยไม่ต้องเดิน · focus trap
+- **รอบเก็บงาน 2026-09-13 (บรีฟ 8 ข้อ)**: วีซ่า = บอกแค่ "ต้องดำเนินการเรื่องวีซ่า" ไม่รับรองผล · Summary 4 ประโยค
+  ไม่มีชื่อบริษัท/ตัวเลขเยอะ · ชื่อเกม `gameNames()` (TH ชื่อไทยหลัก · EN/JA อังกฤษหลัก ชื่อไทยอยู่ในรายละเอียด) ·
+  viewport ซูมได้ (ไม่มี user-scalable=no) · focus trap + คืนโฟกัส (Resume/panel/เมนู/lightbox — ★ ห้ามใช้
+  `offsetParent` กรอง element ที่ position:fixed จะหลุด ใช้ `getClientRects().length`) · เครดิตท้ายเว็บสั้น +
+  `<details>` "About this site" (`resume.about`) · กระติ๊บ = ภาพเดิม + อนิเมชันโค้ด (drawPlayer: หายใจ/เอียง/ย่อ +
+  เงาสัมผัสพื้น — บรีฟรอบนี้สั่งให้มีเงา) · เทสเพิ่ม: `a11y.py` · `assets_rm.py` (asset 75 ตัว + reduced-motion) · `preview.py`
 
 ## เป้าหมาย + ตัวตน
 

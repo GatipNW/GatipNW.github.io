@@ -444,6 +444,10 @@ i18n.onChange(() => {
   renderLangBtn();
   renderResumeBtn();
   renderMuteBtn();
+  interactBtn.setAttribute('aria-label', i18n.t('ui.interactBtn'));
+  document.getElementById('cta-close').setAttribute('aria-label', i18n.t('ui.close'));
+  menuBtn.setAttribute('aria-label', i18n.t('ui.menu'));
+  menuBtn.title = i18n.t('ui.menu');
   rebuildLabels();
   panels.refresh();
   renderProgress();
@@ -453,7 +457,12 @@ i18n.onChange(() => {
 document.documentElement.lang = i18n.lang;
 renderLangBtn();
 renderResumeBtn();
+renderMuteBtn();
 rebuildLabels();
+interactBtn.setAttribute('aria-label', i18n.t('ui.interactBtn'));
+homeBtn.setAttribute('aria-label', i18n.t('ui.home'));
+menuBtn.setAttribute('aria-label', i18n.t('ui.menu'));
+document.getElementById('cta-close').setAttribute('aria-label', i18n.t('ui.close'));
 
 // ---- game loop ----
 let lastTime = performance.now();

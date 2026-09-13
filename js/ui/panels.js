@@ -158,8 +158,10 @@ export function buildCard(data) {
 }
 
 // กล่องดูภาพใหญ่ (นามบัตร) — ปิดด้วยคลิก/Esc
+let lbReturn = null;
 function openLightbox(src, alt) {
   let box = document.getElementById('lightbox');
+  lbReturn = document.activeElement;
   if (!box) {
     box = el('div');
     box.id = 'lightbox';
@@ -168,9 +170,19 @@ function openLightbox(src, alt) {
     const img = el('img');
     const close = el('button', 'lb-close', '✕');
     close.type = 'button';
-    close.addEventListener('click', () => box.classList.add('hidden'));
-    box.addEventListener('click', (e) => { if (e.target === box) box.classList.add('hidden'); });
-    window.addEventListener('keydown', (e) => { if (e.code === 'Escape') box.classList.add('hidden'); });
+    const hide = () => {
+      if (box.classList.contains('hidden')) return;
+      box.classList.add('hidden');
+      lbReturn?.focus?.({ preventScroll: true }); // คืนโฟกัสให้ปุ่มที่เปิด
+    };
+    close.addEventListener('click', hide);
+    box.addEventListener('click', (e) => { if (e.target === box) hide(); });
+    // capture phase + stopImmediatePropagation: Esc ปิดเฉพาะ lightbox ไม่ให้ panel ข้างหลังปิดตามในจังหวะเดียว
+    window.addEventListener('keydown', (e) => {
+      if (box.classList.contains('hidden')) return;
+      if (e.code === 'Escape') { e.preventDefault(); e.stopImmediatePropagation(); hide(); }
+      if (e.code === 'Tab') { e.preventDefault(); e.stopImmediatePropagation(); close.focus(); } // ปุ่มเดียวใน dialog
+    }, true);
     box.append(img, close);
     document.body.appendChild(box);
   }
@@ -183,21 +195,30 @@ function openLightbox(src, alt) {
 }
 
 // ---------- ★ ผลงานเกม: carousel + กริด + การ์ด (dataset = GAMES) ----------
+// ★ 2026-09-13: ชื่อเกมตามภาษา — TH: ชื่อไทยเป็นหลัก (อังกฤษประกอบ) · EN/JA: ชื่ออังกฤษเป็นหลัก
+//   (ไม่มีชื่อญี่ปุ่นทางการ ไม่แต่งเอง) ชื่อไทยโชว์ในรายละเอียดเป็นตัวอย่างงานตั้งชื่อ
+export function gameNames(g) {
+  const hasTh = g.th && g.th !== g.en;
+  if (i18n.lang === 'th') return { primary: hasTh ? g.th : g.en, secondary: hasTh ? g.en : '', thai: '' };
+  return { primary: g.en, secondary: '', thai: hasTh ? g.th : '' };
+}
+
 function gameCard(g, T, idx) {
   const card = el('article', 'gcard');
   card.dataset.idx = idx;
+  const nm = gameNames(g);
   const art = el('div', 'gcard-art' + (g.mature ? ' mature' : ''));
   const img = el('img');
-  img.alt = g.en;
+  img.alt = nm.primary;
   img.width = 460; img.height = 215;
   if (g.mature) {
     // การ์ดตัวอักษรก่อน — โหลดภาพเฉพาะเมื่อกด (ไม่โหลดล่วงหน้า)
     const tcard = el('div', 'gcard-text');
-    tcard.append(el('strong', null, g.en), el('span', null, g.th !== g.en ? g.th : ''));
+    tcard.append(el('strong', null, nm.primary), el('span', null, nm.secondary));
     const tag = el('span', 'gcard-18', '18+');
     const btn = el('button', 'gcard-reveal', T.showCover);
     btn.type = 'button';
-    btn.setAttribute('aria-label', `${T.showCover} — ${g.en}`);
+    btn.setAttribute('aria-label', `${T.showCover} — ${nm.primary}`);
     btn.addEventListener('click', () => {
       audio.play('blip');
       if (art.classList.toggle('revealed')) {
@@ -214,14 +235,16 @@ function gameCard(g, T, idx) {
     art.appendChild(img);
   }
   const body = el('div', 'gcard-body');
-  body.appendChild(el('h4', 'gcard-title', g.en));
-  if (g.th !== g.en) body.appendChild(el('div', 'gcard-th', g.th));
+  body.appendChild(el('h4', 'gcard-title', nm.primary));
+  if (nm.secondary) body.appendChild(el('div', 'gcard-th', nm.secondary));
   const roles = el('div', 'gcard-roles');
   for (const r of g.roles) roles.appendChild(el('span', 'role-tag', T.roles[r] ?? r));
   body.appendChild(roles);
   body.appendChild(el('div', `gcard-status s-${g.status}`, T.status[g.status]));
   // รายละเอียดเมื่อกด
   const det = el('div', 'gcard-det hidden');
+  det.id = `gdet-${g.appid}`;
+  if (nm.thai) det.appendChild(el('p', 'gcard-thai', `${T.thaiTitle}: ${nm.thai}`));
   const meta = [];
   if (g.via) meta.push(`${T.via} ${g.via}`);
   if (g.dev) meta.push(`${T.dev}: ${g.dev}`);
@@ -232,6 +255,7 @@ function gameCard(g, T, idx) {
   const more = el('button', 'gcard-more', i18n.t('ui.details'));
   more.type = 'button';
   more.setAttribute('aria-expanded', 'false');
+  more.setAttribute('aria-controls', det.id);
   more.addEventListener('click', () => {
     const open = det.classList.toggle('hidden');
     more.setAttribute('aria-expanded', String(!open));
@@ -290,12 +314,13 @@ function buildGamesShowcase(groups) {
   wrap.appendChild(el('p', 'ggrid-hint', T.gridHint));
   const thumbs = list.map((g, i) => {
     const b = el('button', 'gthumb' + (g.mature ? ' mature' : ''));
+    const nm = gameNames(g);
     b.type = 'button';
     b.setAttribute('role', 'listitem');
-    b.setAttribute('aria-label', `${i + 1}. ${g.en}`);
-    b.title = g.en;
+    b.setAttribute('aria-label', `${i + 1}. ${nm.primary}`);
+    b.title = nm.primary;
     if (g.mature) {
-      b.append(el('span', 'gthumb-n', String(i + 1)), el('span', 'gthumb-t', g.th || g.en));
+      b.append(el('span', 'gthumb-n', String(i + 1)), el('span', 'gthumb-t', nm.primary));
     } else {
       const im = el('img');
       im.src = g.img;
@@ -347,13 +372,15 @@ export function buildGamesList(groups) {
     for (const g of items) {
       const li = el('li', 'glist-item');
       const name = el('div', 'glist-name');
-      const a = el('a', null, g.en);
+      const nm = gameNames(g);
+      const a = el('a', null, nm.primary);
       a.href = g.url;
       a.target = '_blank';
       a.rel = 'noopener';
       if (g.mature) a.title = T.matureLink;
       name.appendChild(a);
-      if (g.th !== g.en) name.appendChild(el('span', 'glist-th', g.th));
+      if (nm.secondary) name.appendChild(el('span', 'glist-th', nm.secondary));
+      if (nm.thai) name.appendChild(el('span', 'glist-th', `${T.thaiTitle}: ${nm.thai}`));
       const meta = el('div', 'glist-meta');
       for (const r of g.roles) meta.appendChild(el('span', 'role-tag', T.roles[r] ?? r));
       meta.appendChild(el('span', `gcard-status s-${g.status}`, T.status[g.status]));
@@ -387,7 +414,7 @@ function buildVideoThumb({ id, vertical }) {
   img.loading = 'lazy';
   const play = el('button', 'video-play');
   play.type = 'button';
-  play.setAttribute('aria-label', 'Play video');
+  play.setAttribute('aria-label', i18n.t('ui.playVideo'));
   box.append(img, play);
   box.addEventListener('click', () => {
     if (box.dataset.playing) return;
@@ -395,7 +422,7 @@ function buildVideoThumb({ id, vertical }) {
     audio.play('click');
     const f = el('iframe');
     f.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1`;
-    f.title = 'YouTube video';
+    f.title = i18n.t('ui.playVideo');
     f.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
     f.allowFullscreen = true;
     box.innerHTML = '';
@@ -444,7 +471,7 @@ function buildCarousel(slides) {
     const dotEls = slides.map((_, i) => {
       const d = el('button', 'car-dot' + (i === 0 ? ' on' : ''));
       d.type = 'button';
-      d.setAttribute('aria-label', `slide ${i + 1}`);
+      d.setAttribute('aria-label', `${i18n.t('ui.slide')} ${i + 1}`);
       d.addEventListener('click', () => track.scrollTo({ left: track.clientWidth * i, behavior: SCROLL_BEHAVIOR() }));
       dots.appendChild(d);
       return d;
@@ -698,7 +725,7 @@ export class Panels {
       if (e.code !== 'Tab' || !this.openId) return;
       const items = [...this.box.querySelectorAll(
         'a[href], button:not([disabled]), iframe, [tabindex]:not([tabindex="-1"])')]
-        .filter((it) => it.offsetParent !== null);
+        .filter((it) => it.getClientRects().length > 0);
       if (!items.length) return;
       const first = items[0];
       const last = items[items.length - 1];
@@ -733,6 +760,7 @@ export class Panels {
   }
 
   open(id, chapter = 0) {
+    if (!this.isOpen) this.returnFocus = document.activeElement; // คืนโฟกัสตอนปิด (a11y)
     if (!this.render(id, chapter)) return;
     clearTimeout(this._closeTimer);
     this.root.classList.remove('hidden', 'closing');
@@ -816,5 +844,8 @@ export class Panels {
     }, REDUCED() ? 0 : 190);
     audio.play('click');
     this.onOpenChange(false);
+    const rf = this.returnFocus;
+    this.returnFocus = null;
+    if (rf && rf.isConnected && rf !== document.body) rf.focus({ preventScroll: true });
   }
 }
